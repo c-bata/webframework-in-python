@@ -34,6 +34,22 @@ Webアプリケーション・フレームワークの実装手順。
 - [ ] Template rendering
 
 
+## SLIDE.md
+
+WSGIについての解説は [Python製Webフレームワークの設計と実装](https://speakerdeck.com/c_bata/how-to-develop-web-application-framework-in-python) をそのまま使いたい。
+それ以外の部分の実装はMarkdown + Revealgoで書きながら進めていく。
+
+方針としてはsphinxのbooksをまとめながら、画像ファイルとかを作成、static以下に配置していく。
+そこの画像を参照していく。
+
+sphinxのdocumentationもmarkdownで書くようにしたほうが、文言を使いまわし出来て都合がいいかもしれない。
+sphinxのdocumentationはgithub-pages用のオプションを追加してるので、Readthedocsではなくそっちでみれるはず。
+SLIDEはslideck.ioで公開。
+
+```
+$ revealgo SLIDE.md
+```
+
 
 ## LICENSE
 
