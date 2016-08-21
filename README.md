@@ -7,7 +7,7 @@
 
 Webアプリケーション・フレームワークの実装手順。
 
-- [ ] Hello World with wsgiref
+- [x] Hello World with wsgiref
 - [ ] Creating Kobin class
     - [ ] Define `__call__` method
 - [ ] ルーティングの実装
