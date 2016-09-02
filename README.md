@@ -11,9 +11,9 @@ Webアプリケーション・フレームワークの実装手順。
 - [x] Creating Kobin class
     - [x] Define `__call__` method
 - [ ] ルーティングの実装
-    - [ ] 正規表現ベースのルーティングの方法を解説
+    - [x] 正規表現ベースのルーティングの方法を解説
         - パフォーマンス面・逆引き難しい問題についても触れる
-    - [ ] 1つのRouteの情報をラップするRouteクラス
+    - [x] 1つのRouteの情報をラップするRouteクラス(namedtuple)
     - [ ] リクエストのURLとメソッドに応じて、適切な関数を呼び出すRouterクラス
 - [ ] Creating request object: リクエストのenvironをうまくラップする
     - [ ] QueryParams (x-www-form-urlencoded) GETのクエリーパラメータの取得
