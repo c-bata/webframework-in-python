@@ -1,16 +1,18 @@
-.. devwebframework documentation master file, created by
-   sphinx-quickstart on Sun Aug 21 16:10:32 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Python3でつくるWebアプリケーションフレームワーク
+=============================
 
-Welcome to devwebframework's documentation!
-===========================================
+この資料ではWebアプリケーションフレームワークの作り方を解説します。
+フレームワークにどういう機能があり、どのように実装されているのかということを知るのは、
+Webアプリケーション開発をする際に非常に有効です。
 
-Contents:
+この資料を読む上で、既にFlaskやDjango等を使ってWebアプリケーションを開発した経験があると必要な機能や実装のイメージがしやすく良いでしょう。
+
+目次:
 
 .. toctree::
    :maxdepth: 2
 
+   wsgi
 
 
 Indices and tables
@@ -19,4 +21,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-

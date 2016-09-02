@@ -8,8 +8,8 @@
 Webアプリケーション・フレームワークの実装手順。
 
 - [x] Hello World with wsgiref
-- [ ] Creating Kobin class
-    - [ ] Define `__call__` method
+- [x] Creating Kobin class
+    - [x] Define `__call__` method
 - [ ] ルーティングの実装
     - [ ] 正規表現ベースのルーティングの方法を解説
         - パフォーマンス面・逆引き難しい問題についても触れる
