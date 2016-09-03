@@ -12,6 +12,9 @@
 --------------
 
 ここでは正規表現ベースのルーティングを実装しましょう。
+ルーティングにはいくつか欲しい機能があります。
+
+- `/users/<user_id/` のような動的なURL上での値(URL Vars)を受け取りたい.
 
 
 Pythonの正規表現モジュール
@@ -91,6 +94,11 @@ Routerクラスを用意します。
 うまく機能していますね。
 
 
+最終的なコードはこちらです。
+
+.. literalinclude:: _codes/routing.py
+
+
 逆引き(Reversing)に対応する
 -------------------
 
@@ -132,32 +140,7 @@ formatメソッドにより逆引きが非常に容易になりました
 正引きの方法
 ~~~~~~
 
-.. code-block:: python
-
-   import re
-   from collections import namedtuple
-
-
-   Route = namedtuple('Route', ['method', 'path', 'name' , 'callback'])
-
-
-   class Router:
-       def __init__(self):
-           self.routes = []
-
-       def add(self, method, path, callback):
-           route = Route(method=method, path=path, callback=callback)
-           self.routes.append(route)
-
-       def match(self, method, path):
-        for r in filter(lambda x: x.method == method.lower(), self.routes):
-            matched = re.compile(r.path).match(path)
-            if matched:
-                kwargs = matched.groupdict()
-                return r.callback, kwargs
-        return b'404 Not Found'
-
-
+.. todo:: 正引きの仕方
 
 .. note::
 
@@ -165,3 +148,16 @@ formatメソッドにより逆引きが非常に容易になりました
    興味のある方は読んでみてください :)
 
    `Python製WebフレームワークのURL DispatcherとType Hintsの活用について | c-bata web <http://nwpct1.hatenablog.com/entry/url-dispatcher-with-type-hints-in-python>`_
+
+
+TraversalとURL Dispatch
+----------------------
+
+これまで説明してきた方法は、URL Dispatchとよばれるものです。
+各URLのパターンをリストのように持ち、一致するかどうかそれぞれチェックしていました。
+他の方法として親子関係によりURLの構造を表現するTravarsalと呼ばれるものがあります。
+URL Dispatchの方が比較的よく利用されますが、Pyramidはどちらも指定できるようになっています。
+
+興味のある方は下記の記事を読んでみてください
+
+http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hybrid.html
