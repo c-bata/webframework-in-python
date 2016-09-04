@@ -5,15 +5,14 @@ app = App()
 
 @app.route('^/users/$')
 def user_list(request):
-    response = Response(body=[b'User List'],
+    response = Response(body='User List',
                         headers={'Content-type': 'text/plain; charset=utf-8'})
     return response
 
 
 @app.route('^/users/(?P<user_id>\d+)/$')
 def user_detail(request, user_id):
-    res = 'Hello user {user_id}'.format(user_id=user_id)
-    response = Response(body=[res.encode('utf-8')],
+    response = Response(body='Hello user {user_id}'.format(user_id=user_id),
                         headers={'Content-type': 'text/plain; charset=utf-8'})
     return response
 

@@ -10,8 +10,7 @@ Route = namedtuple('Route', ['method', 'path', 'callback'])
 
 
 def http404(request):
-    response = Response(body=[b'404 Not Found'], status='404 Not Found')
-    return response
+    return Response(body='404 Not Found', status='404 Not Found')
 
 
 class Router:
@@ -71,13 +70,19 @@ class Response:
     default_content_type = 'text/html; charset=UTF-8'
 
     def __init__(self, body='', status=None, headers=None):
-        self.body = body
+        self._body = body
         self.status = status or self.default_status
         self.headers = Headers()
 
         if headers:
             for name, value in headers.items():
                 self.headers.add_header(name, value)
+
+    @property
+    def body(self):
+        if isinstance(self._body, str):
+            return self._body.encode('utf-8')
+        return self._body
 
     @property
     def header_list(self):
@@ -104,7 +109,7 @@ class App:
         request = Request(env)
         response = callback(request, **kwargs)
         start_response(response.status, response.header_list)
-        return response.body
+        return [response.body]
 
 # Application
 #############
@@ -113,15 +118,14 @@ app = App()
 
 @app.route('^/users/$')
 def user_list(request):
-    response = Response(body=[b'User List'],
+    response = Response(body='User List',
                         headers={'Content-type': 'text/plain; charset=utf-8'})
     return response
 
 
 @app.route('^/users/(?P<user_id>\d+)/$')
 def user_detail(request, user_id):
-    res = 'Hello user {user_id}'.format(user_id=user_id)
-    response = Response(body=[res.encode('utf-8')],
+    response = Response(body='Hello user {user_id}'.format(user_id=user_id),
                         headers={'Content-type': 'text/plain; charset=utf-8'})
     return response
 
