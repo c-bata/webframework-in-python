@@ -59,3 +59,69 @@ curlでjsonを叩いてみましょう。
 Responseをラップする
 --------------
 
+次に気になるのは、ヘッダ情報の管理が面倒です。
+もう少し簡単に管理できるように、Response情報をラップするクラスを用意してみましょう。
+
+またView関数の責務も考えます。
+これまでのView関数は `env` や `start_response` , URL変数を受け取って、WSGIのResponseと同じように
+yieldするとbytesのオブジェクトを返すようなオブジェクトを返していました。
+
+今回からは、requestを受け取ってresponseを返すとしっかり決めてしまいましょう。
+各View関数でResponseのオブジェクトを生成します。
+
+
+.. code-block:: python
+
+   @app.route('^/users/(?P<user_id>\d+)/$')
+   def user_detail(request, user_id):
+       res = 'Hello user {user_id}'.format(user_id=user_id)
+       response = Response(body=[res.encode('utf-8')],
+                           headers={'Content-type': 'text/plain; charset=utf-8'})
+       return response
+
+
+Responseクラスは次のようになります
+
+.. code-block:: python
+
+
+   class Response:
+       default_status = '200 OK'
+       default_content_type = 'text/html; charset=UTF-8'
+
+       def __init__(self, body='', status=None, headers=None):
+           self.body = body
+           self.status = status or self.default_status
+           self.headers = Headers()
+
+           if headers:
+               for name, value in headers.items():
+                   self.headers.add_header(name, value)
+
+       @property
+       def header_list(self):
+           if 'Content-Type' not in self.headers:
+               self.headers.add_header('Content-Type', self.default_content_type)
+           out = [(key, value)
+                  for key in self.headers.keys()
+                  for value in self.headers.get_all(key)]
+           return [(k, v.encode('utf8').decode('latin1')) for (k, v) in out]
+
+   class App:
+       (中略)
+       def __call__(self, env, start_response):
+           callback, kwargs = self.router.match(env)
+           request = Request(env)
+           response = callback(request, **kwargs)
+           start_response(response.status, response.header_list)
+           return response.body
+
+
+
+チューニング
+------
+
+RequestやResponseのクラスはリクエストがある度に、生成されているためパフォーマンスに大きく影響していそうです。
+ここでは `__slots__` 属性を用いることでメモリを大幅に節約することが出来ます。
+試してみましょう。
+
