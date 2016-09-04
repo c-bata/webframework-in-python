@@ -86,10 +86,7 @@ class Response:
     def header_list(self):
         if 'Content-Type' not in self.headers:
             self.headers.add_header('Content-Type', self.default_content_type)
-        out = [(key, value)
-               for key in self.headers.keys()
-               for value in self.headers.get_all(key)]
-        return [(k, v.encode('utf8').decode('latin1')) for (k, v) in out]
+        return self.headers.items()
 
 
 class App:
