@@ -125,3 +125,102 @@ RequestやResponseのクラスはリクエストがある度に、生成され�
 ここでは `__slots__` 属性を用いることでメモリを大幅に節約することが出来ます。
 試してみましょう。
 
+Before
+~~~~~~
+
+.. code-block:: python
+
+   In [1]: %load_ext memory_profiler
+   In [2]: from app import Request
+   In [3]: %memit Request({})
+   peak memory: 36.04 MiB, increment: 0.01 MiB
+
+   In [4]: %memit [Request({}) for n in range(10000)]
+   peak memory: 41.63 MiB, increment: 5.52 MiB
+
+10000個作った時のメモリ使用量は 5.52MiB でした。
+
+After
+~~~~~
+
+.. code-block::
+
+
+   In [1]: %load_ext memory_profiler
+   In [2]: from app import Request
+   In [3]: %memit Request({})
+   peak memory: 35.88 MiB, increment: 0.14 MiB
+
+
+   In [4]: %memit [Request({}) for n in range(10000)]
+   peak memory: 41.17 MiB, increment: 5.25 MiB
+
+
+
+   In [1]: import app
+
+   In [2]: %load_ext memory_profiler
+
+   In [3]: import import lib
+     File "<ipython-input-3-534c030653c0>", line 1
+       import import lib
+                   ^
+   SyntaxError: invalid syntax
+
+
+   In [4]: import importlib
+
+   In [5]: %memit [app.Request({}) for i in range(100000)]
+   peak memory: 68.73 MiB, increment: 33.24 MiB
+
+   In [6]: r = app.Request({})
+
+   In [7]: r.a = 1
+   ---------------------------------------------------------------------------
+   AttributeError                            Traceback (most recent call last)
+   <ipython-input-7-51d02eb8a4fe> in <module>()
+   ----> 1 r.a = 1
+
+   AttributeError: 'Request' object has no attribute 'a'
+
+   In [8]: importlib.reload(app)
+   Out[8]: <module 'app' from '/Users/c-bata/PycharmProjects/developing-web-framework/app.py'>
+
+   In [9]: r = app.Request({})
+
+   In [10]: r.a = 1
+
+   In [11]: %memit [app.Request({}) for i in range(100000)]
+   peak memory: 78.05 MiB, increment: 31.91 MiB
+
+   In [12]: %memit [app.Request({}) for i in range(100000)]
+   peak memory: 77.41 MiB, increment: 27.90 MiB
+
+   In [13]: %memit [app.Request({'foo': 'bar'}) for i in range(100000)]
+   peak memory: 76.14 MiB, increment: 25.55 MiB
+
+   In [14]: importlib.reload(app)
+   Out[14]: <module 'app' from '/Users/c-bata/PycharmProjects/developing-web-framework/app.py'>
+
+   In [15]: r = app.Request({})
+
+   In [16]: r.a = 1
+   ---------------------------------------------------------------------------
+   AttributeError                            Traceback (most recent call last)
+   <ipython-input-16-51d02eb8a4fe> in <module>()
+   ----> 1 r.a = 1
+
+   AttributeError: 'Request' object has no attribute 'a'
+
+   In [17]: %memit [app.Request({'foo': 'bar'}) for i in range(100000)]
+   peak memory: 68.89 MiB, increment: 18.57 MiB
+
+   In [18]: %memit [app.Request({'foo': 'bar'}) for i in range(100000)]
+   peak memory: 68.57 MiB, increment: 17.15 MiB
+
+   In [19]: importlib.reload(app)
+   Out[19]: <module 'app' from '/Users/c-bata/PycharmProjects/developing-web-framework/app.py'>
+
+   In [20]: %memit [app.Request({'foo': 'bar'}) for i in range(100000)]
+   peak memory: 77.47 MiB, increment: 26.29 MiB
+

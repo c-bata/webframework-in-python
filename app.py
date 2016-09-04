@@ -32,6 +32,8 @@ class Router:
 
 
 class Request:
+    __slots__ = ('environ', '_body', )
+
     def __init__(self, environ):
         self.environ = environ
         self._body = None
@@ -64,6 +66,7 @@ class Request:
 
 
 class Response:
+    __slots__ = ('_body', 'status', 'headers')
     default_status = '200 OK'
     default_content_type = 'text/html; charset=UTF-8'
 
