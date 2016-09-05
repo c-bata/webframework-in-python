@@ -1,3 +1,6 @@
+# general
+jinja2
+
 # documentation
 sphinx
 solar-theme
@@ -6,6 +9,5 @@ solar-theme
 gunicorn
 
 ipython
-
 memory_profiler
 psutil
