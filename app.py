@@ -1,14 +1,22 @@
 import cgi
 import re
-from collections import namedtuple
+from urllib.parse import parse_qs
 from wsgiref.headers import Headers
-
-
-Route = namedtuple('Route', ['method', 'path', 'callback'])
 
 
 def http404(request):
     return Response(body='404 Not Found', status='404 Not Found')
+
+
+class Route:
+    def __init__(self, method, path, callback):
+        self.method = method.upper()
+        self.path = path
+        self.callback = callback
+
+    def match(self, method, path):
+        if self.method == method:
+            return re.match(self.path, path)
 
 
 class Router:
@@ -23,10 +31,10 @@ class Router:
         method = environ['REQUEST_METHOD'].upper()
         path = environ['PATH_INFO'] or '/'
 
-        for r in filter(lambda x: x.method == method.upper(), self.routes):
-            matched = re.compile(r.path).match(path)
-            if matched:
-                kwargs = matched.groupdict()
+        for r in self.routes:
+            result = r.match(method, path)
+            if result:
+                kwargs = result.groupdict()
                 return r.callback, kwargs
         return http404, {}
 
@@ -49,20 +57,19 @@ class Request:
         return params
 
     @property
-    def args(self):
-        params = cgi.FieldStorage(
-            environ=self.environ,
-            keep_blank_values=True,
-        )
-        p = {k: params[k].value for k in params}
-        return p
+    def query(self):
+        return parse_qs(self.environ['QUERY_STRING'])
 
     @property
     def body(self):
         if self._body is None:
             content_length = int(self.environ.get('CONTENT_LENGTH', 0))
-            self._body = self.environ['wsgi.input'].read(content_length).decode('utf-8')
+            self._body = self.environ['wsgi.input'].read(content_length)
         return self._body
+
+    @property
+    def text(self, charset='utf-8'):
+        return self.body.decode(charset)
 
 
 class Response:
@@ -102,9 +109,12 @@ class App:
             return callback_func
         return decorator(callback) if callback else decorator
 
-    def __call__(self, env, start_response):
+    def wsgi(self, env, start_response):
         callback, kwargs = self.router.match(env)
         request = Request(env)
         response = callback(request, **kwargs)
         start_response(response.status, response.header_list)
         return [response.body]
+
+    def __call__(self, env, start_response):
+        return self.wsgi(env, start_response)
