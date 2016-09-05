@@ -2,7 +2,8 @@
 Webアプリケーションフレームワークの作り方 in Python
 ================================
 
-この資料はPyCon JP 2016で行った「基礎から学ぶWebアプリケーションフレームワークの作り方」の補足資料です。
+こんにちは、芝田 将 (@c_bata_) です。
+この資料はPyCon JP 2016で行った `「基礎から学ぶWebアプリケーションフレームワークの作り方」 <https://pycon.jp/2016/ja/schedule/presentation/14/>`_ の補足資料です。
 
 はじめに
 ----
@@ -31,5 +32,4 @@ Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`

@@ -35,7 +35,7 @@ WSGIの仕様を全て読むのは大変なので、実際のPythonのコード�
 gunicornやuWSGIなどのWSGIサーバで動かすことが出来るはずです。
 上のコードを `hello.py` という名前で保存し、下記のコマンドを実行してください。
 
-.. code-block::
+.. code-block:: sh
 
    $ pip install gunicorn
    $ gunicorn -w 1 hello:application
