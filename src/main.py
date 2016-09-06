@@ -4,21 +4,22 @@ from collections import OrderedDict
 app = App(__name__)
 
 
-@app.route('^/$')
+@app.route('/')
 def index(request):
-    return Response('Hello World')
+    users_link = app.router.reverse('user-list')
+    return Response('Please go to {users}'.format(users=users_link))
 
 
-@app.route('^/users/$')
+@app.route('/users/', name='user-list')
 def user_list(request):
     title = 'ユーザ一覧'
-    users = ['user{}'.format(i) for i in range(10)]
+    users = [{'name': 'user{}'.format(i), 'id': i} for i in range(10)]
     response = TemplateResponse(filename='users.html', title=title, users=users)
     return response
 
 
-@app.route('^/users/(?P<user_id>\d+)/$')
-def user_detail(request, user_id):
+@app.route('/users/{user_id}/', name='user-detail')
+def user_detail(request, user_id: int):
     d = OrderedDict(
         user=user_id,
     )

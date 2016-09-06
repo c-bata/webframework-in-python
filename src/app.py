@@ -1,44 +1,100 @@
 import cgi
 import json
 from jinja2 import Environment, PackageLoader
-import re
+from typing import get_type_hints
 from urllib.parse import parse_qs
 from wsgiref.headers import Headers
+
+from typing import Callable, Dict, List, Tuple, Union, Any  # type: ignore
+
+DEFAULT_ARG_TYPE = str
 
 
 def http404(request):
     return Response(body='404 Not Found', status='404 Not Found')
 
 
+def split_by_slash(path: str) -> List[str]:
+    stripped_path = path.lstrip('/').rstrip('/')
+    return stripped_path.split('/')
+
+
 class Route:
-    def __init__(self, method, path, callback):
+    """ This class wraps a route callback along with route specific metadata.
+        It is also responsible for turing an URL path rule into a regular
+        expression usable by the Router.
+    """
+    def __init__(self, rule: str, method: str, name: str,
+                 callback: Callable[..., Union[str, bytes]]) -> None:
+        self.rule = rule
         self.method = method.upper()
-        self.path = path
+        self.name = name
         self.callback = callback
 
-    def match(self, method, path):
-        if self.method == method:
-            return re.match(self.path, path)
+    @property
+    def callback_types(self) -> Dict[str, Any]:
+        return get_type_hints(self.callback)
+
+    def get_typed_url_vars(self, url_vars: Dict[str, str]) -> Dict[str, Any]:
+        typed_url_vars = {}  # type: Dict[str, Any]
+        for k, v in url_vars.items():
+            arg_type = self.callback_types.get(k, DEFAULT_ARG_TYPE)
+            typed_url_vars[k] = arg_type(v)
+        return typed_url_vars
+
+    def _match_method(self, method: str) -> bool:
+        return self.method == method.upper()
+
+    def _match_path(self, path: str) -> Dict[str, Any]:
+        split_rule = split_by_slash(self.rule)
+        split_path = split_by_slash(path)
+        url_vars = {}  # type: Dict[str, str]
+
+        if len(split_rule) != len(split_path):
+            return None
+
+        for r, p in zip(split_rule, split_path):
+            if r.startswith('{') and r.endswith('}'):
+                url_var_key = r.lstrip('{').rstrip('}')
+                url_vars[url_var_key] = p
+                continue
+            if r != p:
+                return None
+        return self.get_typed_url_vars(url_vars)
+
+    def match(self, method: str, path: str) -> Dict[str, Any]:
+        if not self._match_method(method):
+            return None
+
+        url_vars = self._match_path(path)
+        if url_vars is not None:
+            return self.get_typed_url_vars(url_vars)
 
 
 class Router:
-    def __init__(self):
-        self.routes = []
+    def __init__(self) -> None:
+        self.routes = []  # type: List[Route]
 
-    def add(self, method, path, callback):
-        route = Route(method=method, path=path, callback=callback)
-        self.routes.append(route)
-
-    def match(self, environ):
+    def match(self, environ: Dict[str, str]) -> Tuple[Callable[..., 'Response'], Dict[str, Any]]:
         method = environ['REQUEST_METHOD'].upper()
         path = environ['PATH_INFO'] or '/'
 
-        for r in self.routes:
-            result = r.match(method, path)
-            if result:
-                kwargs = result.groupdict()
-                return r.callback, kwargs
+        for route in self.routes:
+            url_vars = route.match(method, path)
+            if url_vars is not None:
+                return route.callback, url_vars
         return http404, {}
+
+    def add(self, method: str, rule: str, name: str,
+            callback: Callable[..., Union[str, bytes]]) -> None:
+        """ Add a new rule or replace the target for an existing rule. """
+        route = Route(method=method.upper(), rule=rule, name=name, callback=callback)
+        self.routes.append(route)
+
+    def reverse(self, name, **kwargs) -> str:
+        for route in self.routes:
+            if name == route.name:
+                return route.rule.format(**kwargs)
 
 
 class Request:
@@ -127,23 +183,24 @@ class Config(dict):
         super().__init__(**kwargs)
         self.module_name = module_name
         self.update(self.default_config)
-
-    @property
-    def jinja2_env(self):
-        return Environment(loader=PackageLoader(self.module_name, self['TEMPLATE_DIR']))
+        self.jinja2_env = Environment(loader=PackageLoader(self.module_name, self['TEMPLATE_DIR']))
 
 config = None
 
 
 class App:
     def __init__(self, module_name):
-        global config
-        config = Config(module_name)
         self.router = Router()
 
-    def route(self, path=None, method='GET', callback=None):
+        global config
+        config = Config(module_name)
+        config.jinja2_env.globals.update(
+            reverse=self.router.reverse
+        )
+
+    def route(self, rule=None, method='GET', name='', callback=None):
         def decorator(callback_func):
-            self.router.add(method, path, callback_func)
+            self.router.add(method, rule, name, callback_func)
             return callback_func
         return decorator(callback) if callback else decorator
 
