@@ -1,4 +1,7 @@
 import cgi
+import json
+from jinja2 import Environment, PackageLoader
+import os
 import re
 from urllib.parse import parse_qs
 from wsgiref.headers import Headers
@@ -73,14 +76,14 @@ class Request:
 
 
 class Response:
-    __slots__ = ('_body', 'status', 'headers')
-    default_status = '200 OK'
-    default_content_type = 'text/html; charset=UTF-8'
+    __slots__ = ('_body', 'status', 'headers', 'charset')
+    default_content_type = 'text/plain; charset=UTF-8'
 
-    def __init__(self, body='', status=None, headers=None):
+    def __init__(self, body='', status='200 OK', headers=None, charset='utf-8'):
         self._body = body
-        self.status = status or self.default_status
+        self.status = status
         self.headers = Headers()
+        self.charset = charset
 
         if headers:
             for name, value in headers.items():
@@ -89,7 +92,7 @@ class Response:
     @property
     def body(self):
         if isinstance(self._body, str):
-            return self._body.encode('utf-8')
+            return self._body.encode(self.charset)
         return self._body
 
     @property
@@ -99,8 +102,45 @@ class Response:
         return self.headers.items()
 
 
+class JSONResponse(Response):
+    default_content_type = 'text/json; charset=UTF-8'
+
+    def __init__(self, dic, status='200 OK', headers=None, charset='utf-8', **dump_args):
+        super().__init__(json.dumps(dic, **dump_args),
+                         status=status, headers=headers, charset=charset)
+
+
+class TemplateResponse(Response):
+    default_content_type = 'text/html; charset=UTF-8'
+
+    def __init__(self, filename, status='200 OK', headers=None, charset='utf-8', **tpl_args):
+        template = config.jinja2_env.get_template(filename)
+        super().__init__(template.render(**tpl_args),
+                         status=status, headers=headers, charset=charset)
+
+
+class Config(dict):
+    default_config = {
+        'BASE_DIR': os.path.abspath('.'),
+        'TEMPLATE_DIR': 'templates',
+    }
+
+    def __init__(self, module_name, **kwargs):
+        super().__init__(**kwargs)
+        self.module_name = module_name
+        self.update(self.default_config)
+
+    @property
+    def jinja2_env(self):
+        return Environment(loader=PackageLoader(self.module_name, self['TEMPLATE_DIR']))
+
+config = None
+
+
 class App:
-    def __init__(self):
+    def __init__(self, module_name):
+        global config
+        config = Config(module_name)
         self.router = Router()
 
     def route(self, path=None, method='GET', callback=None):

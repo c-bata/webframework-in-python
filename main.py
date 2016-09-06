@@ -1,19 +1,28 @@
-from app import App, Response
+from app import App, Response, TemplateResponse, JSONResponse
+from collections import OrderedDict
 
-app = App()
+app = App(__name__)
+
+
+@app.route('^/$')
+def index(request):
+    return Response('Hello World')
 
 
 @app.route('^/users/$')
 def user_list(request):
-    response = Response(body='User List',
-                        headers={'Content-type': 'text/plain; charset=utf-8'})
+    title = 'ユーザ一覧'
+    users = ['user{}'.format(i) for i in range(10)]
+    response = TemplateResponse(filename='users.html', title=title, users=users)
     return response
 
 
 @app.route('^/users/(?P<user_id>\d+)/$')
 def user_detail(request, user_id):
-    response = Response(body='Hello user {user_id}'.format(user_id=user_id),
-                        headers={'Content-type': 'text/plain; charset=utf-8'})
+    d = OrderedDict(
+        user=user_id,
+    )
+    response = JSONResponse(dic=d, indent=4)
     return response
 
 if __name__ == '__main__':
