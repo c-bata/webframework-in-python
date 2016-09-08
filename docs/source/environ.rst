@@ -107,7 +107,7 @@ Responseクラスは次のようになります
            return [(k, v.encode('utf8').decode('latin1')) for (k, v) in out]
 
    class App:
-       (中略)
+       :
        def __call__(self, env, start_response):
            callback, kwargs = self.router.match(env)
            request = Request(env)
@@ -124,6 +124,7 @@ RequestやResponseのクラスはリクエストがある度に、生成され�
 ここでは `__slots__` 属性を用いることでメモリを大幅に節約することが出来ます。
 試してみましょう。
 
+
 Before
 ~~~~~~
 
@@ -138,6 +139,7 @@ Before
    peak memory: 41.63 MiB, increment: 5.52 MiB
 
 10000個作った時のメモリ使用量は 5.52MiB でした。
+
 
 After
 ~~~~~

@@ -36,6 +36,7 @@ Webアプリケーションフレームワークの作り方 in Python
    routing
    environ
    template
+   middleware
    kobin
 
 
