@@ -1,5 +1,6 @@
 # general
 jinja2
+wsgi-static-middleware
 
 # documentation
 sphinx
@@ -11,3 +12,4 @@ gunicorn
 ipython
 memory_profiler
 psutil
+
