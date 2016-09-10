@@ -1,7 +1,11 @@
+import os
 from app import App, Response, TemplateResponse, JSONResponse
+from wsgi_static_middleware import StaticMiddleware
 from collections import OrderedDict
 
 app = App(__name__)
+BASE_DIR = os.path.dirname(__name__)
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
 
 @app.route('/')
@@ -25,6 +29,10 @@ def user_detail(request, user_id: int):
     )
     response = JSONResponse(dic=d, indent=4)
     return response
+
+
+if os.environ.get('DEBUG'):
+    app = StaticMiddleware(app, static_root='static', static_dirs=[STATIC_DIR])
 
 if __name__ == '__main__':
     from wsgiref.simple_server import make_server
