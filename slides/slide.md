@@ -1,26 +1,43 @@
+name: inverse
+layout: true
+class: center, middle, inverse
+---
 # 基礎から学ぶWebアプリケーションフレームワークの作り方
 
-Masashi Shibata (`@c_bata_`)
+Masashi Shibata (@c\_bata\_)
 
 PyConJP 2016
 
 2016/09/21 (Wed)
 
+.footnote[Go directly to [github](https://github.com/c-bata/WebFramework-in-Python)]
 
 ---
-# 自己紹介
+layout: false
+.left-column[
+## About Me
+]
 
-![プロフィールアイコン](./img/profile.png)
+.right-column[
+.pull-container[
+.float-left[![プロフィールアイコン](./img/profile.png) ![プロフィールアイコン](./img/face_icon.png)]
+]
 
-- 芝田 将
+- 芝田 将 (Masashi Shibata)
+- twitter: `@c\_bata\_` github: `@c-bata`
 - 明石高専 専攻科
 - PyCon JP 2015, 2016 スタッフ
-- PyCon Taiwan 2015, JP 2015, Korea 2016 でLTしてきました
+- PyCon Taiwan 2015, JP 2015, Korea 2016 でLT
+    - http://gihyo.jp/news/report/01/pycon-apac-2015
+    - http://gihyo.jp/news/report/01/pycon-apac2016
 
 念願のトークセッション :)
+]
 
 
 ???
+これまでPyConにはTaiwan, JP, Koreaと3回参加してきたのですが、全部Lightning Talkをやっていまして、今回は念願の一般トークです。
+聞きに来てくださってありがとうございます。みなさんにはWebフレームワークのコードを読む自信を持ち帰ってもらいたいなと思います。
 
 ジョブズはiPhoneの発表日に、 This is the day (この日を待ってたんだ)って言ったらしい。
 意気込みを伝えたい。堂々としたい。価値を届けるんだっていいたい
@@ -50,6 +67,9 @@ PyConJP 2016
 最終的に出来上がるアプリケーションは150行ほどです。
 かなり短い方ですが、話を聞きながら細かい実装まで全てをこのセッション中に全員が理解するのは難しいかと思います。
 
+やっぱり自分の聞きたいのと違ったなって思った方は、今からまだ他のセッションに移っていただいても大丈夫です。
+全員移っちゃうと悲しいから、1人ぐらいは残って聞いてくださいね。
+
 
 ---
 # コードを読んでみよう
@@ -74,24 +94,76 @@ PyConJP 2016
 
 
 ---
+template: inverse
+
 # WSGIについて
 
-TODO: ここはKeynoteで作ってたやつ使い回す
+---
+.left-column[
+## WSGI
+### What's WSGI
+]
+.right-column[
+PEP 3333で策定された、サーバとアプリケーションの標準化インタフェース
 
+
+1. 2つの引数を持った呼び出し可能なオブジェクト
+2. 第2引数として渡されたオブジェクトを呼び出し、HTTPステータスコードとヘッダ情報を渡す
+3. レスポンスボディとしてバイト文字列をyieldするiterableなオブジェクトを返す
+]
 
 ---
-# gunicornで動かしてみる
+.left-column[
+## WSGI
+### What's WSGI
+### Flow
+]
+.right-column[
+## WSGIの流れ
+
+![WSGIの流れ](./img/structure/wsgi.png)
+]
+
+---
+.left-column[
+## WSGI
+### What's WSGI
+### Flow
+### Minimum Application
+]
+.right-column[
+```python
+def application(env, start_response):
+    start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+    return [b'Hello World']
+```
+]
+
+---
+.left-column[
+## WSGI
+### What's WSGI
+### Flow
+### Minimum Application
+### Running with gunicorn
+]
+.right-column[
 
 ```bash
 $ gunicorn -w 1 hello:app
 ```
-
+]
 
 ???
 本当にさっきの3行のアプリケーションが動いた :)
 これを拡張していけばよさそうだ。
 何をどう拡張しよう。
 
+
+---
+template: inverse
+
+# ルーティング
 
 ---
 # 拡張をするまえに
@@ -143,13 +215,26 @@ def users(env, start_response):
 
 
 ---
-# リクエストオブジェクト
+template: inverse
 
-全部に、envとstart_responseを渡すのは面倒そうだ
-
+# リクエストクラス
 
 ---
-# リクエストボディの取得
+.left-column[
+## Request
+]
+
+.right-column[
+全部に、envとstart_responseを渡すのは面倒そうだ
+]
+
+---
+.left-column[
+## Request
+### Request Body
+]
+.right-column[
+リクエストボディを取得する
 
 ```python
 @property
@@ -164,23 +249,37 @@ def text(self, charset='utf-8'):
     return self.body.decode(charset)
 ```
 
+]
 
 ---
-# GETのクエリパラメータの取得
+.left-column[
+## Request
+### Request Body
+### Query Parameters
+]
+.right-column[
+GETのクエリパラメータを取得
 
-application/x-www-form-urlencoded 型のデータに対しては、 `urllib.parse.parse_qs` を利用する
+`application/x-www-form-urlencoded` 型のデータに対しては、 `urllib.parse.parse_qs` を利用する
 
 ```python
 >>> from urllib.parse import parse_qs
 >>> parse_qs('foo=bar&hoge=fuga')
 {'hoge': ['fuga'], 'foo': ['bar']}
 ```
-
+]
 
 ---
-# POSTのクエリパラメータの取得
+.left-column[
+## Request
+### Request Body
+### Query Parameters
+### Form Parameters
+]
+.right-column[
+POSTのクエリパラメータを取得
 
-cgi.FieldStorage を利用する
+`cgi.FieldStorage` を利用する
 
 ```python
 @property
@@ -194,17 +293,31 @@ def forms(self):
     return params
 ```
 
+]
 
 ---
-# レスポンスオブジェクト
+template: inverse
 
+# レスポンスクラス
+
+---
+.left-column[
+## Response
+]
+.right-column[
 - ヘッダ
 - ステータス
 - ボディ
+]
 
 
 ---
-# ヘッダ
+.left-column[
+## Response
+### Headers
+]
+.right-column[
+ヘッダ
 
 ```python
 >>> from wsgiref.headers import Headers
@@ -214,7 +327,42 @@ def forms(self):
 >>> h.items()
 [('Content-type', 'text/plain'), ('Foo', 'bar')]
 ```
+]
 
+---
+template: inverse
+
+# ミドルウェア
+
+???
+ミドルウェアとは
+
+---
+.left-column[
+## Middleware
+]
+.right-column[
+図を挿入
+]
+
+---
+.left-column[
+## Middleware
+### Router
+]
+.right-column[
+実はすでに作っていた
+]
+
+---
+.left-column[
+## Middleware
+### Router
+### Static files
+]
+.right-column[
+CSSやJS、画像などの静的ファイルは...
+]
 
 ---
 # Webフレームワークの作り方
