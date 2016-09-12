@@ -10,7 +10,7 @@ Webアプリケーションフレームワークの作り方 in Python
 `c-bata/WebFramework-in-Python - Github <https://github.com/c-bata/webframework-in-python>`_
 
 ゴール
----
+------
 
 この資料で作成するフレームワークを使うと次のようにコードを記述出来ます。
 

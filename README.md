@@ -60,23 +60,17 @@ Webアプリケーション・フレームワークの実装手順。
         - パフォーマンス面・逆引き難しい問題についても触れる
     - [x] 1つのRouteの情報をラップするRouteクラス(namedtuple)
     - [x] リクエストのURLとメソッドに応じて、適切な関数を呼び出すRouterクラス
-- [ ] Creating request object: リクエストのenvironをうまくラップする
-    - [ ] QueryParams (x-www-form-urlencoded) GETのクエリーパラメータの取得
-    - [ ] BodyParams (x-www-form-urlencoded) POST等のクエリーパラメータの取得
-    - [ ] request bodyの読み込み
+- [x] Creating request object: リクエストのenvironをうまくラップする
+    - [x] QueryParams (x-www-form-urlencoded) GETのクエリーパラメータの取得
+    - [x] BodyParams (x-www-form-urlencoded) POST等のクエリーパラメータの取得
+    - [x] request bodyの読み込み
     - [ ] jsonの読み込み
-- [ ] Creating response object: レスポンスをうまくハンドリング
-    - [ ] ヘッダーのコントロール
-    - [ ] Cookieのコントロール
-- [ ] Global object shared cross requests
-- [ ] Basic static file serving for dev
-
-
-時間があれば
-
-- [ ] WSGI ミドルウェアの実装
-    - [ ] フレームワークを作るまでしなくても十分活かせる内容だから是非話したい
-- [ ] Template rendering
+- [x] Creating response object: レスポンスをうまくハンドリング
+    - [x] ヘッダーのコントロール
+    - [x] Cookieのコントロール
+- [x] Middleware
+    - [x] Basic static file serving for dev
+- [x] Template rendering using Jinja2
 
 
 ## jbkingさんのお言葉
@@ -90,45 +84,10 @@ Webアプリケーション・フレームワークの実装手順。
 - WSGIがyieldするとbyte列を返すようなオブジェクトになっている理由
     - 仮に、view関数が数100MBのレスポンスを生成する時に、全部メモリに載せるのは大変だから
 
-## SLIDE.md
-
-WSGIについての解説は [Python製Webフレームワークの設計と実装](https://speakerdeck.com/c_bata/how-to-develop-web-application-framework-in-python) をそのまま使いたい。
-それ以外の部分の実装はMarkdown + Revealgoで書きながら進めていく。
-
-方針としてはsphinxのbooksをまとめながら、画像ファイルとかを作成、static以下に配置していく。
-そこの画像を参照していく。
-
-sphinxのdocumentationもmarkdownで書くようにしたほうが、文言を使いまわし出来て都合がいいかもしれない。
-sphinxのdocumentationはgithub-pages用のオプションを追加してるので、Readthedocsではなくそっちでみれるはず。
-SLIDEはslideck.ioで公開。
-
-```
-$ revealgo SLIDE.md
-```
+徐々に必要な機能を追加していこう。
+その度に図を書きなおしていこう。
 
 
 ## LICENSE
 
-```
-The MIT License (MIT)
-
-Copyright (c) 2016 MASASHI Shibata
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+<a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png" /></a><br />WebFramework in Python by Masashi Shibata is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/4.0/">Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License</a>.
