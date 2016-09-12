@@ -15,16 +15,16 @@ PyConJP 2016
 ---
 layout: false
 .left-column[
-## About Me
+## 自己紹介
+.float-left[.circle[![プロフィールアイコン](./img/profile.png)]]
 ]
 
 .right-column[
-.pull-container[
-.float-left[![プロフィールアイコン](./img/profile.png) ![プロフィールアイコン](./img/face_icon.png)]
-]
+こんにちは！
 
 - 芝田 将 (Masashi Shibata)
-- twitter: `@c\_bata\_` github: `@c-bata`
+- twitter: @c\_bata\_
+- github: @c-bata
 - 明石高専 専攻科
 - PyCon JP 2015, 2016 スタッフ
 - PyCon Taiwan 2015, JP 2015, Korea 2016 でLT
@@ -44,9 +44,13 @@ layout: false
 
 
 ---
-# 動機と目的
-
-何か躓いた時に、自分で修正したい。そもそもバグなのか調べたい。
+.left-column[
+## はじめに
+### きっかけ
+]
+.right-column[
+- 何か躓いた時に、自分で修正したい。そもそもバグなのか調べたい。
+]
 
 ???
 - 何かOSSのライブラリとかのコードを読んで勉強してみたいなと思った
@@ -55,15 +59,21 @@ layout: false
 - でもシンプルで読みやすいと言われていたBottleのコードも全く読めない。何から手を付ければいいのか分からなかった。
 
 ---
-# みなさんに持ち帰って欲しい内容
-
+.left-column[
+## はじめに
+### きっかけ
+### ゴール
+]
+.right-column[
 - Webフレームワークの構成要素とそれぞれの目的をしっかり覚えて帰ってください。
     - あとはコードを読んで理解できるはずです。
 - 細かい部分は、Youtube, Sphinxで復習してください。
 - それが終わったらBottleかKobinの実装を読んでみてください
     - Kobinはversionを3.5に絞っていて、Type Hintsもあり読みやすいと思います :)
+]
 
 ???
+持ち帰って欲しい内容
 最終的に出来上がるアプリケーションは150行ほどです。
 かなり短い方ですが、話を聞きながら細かい実装まで全てをこのセッション中に全員が理解するのは難しいかと思います。
 
@@ -132,11 +142,72 @@ PEP 3333で策定された、サーバとアプリケーションの標準化イ
 ### Minimum Application
 ]
 .right-column[
+### 3 lines of Python
 ```python
 def application(env, start_response):
     start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
     return [b'Hello World']
 ```
+]
+
+???
+1行ずつ解説していきます
+
+---
+.left-column[
+## WSGI
+### What's WSGI
+### Flow
+### Minimum Application
+]
+.right-column[
+### 3 lines of Python
+```python
+def application(env, start_response):
+    start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+    return [b'Hello World']
+```
+
+1. 2つの引数を持った呼び出し可能なオブジェクト
+]
+
+---
+.left-column[
+## WSGI
+### What's WSGI
+### Flow
+### Minimum Application
+]
+.right-column[
+### 3 lines of Python
+```python
+def application(env, start_response):
+    start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+    return [b'Hello World']
+```
+
+1. 2つの引数を持った呼び出し可能なオブジェクト
+2. 第2引数として渡されたオブジェクトを呼び出し、HTTPステータスコードとヘッダ情報を渡す
+]
+
+---
+.left-column[
+## WSGI
+### What's WSGI
+### Flow
+### Minimum Application
+]
+.right-column[
+### 3 lines of Python
+```python
+def application(env, start_response):
+    start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+    return [b'Hello World']
+```
+
+1. 2つの引数を持った呼び出し可能なオブジェクト
+2. 第2引数として渡されたオブジェクトを呼び出し、HTTPステータスコードとヘッダ情報を渡す
+3. レスポンスボディとしてバイト文字列をyieldするiterableなオブジェクトを返す
 ]
 
 ---
@@ -148,10 +219,13 @@ def application(env, start_response):
 ### Running with gunicorn
 ]
 .right-column[
+WSGIサーバであれば動かせるはず！
 
 ```bash
 $ gunicorn -w 1 hello:app
 ```
+
+![gunicornでの動作の様子](./img/gunicorn-wsgi.gif)
 ]
 
 ???
@@ -164,6 +238,108 @@ $ gunicorn -w 1 hello:app
 template: inverse
 
 # ルーティング
+
+---
+.left-column[
+## Routing
+### Structure
+]
+.right-column[
+ルータの構造
+
+![Routingを導入した時の構成](./img/structure/router.png)
+]
+
+???
+
+今のアプリケーションはどこにいっても
+
+---
+.left-column[
+## Routing
+### Structure
+### Regex Module
+]
+.right-column[
+正規表現モジュールについておさらい
+
+```python
+>>> import re
+>>> url_scheme = '/users/(?P<user_id>\d+)/'
+>>> pattern = re.compile(url_scheme)
+>>> pattern.match('/users/1/').groupdict()
+{'user_id': '1'}
+```
+]
+
+---
+.left-column[
+## Routing
+### Structure
+### Regex Module
+### Sample
+]
+.right-column[
+```python
+import re
+from collections import namedtuple
+
+Route = namedtuple('Route', ['method', 'path', 'callback'])
+
+
+def http404(env, start_response):
+    start_response('404 Not Found', [('Content-type', 'text/plain; charset=utf-8')])
+    return [b'404 Not Found']
+
+
+class Router:
+    def __init__(self):
+        self.routes = []
+
+    def add(self, method, path, callback):
+        route = Route(method=method, path=path, callback=callback)
+        self.routes.append(route)
+
+    def match(self, environ):
+        method = environ['REQUEST_METHOD'].upper()
+        path = environ['PATH_INFO'] or '/'
+
+        for r in filter(lambda x: x.method == method.upper(), self.routes):
+            matched = re.compile(r.path).match(path)
+            if matched:
+                kwargs = matched.groupdict()
+                return r.callback, kwargs
+        return http404, {}
+```
+]
+
+???
+ここは解説してコピペしてPyCharmに貼り付け
+次にiPython開いてこれの動作を確認(ライブコーディング)
+
+or
+
+コピペしてPyCharmに貼り付け
+PyCharmのデバッガで逐次実行しながら、説明 (これだと値を見ながら説明出来る。Request, Responseオブジェクトも実際の値を使って説明出来る)
+
+---
+.left-column[
+## Routing
+### Structure
+### Regex Module
+### Sample
+]
+.right-column[
+```python
+app = App()
+
+@app.route('^/users/$')
+def users(env, start_response):
+    start_response('200 OK', [('Content-type', 'text/plain')])
+    return 
+```
+]
+
 
 ---
 # 拡張をするまえに
@@ -181,7 +357,6 @@ app = Flask(__name__)
 そういえば形式が違う。
 オブジェクトを
 
-
 ---
 # `__call__` メソッド
 
@@ -197,22 +372,6 @@ class App:
 ???
 これの紹介は、RouteクラスとRouterクラスを実装したあとに、Appに組み込む時にしたほうが流れとして自然。
 
----
-# ルーティング
-
-```python
-app = App()
-
-@app.route('^/users/$')
-def users(env, start_response):
-    start_response('200 OK', [('Content-type', 'text/plain')])
-    return 
-```
-
-???
-
-今のアプリケーションはどこにいっても
-
 
 ---
 template: inverse
@@ -222,15 +381,19 @@ template: inverse
 ---
 .left-column[
 ## Request
+### Structure
 ]
 
 .right-column[
 全部に、envとstart_responseを渡すのは面倒そうだ
+
+![リクエストクラス](./img/structure/request.png)
 ]
 
 ---
 .left-column[
 ## Request
+### Structure
 ### Request Body
 ]
 .right-column[
@@ -254,6 +417,7 @@ def text(self, charset='utf-8'):
 ---
 .left-column[
 ## Request
+### Structure
 ### Request Body
 ### Query Parameters
 ]
@@ -272,6 +436,7 @@ GETのクエリパラメータを取得
 ---
 .left-column[
 ## Request
+### Structure
 ### Request Body
 ### Query Parameters
 ### Form Parameters
@@ -303,17 +468,21 @@ template: inverse
 ---
 .left-column[
 ## Response
+### Structure
 ]
 .right-column[
+![レスポンスクラス](./img/structure/response.png)
+]
+
+???
 - ヘッダ
 - ステータス
 - ボディ
-]
-
 
 ---
 .left-column[
 ## Response
+### Structure
 ### Headers
 ]
 .right-column[
@@ -340,18 +509,22 @@ template: inverse
 ---
 .left-column[
 ## Middleware
+### Structure
 ]
 .right-column[
-図を挿入
+![ミドルウェア](./img/structure/middleware.png)
 ]
 
 ---
 .left-column[
 ## Middleware
+### Structure
 ### Router
 ]
 .right-column[
 実はすでに作っていた
+
+![Routerミドルウェア](./img/structure/router.png)
 ]
 
 ---
@@ -365,18 +538,32 @@ CSSやJS、画像などの静的ファイルは...
 ]
 
 ---
-# Webフレームワークの作り方
+template: inverse
 
-Pythonの具体的なコードをベースにWebアプリケーションフレームワークを作る上で必要となる知識について解説します。
-Hello Worldをスタートとして、ルーティングやリクエスト・レスポンスのハンドリング方法、CSSやJS等の静的ファイルの扱いなどWebアプリケーションフレームワークに必要な機能とその実装方法を解説します。
-
+# Kobin
 
 ---
-# Kobinの紹介
-
+.left-column[
+## Kobin
+### About
+]
+.right-column[
 私が開発しているKobinというフレームワークと、それを用いた実際のアプリケーションを紹介します。
 Kobinは本発表で紹介した機能を全て実装していますが、その実装は800行に満たない程度(5/17現在)と非常に短く、勉強用途としては最適なWebフレームワークとなっています。
 またType Hintsを活用しているためコードを読む上での手がかりとなる情報も既存のフレームワークに比べ多いでしょう。
+]
+
+---
+.left-column[
+## Kobin
+### About
+### ToDo
+]
+.right-column[
+Kobinのサンプルアプリケーション
+
+<img src="https://github.com/c-bata/kobin-example/raw/master/anim.gif" width="550px"/>
+]
 
 
 ---
