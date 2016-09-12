@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+</head>
+<body>
+    <ul>
+        {% for user in users %}
+        <li><a href="{{ reverse('user-detail', user_id=user['id']) }}">{{ user['name'] }}</a></li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

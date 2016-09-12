@@ -162,7 +162,9 @@ class App:
 
 # Application
 ##############
+import os
 from collections import OrderedDict
+from wsgi_static_middleware import StaticMiddleware
 
 app = App(__name__)
 
@@ -187,6 +189,10 @@ def user_detail(request, user_id):
     )
     response = JSONResponse(dic=d, indent=4)
     return response
+
+
+if os.environ.get('DEBUG'):
+    app = StaticMiddleware(app, static_root='static', static_dirs=[STATIC_DIR])
 
 if __name__ == '__main__':
     from wsgiref.simple_server import make_server
