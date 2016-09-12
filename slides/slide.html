@@ -18,6 +18,7 @@
   <meta name="twitter:site" content="@c_bata_" />
   <style>
     @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+    @import url(https://fonts.googleapis.com/css?family=Droid+Sans);
     @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
     @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
 
@@ -25,9 +26,12 @@
       font-family: 'Droid Serif';
     }
     h1, h2, h3 {
-      font-family: 'Yanone Kaffeesatz',"Helvetica neue","ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ","Droid Sans",Meiryo,sans-serif;
+      font-family: "Helvetica neue","ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ","Droid Sans",Meiryo,sans-serif;
       font-weight: 400;
       margin-bottom: 0;
+    }
+    .left-column h1, h2, h3 {
+      font-family: 'Yanone Kaffeesatz',sans-serif;
     }
     .remark-slide-content h1 { font-size: 2.4em; }
     .remark-slide-content h2 { font-size: 1.8em; }
@@ -46,7 +50,8 @@
     }
     code {
       background: #e7e8e2;
-      border-radius: 5px;
+      border-radius: 3px;
+      padding: 2px 5px;
     }
     .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
     .remark-code-line-highlighted     { background-color: #373832; }
@@ -72,13 +77,16 @@
       padding: 15px;
     }
     .inverse {
-      background: #272822;
-      color: #777872;
-      text-shadow: 0 0 20px #333;
+      background: #0093F5;
+      color: #eeeeee;
+    }
+    .inverse a {
+      color: #f5dc00;
     }
     .inverse h1, .inverse h2 {
       color: #f3f3f3;
       line-height: 1.2em;
+      font-size: 2.2em;
     }
 
     /* Slide-specific styling */
@@ -131,8 +139,24 @@
       float: right;
       padding-top: 1em;
     }
-    .circle img {
+    .profileicon {
+      width: 150px;
+      height: 150px;
+      border: 4px solid #ddd;
       border-radius: 50%;
+      background-image: url(/img/face_icon.png);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      display: block;
+    }
+    .center {
+      height: 100%;
+    }
+    .center > * {
+      display: flex;          /* 2 */
+      justify-content: center;/* 3 */
+      align-items: center;    /* 4 */
     }
   </style>
   </head>
