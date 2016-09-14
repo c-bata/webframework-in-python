@@ -1,8 +1,9 @@
 # Framework
 ############
 import cgi
+import os
 import json
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, FileSystemLoader
 import re
 from urllib.parse import parse_qs
 from wsgiref.headers import Headers
@@ -122,25 +123,24 @@ class TemplateResponse(Response):
 
 class Config(dict):
     default_config = {
-        'TEMPLATE_DIR': 'templates',
+        'TEMPLATE_DIR': os.path.join(os.path.abspath('.'), 'templates'),
     }
 
-    def __init__(self, module_name, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.module_name = module_name
         self.update(self.default_config)
 
     @property
     def jinja2_env(self):
-        return Environment(loader=PackageLoader(self.module_name, self['TEMPLATE_DIR']))
+        return Environment(loader=FileSystemLoader(self['TEMPLATE_DIR']))
 
 config = None
 
 
 class App:
-    def __init__(self, module_name):
+    def __init__(self):
         global config
-        config = Config(module_name)
+        config = Config()
         self.router = Router()
 
     def route(self, path=None, method='GET', callback=None):
@@ -164,7 +164,7 @@ class App:
 ##############
 from collections import OrderedDict
 
-app = App(__name__)
+app = App()
 
 
 @app.route('^/$')

@@ -7,7 +7,7 @@
 <body>
     <ul>
         {% for user in users %}
-        <li><a href="{{ reverse('user-detail', user_id=user['id']) }}">{{ user['name'] }}</a></li>
+        <li>{{ user }}</li>
         {% endfor %}
     </ul>
 </body>

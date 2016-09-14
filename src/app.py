@@ -1,6 +1,7 @@
 import cgi
+import os
 import json
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, FileSystemLoader
 from typing import get_type_hints
 from urllib.parse import parse_qs
 from wsgiref.headers import Headers
@@ -168,24 +169,23 @@ class TemplateResponse(Response):
 
 class Config(dict):
     default_config = {
-        'TEMPLATE_DIR': 'templates',
+        'TEMPLATE_DIR': os.path.join(os.path.abspath('.'), 'templates'),
     }
 
-    def __init__(self, module_name, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.module_name = module_name
         self.update(self.default_config)
-        self.jinja2_env = Environment(loader=PackageLoader(self.module_name, self['TEMPLATE_DIR']))
+        self.jinja2_env = Environment(loader=FileSystemLoader(self['TEMPLATE_DIR']))
 
 config = None
 
 
 class App:
-    def __init__(self, module_name):
+    def __init__(self):
         self.router = Router()
 
         global config
-        config = Config(module_name)
+        config = Config()
         config.jinja2_env.globals.update(
             reverse=self.router.reverse
         )

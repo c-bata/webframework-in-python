@@ -3,7 +3,7 @@ from app import App, Response, TemplateResponse, JSONResponse
 from wsgi_static_middleware import StaticMiddleware
 from collections import OrderedDict
 
-app = App(__name__)
+app = App()
 BASE_DIR = os.path.dirname(__name__)
 STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
