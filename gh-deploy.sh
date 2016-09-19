@@ -10,7 +10,8 @@ echo "* sphinxをbuildしてrootに展開します"
 cd docs/
 make html
 cd ..
-cp -r docs/build/html .
+ls docs/build/html
+cp -r docs/build/html/ .
 
 echo "* slidesをrootに展開します"
 cp -r slides/ .
