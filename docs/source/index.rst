@@ -21,7 +21,6 @@ Webアプリケーションフレームワークの作り方 in Python
    environ
    template
    middleware
-   kobin
 
 
 Indices and tables

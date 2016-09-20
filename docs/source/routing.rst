@@ -94,6 +94,31 @@ URL変数
 それでは図のRouterを実装していきましょう。
 フレームワークの利用者からは、次のような形で利用出来るようにしてみます。
 
+.. code-block:: python
+
+   from myframework import App
+
+   app = App()
+
+
+   @app.route('^/users/$')
+   def user_list(env, start_response):
+       start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+       return [b'User List']
+
+
+   @app.route('^/users/(?P<user_id>\d+)/$')
+   def user_detail(env, start_response, user_id):
+       start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+       res = 'Hello user {user_id}'.format(user_id=user_id)
+       return [res.encode('utf-8')]
+
+   if __name__ == '__main__':
+       from wsgiref.simple_server import make_server
+       httpd = make_server('', 8000, app)
+       httpd.serve_forever()
+
+
 Routerクラス
 ---------
 
@@ -105,6 +130,11 @@ Routerクラスを用意します。
 .. code-block:: python
 
    import re
+
+
+   def http404(env, start_response):
+       start_response('404 Not Found', [('Content-type', 'text/plain; charset=utf-8')])
+       return [b'404 Not Found']
 
 
    class Router:
@@ -124,7 +154,7 @@ Routerクラスを用意します。
             if matched:
                 kwargs = matched.groupdict()
                 return r, kwargs
-        return b'404 Not Found'
+        return http404, {}
 
 
 試しに動作確認

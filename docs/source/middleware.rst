@@ -26,6 +26,8 @@ WSGIミドルウェア
 次の図を見てください。
 
 .. image:: /_static/structure/router.png
+   :width: 300px
+   :align: center
    :alt: ルーティング用 WSGIミドルウェア
 
 
