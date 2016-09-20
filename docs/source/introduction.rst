@@ -43,7 +43,7 @@
    from app import App, Response, JSONResponse
    from wsgiref.simple_server import make_server
 
-   app = App(__name__)
+   app = App()
 
 
    @app.route('^/$')
