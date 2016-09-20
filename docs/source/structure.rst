@@ -74,8 +74,8 @@ CSSやJS、画像ファイルなどの静的ファイルは、本番環境の場
 フレームワークの全体像は次のようになっています。
 
 
-.. figure:: _static/json_template_response.png
-   :width: 300px
+.. figure:: _static/structure/middleware.png
+   :width: 400px
    :align: center
    :alt: フレームワークの全体像
 
