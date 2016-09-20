@@ -285,9 +285,15 @@ template: inverse
 ```python
 def application(env, start_response):
     path = env['PATH_INFO']
-    if path == '/foo':
+    if path == '/':
+        start_response('200 OK', [('Content-type', 'text/plain')])
+        return [b'Hello World']
+    elif path == '/foo':
+        start_response('200 OK', [('Content-type', 'text/plain')])
         return [b'foo']
-    return [b'Hello World']
+    else:
+        start_response('404 Not Found', [('Content-type', 'text/plain')])
+        return [b'404 Not Found']
 ```
 
 リクエストのPathは `env['PATH_INFO']` に含まれる
