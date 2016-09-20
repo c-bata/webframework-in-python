@@ -18,6 +18,7 @@ PyConJP 2016
 ---
 layout: false
 .left-column[
+## Profile
 .center[.profileicon[]]
 ]
 
@@ -116,9 +117,30 @@ Webアプリケーションを作ったことのある方はご存知
 <!-- ============================= WSGI =============================== -->
 <!-- ================================================================== -->
 ---
+template: center-theme
+
+![サーバとアプリケーションのやりとり](./img/something-server-interface.png)
+
+???
+まずWebアプリケーションを開発したことのある方はこの中にも多くいらっしゃると思うんですが、
+WebアプリケーションっていうのはWebサーバからclientからのrequestを受け取ってそれをうまく処理してかえしていくという流れになっているかと思います。
+みなさんもFlaskやDjangoを使ってWebアプリケーションを開発するときには、gunicornやuWSGIといったサーバで動かしてますよね。
+
+---
+template: center-theme
+
+![サーバとアプリケーションのやりとり](./img/something-server-interface2.png)
+
+???
+具体的にWebサーバと私達の開発しているアプリケーションがどのようなやりとりを行っているのか、日頃の開発の中で意識することは少ないでしょう。
+しかし、Webフレームワークを開発するとなるとどのようにやり取りが行われているのかを知っておく必要があります。
+
+---
 template: inverse
 
-# WSGIについて
+# WSGI
+
+Web Server Gateway Interface
 
 ---
 .left-column[
@@ -126,8 +148,24 @@ template: inverse
 ### What's WSGI
 ]
 .right-column[
-PEP 3333で策定された、サーバとアプリケーションの標準化インタフェース
+**WSGI 【Web Server Gateway Interface】**
 
+PEP 3333にて策定された、サーバとアプリケーションの標準化インタフェース
+]
+
+???
+PythonではWeb Server Gateway Interface略してWSGIと読むんですけど、
+これに従ってアプリケーションを作りましょうねっていうのがPython Enhancement Proposalの3333として定義されました。
+じゃあこれについて解説していきます
+
+---
+.left-column[
+## WSGI
+### What's WSGI
+### Specification
+]
+.right-column[
+**WSGI 【Web Server Gateway Interface】**
 
 1. 2つの引数を持った呼び出し可能なオブジェクト
 2. 第2引数として渡されたオブジェクトを呼び出し、HTTPステータスコードとヘッダ情報を渡す
@@ -138,19 +176,6 @@ PEP 3333で策定された、サーバとアプリケーションの標準化イ
 .left-column[
 ## WSGI
 ### What's WSGI
-### Flow
-]
-.right-column[
-## WSGIの流れ
-
-![WSGIの流れ](./img/structure/wsgi.png)
-]
-
----
-.left-column[
-## WSGI
-### What's WSGI
-### Flow
 ### Minimum Application
 ]
 .right-column[
@@ -169,7 +194,6 @@ def application(env, start_response):
 .left-column[
 ## WSGI
 ### What's WSGI
-### Flow
 ### Minimum Application
 ]
 .right-column[
@@ -187,7 +211,6 @@ def application(env, start_response):
 .left-column[
 ## WSGI
 ### What's WSGI
-### Flow
 ### Minimum Application
 ]
 .right-column[
@@ -206,7 +229,6 @@ def application(env, start_response):
 .left-column[
 ## WSGI
 ### What's WSGI
-### Flow
 ### Minimum Application
 ]
 .right-column[
@@ -226,7 +248,6 @@ def application(env, start_response):
 .left-column[
 ## WSGI
 ### What's WSGI
-### Flow
 ### Minimum Application
 ### Running with gunicorn
 ]
