@@ -1,50 +1,75 @@
 ルーティング
 ======
 
-ルーティング時のパス情報の指定方法にはいくつか方法があります。
-
-- Djangoのような正規表現ベースのルーティング
-- Flaskのような独自の指定方法によるルーティング
-
-
 シンプルなルーティング
 -----------
 
-まずはフレームワーク側ではなく、ユーザ側でルーティングを実装してみましょう。
+前章では、WSGIの仕様について確認し、それを満たす小さなアプリケーションをつくりました。
+ここからは実際にWebフレームワークを作っていきましょう。
 
-WSGIのアプリケーションの第一引数(以下、env)にはリクエストに関する様々な情報が含まれています。
-ユーザのアクセスしようとしているPathの情報もその1つです。
-次のコードを見てください。
+先程のアプリケーションでは、URLのパス情報によらず全て「Hello World」と返しています。
+実際のアプリケーションでは、沢山のページが存在するためパス情報に応じてそれぞれ違ったレスポンスを返す必要があります。
+簡単なルーティング方法として次のような方法があるでしょう。
 
 .. code-block:: python
 
     def application(env, start_response):
         path = env['PATH_INFO']
-        if path == '/foo':
+        if path == '/':
+            start_response('200 OK', [('Content-type', 'text/plain')])
+            return [b'Hello World']
+        elif path == '/foo':
+            start_response('200 OK', [('Content-type', 'text/plain')])
             return [b'foo']
-        return [b'Hello World']
+        else:
+            start_response('404 Not Found', [('Content-type', 'text/plain')])
+            return [b'404 Not Found']
 
-その最もシンプルなルーティングはこのようになるでしょう。
-
-
-正規表現ベースのルーティング
---------------
-
-ここでは正規表現ベースのルーティングを実装しましょう。
-ルーティングにはいくつか欲しい機能があります。
-
-- `/users/<user_id/` のような動的なURL上での値(URL Vars)を受け取りたい.
+WSGIのアプリケーションの第一引数には、辞書型オブジェクトが渡されています。
+ここではWebブラウザなどのクライアントから送られたリクエストの情報などが入っています。
+リクエストのパス情報もその一つで、 `PATH_INFO` により取り出す事ができます。
 
 
-Pythonの正規表現モジュール
-~~~~~~~~~~~~~~~~
+URL変数と正規表現によるルーティング
+-------------------
 
-まずは `正規表現 <http://docs.python.jp/3/library/re.html>`_ について簡単に復習します。
+URL変数
+~~~~~
+
+もう少し複雑なケースを考えてみましょう。
+こちらのBottleのアプリケーションの一部を見てください。
+
+.. code-block:: python
+
+   @route('/hello/<name>')
+   def greet(name='Stranger'):
+       return template('Hello {{name}}, how are you?', name=name)
+
+   @route('/users/<user_id:int>')
+   def user_detail(user_id):
+       users = ['user{id}'.format(id=i) for i in range(10)]
+       return template('Hello {{user}}', user=users[user_id])
+
+`/hello/foo` と `/hello/bar` はそれぞれ別のエンドポイントですが、上のコードではどちらも `greet` 関数が呼ばれます。
+またURLのパス情報から `foo` や `bar` などの変数(以下、URL変数)を取り出しています。
+
+先程のようにif文で分岐させていくのは大変なので、別の方法を考えてみましょう。
+解決策の一つとして正規表現の利用があります。
+
+
+正規表現モジュール
+~~~~~~~~~
+
+`正規表現 <http://docs.python.jp/3/library/re.html>`_ は普段使わない方も多いかと思います。
+ここで簡単におさらいしましょう。
 
 .. code-block:: python
 
    >>> import re
    >>> url_scheme = '/users/(?P<user_id>\d+)/'
+   >>> re.match('/users/(?P<user_id>\d+)/', '/users/1/').groupdict()
+   {'user_id': '1'}
+
    >>> pattern = re.compile(url_scheme)
    >>> pattern.match('/users/1/').groupdict()
    {'user_id': '1'}
@@ -52,8 +77,25 @@ Pythonの正規表現モジュール
 このように名前付きグループでパターンを定義し、マッチするか確認してからgroupdictを呼ぶことでuser_idの部分の数字が文字列で取得出来ます。
 
 
+構成図
+~~~~
+
+それでは、ルーティング機能を提供するため、フレームワークの実装を始めましょう。
+ここで提供するルーティングは次のようなイメージです。
+
+.. figure:: _static/structure/router.png
+   :width: 300px
+   :align: center
+   :alt: ルーティングのイメージ
+
+   ルーティングのイメージ。
+   パス情報にあわせて別のアプリケーションを呼び出す。
+
+それでは図のRouterを実装していきましょう。
+フレームワークの利用者からは、次のような形で利用出来るようにしてみます。
+
 Routerクラス
-~~~~~~~~~
+---------
 
 Routerクラスを用意します。
 
@@ -118,65 +160,56 @@ Routerクラスを用意します。
 .. literalinclude:: _codes/routing.py
 
 
-逆引き(Reversing)に対応する
--------------------
+.. todo:: Reverse routingについて
 
-逆引きに対応しましょう。
-正規表現ベースのルーティングはその自由度の高さと引き換えに、逆引きが困難になっています。
-今回は正規表現ではなく、次のような形式で記述してみましょう。
+.. 逆引き(Reversing)に対応する
+.. -------------------
+..
+.. 逆引きに対応しましょう。
+.. 正規表現ベースのルーティングはその自由度の高さと引き換えに、逆引きが困難になっています。
+.. 今回は正規表現ではなく、次のような形式で記述してみましょう。
+..
+.. .. code-block:: python
+..
+..    @app.route('/users/{id})
+..    def user_detail(id: int):
+..        return 'Hello user{id}'.format(id=id)
+..
+.. `/users/{id}` の形式であれば逆引きは以下のように簡単に出来ます.
 
-.. code-block:: python
+.. .. code-block:: python
+..
+..    >>> url = '/users/{id}/'
+..    >>> url.format(id=1)
+..    '/users/1/'
 
-   @app.route('/users/{id})
-   def user_detail(id: int):
-       return 'Hello user{id}'.format(id=id)
-
-`/users/{id}` の形式であれば逆引きは以下のように簡単に出来ます.
-
-.. code-block:: python
-
-   >>> url = '/users/{id}/'
-   >>> url.format(id=1)
-   '/users/1/'
-
-formatメソッドにより逆引きが非常に容易になりました
-
-
-正引きの方法
-~~~~~~
-
-整備機は少し複雑です。
-
-1. '/users/{id}/' を '/' で分割.
-2. requestのpath情報も同じように '/' で分割し、長さを比較
-    - 一致すれば次に進む
-    - 一致しなければ、このURLではないと判断
-3. 前から順番に文字列を比較.
-    - '{' で開始して '}' で終了するときは、TypeHintsの情報にキャストできるかどうかチェック
-4. 全て一致する、もしくはキャスト可能であればOK
+.. formatメソッドにより逆引きが非常に容易になりました
 
 
-正引きの方法
-~~~~~~
+.. 正引きの方法
+.. ~~~~~~
+..
+.. 整備機は少し複雑です。
+..
+.. 1. '/users/{id}/' を '/' で分割.
+.. 2. requestのpath情報も同じように '/' で分割し、長さを比較
+..     - 一致すれば次に進む
+..     - 一致しなければ、このURLではないと判断
+.. 3. 前から順番に文字列を比較.
+..     - '{' で開始して '}' で終了するときは、TypeHintsの情報にキャストできるかどうかチェック
+.. 4. 全て一致する、もしくはキャスト可能であればOK
 
-.. todo:: 正引きの仕方
 
-.. note::
+.. todo:: traversal routingについて書く
 
-   ルーティングの実装時に考えていたことを、いくつかブログにまとめています。
-   興味のある方は読んでみてください :)
-
-   `Python製WebフレームワークのURL DispatcherとType Hintsの活用について | c-bata web <http://nwpct1.hatenablog.com/entry/url-dispatcher-with-type-hints-in-python>`_
-
-
-TraversalとURL Dispatch
-----------------------
-
-これまで説明してきた方法は、URL Dispatchとよばれるものです。
-各URLのパターンをリストのように持ち、一致するかどうかそれぞれチェックしていました。
-他の方法として親子関係によりURLの構造を表現するTravarsalと呼ばれるものがあります。
-URL Dispatchの方が比較的よく利用されますが、Pyramidはどちらも指定できるようになっています。
-
-興味のある方は下記の記事を読んでみてください
-
-http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hybrid.html
+.. TraversalとURL Dispatch
+.. ----------------------
+..
+.. これまで説明してきた方法は、URL Dispatchとよばれるものです。
+.. 各URLのパターンをリストのように持ち、一致するかどうかそれぞれチェックしていました。
+.. 他の方法として親子関係によりURLの構造を表現するTravarsalと呼ばれるものがあります。
+.. URL Dispatchの方が比較的よく利用されますが、Pyramidはどちらも指定できるようになっています。
+..
+.. 興味のある方は下記の記事を読んでみてください
+..
+.. http://docs.pylonsproject.org/projects/pyramid/en/latest/narr/hybrid.html
