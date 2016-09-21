@@ -548,6 +548,9 @@ WSGIのEnvironmentではなく、うまくラップしたクラスを返した�
 リクエストボディを取得する
 
 ```python
+import json
+
+
 class Request:
     def __init__(self, environ):
         self.environ = environ
@@ -563,6 +566,10 @@ class Request:
     @property
     def text(self, charset='utf-8'):
         return self.body.decode(charset)
+
+    @property
+    def json(self):
+        return json.loads(self.body)
 ```
 ]
 
@@ -624,9 +631,7 @@ def forms(self):
 .right-column[
 ```python
 class Request:
-    def __init__(self, environ):
-        self.environ = environ
-        self._body = None
+    (中略)
 
     @property
     def forms(self):
@@ -641,17 +646,6 @@ class Request:
     @property
     def query(self):
         return parse_qs(self.environ['QUERY_STRING'])
-
-    @property
-    def body(self) -> str:
-        if self._body is None:
-            content_length = int(self.environ.get('CONTENT_LENGTH', 0))
-            self._body = self.environ['wsgi.input'].read(content_length).decode('utf-8')
-        return self._body
-
-    @property
-    def text(self, charset='utf-8'):
-        return self.body.decode(charset)
 ```
 ]
 
@@ -1153,6 +1147,9 @@ template: inverse
 
 # Kobin
 
+???
+最後にですね、私が開発しているKobinというフレームワークと、それを用いた実際のアプリケーションを紹介します。
+
 ---
 .left-column[
 ## Kobin
@@ -1165,8 +1162,8 @@ template: inverse
 - 全体で500行未満
 ]
 ???
-私が開発しているKobinというフレームワークと、それを用いた実際のアプリケーションを紹介します。
-Kobinは本発表で紹介した機能を全て実装していますが、その実装は800行に満たない程度(5/17現在)と非常に短く、勉強用途としては最適なWebフレームワークとなっています。
+最後にですね、私が開発しているKobinというフレームワークと、それを用いた実際のアプリケーションを紹介します。
+Kobinは本発表で紹介した機能を全て実装していますが、その実装は500行に満たない程度(5/17現在)と非常に短く、勉強用途としては最適なWebフレームワークとなっています。
 またType Hintsを活用しているためコードを読む上での手がかりとなる情報も既存のフレームワークに比べ多いでしょう。
 
 ---
