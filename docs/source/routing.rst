@@ -172,22 +172,30 @@ Routerクラスを用意します。
    >>> router.add('get', '^/users/$', users)
    >>> router.add('post', '^/users/$', create_user)
    >>> router.add('get', '^/users/(?P<user_id>\d+)/$', user_detail)
-   >>> route, kwargs = router.match('get', '/users/')
-   >>> route['callback'](**kwargs)
+   >>> callback, kwargs = router.match('get', '/users/')
+   >>> callback(**kwargs)
    'user list'
    >>> route, kwargs = router.match('post', '/users/')
-   >>> route['callback'](**kwargs)
+   >>> callback(**kwargs)
    'create user'
    >>> route, kwargs = router.match('get', '/users/1/')
-   >>> route['callback'](**kwargs)
+   >>> callback(**kwargs)
    'user1 detail'
 
 うまく機能していますね。
 
 
-最終的なコードはこちらです。
+Routerを組み込んだWSGIのアプリケーション用クラスを作る
+--------------------------------
 
-.. literalinclude:: _codes/routing.py
+.. literalinclude:: _codes/routing/app.py
+
+動作確認
+----
+
+動かしてみましょう
+
+.. literalinclude:: _codes/routing/main.py
 
 
 .. todo:: Reverse routingについて
