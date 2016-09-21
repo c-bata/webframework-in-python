@@ -614,11 +614,9 @@ def forms(self):
 ### Request Body
 ### Query Parameters
 ### Form Parameters
-### Code
+### Request Class
 ]
 .right-column[
-全体のコード
-
 ```python
 class Request:
     def __init__(self, environ):
@@ -661,6 +659,7 @@ class Request:
 ### Request Body
 ### Query Parameters
 ### Form Parameters
+### Request Class
 ### Code
 ]
 .right-column[
@@ -691,6 +690,7 @@ class App:
 ### Request Body
 ### Query Parameters
 ### Form Parameters
+### Request Class
 ### Code
 ]
 .right-column[
@@ -754,7 +754,7 @@ template: inverse
 ### Headers
 ]
 .right-column[
-ヘッダ
+標準で組み込まれている、 `wsgiref` モジュールにはWSGIのフレームワークを作る上で便利な機能もあり。
 
 ```python
 >>> from wsgiref.headers import Headers
@@ -764,6 +764,8 @@ template: inverse
 >>> h.items()
 [('Content-type', 'text/plain'), ('Foo', 'bar')]
 ```
+
+ヘッダのコントロールには `wsgiref.headers.Headers` を活用
 ]
 
 ---
@@ -879,6 +881,11 @@ def user_detail(request, name):
 start_responseをユーザが直接呼び出す必要がなくなった。
 スッキリ！
 ]
+
+<!-- ================================================================== -->
+<!-- ========================= テンプレート ============================= -->
+<!-- ================================================================== -->
+
 
 <!-- ================================================================== -->
 <!-- ========================== ミドルウェア ============================ -->
