@@ -13,7 +13,7 @@ PyConJP 2016
 
 2016/09/21 (Wed)
 
-.footnote[Go directly to [Github](https://github.com/c-bata/WebFramework-in-Python)]
+.footnote[Go directly to [Github](https://github.com/c-bata/webframework-in-python)]
 
 ---
 layout: false
