@@ -1,4 +1,4 @@
-from app import App, Response, TemplateResponse
+from app import App, Response, TemplateResponse, JSONResponse
 from wsgiref.simple_server import make_server
 
 
@@ -12,7 +12,7 @@ def hello(request):
 
 @app.route('^/user/$', 'POST')
 def create_user(request):
-    return Response('User Created', status='201 Created')
+    return JSONResponse({'message': 'User Created'}, status='201 Created')
 
 
 @app.route('^/user/$', 'GET')

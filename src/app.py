@@ -1,6 +1,7 @@
 import os
 import re
 import cgi
+import json
 from urllib.parse import parse_qs
 from wsgiref.headers import Headers
 from jinja2 import Environment, FileSystemLoader
@@ -99,6 +100,19 @@ class TemplateResponse(Response):
     def render_body(self, jinja2_environment):
         template = jinja2_environment.get_template(self.filename)
         return template.render(**self.tpl_args).encode(self.charset)
+
+
+class JSONResponse(Response):
+    default_content_type = 'text/json; charset=UTF-8'
+
+    def __init__(self, dic, status='200 OK', headers=None, charset='utf-8', **dump_args):
+        self.dic = dic
+        self.json_dump_args = dump_args
+        super().__init__('', status=status, headers=headers, charset=charset)
+
+    @property
+    def body(self):
+        return json.dumps(self.dic, **self.json_dump_args).encode(self.charset)
 
 
 class App:
