@@ -100,6 +100,8 @@ layout: false
 ### WAF
 ]
 .right-column[
+これから作るWebフレームワーク
+
 ```python
 from app import App, Response, TemplateResponse, JSONResponse
 from wsgiref.simple_server import make_server
@@ -987,6 +989,8 @@ class TemplateResponse(Response):
 ### TemplateResponse
 ]
 .right-column[
+App クラスに組み込む
+
 ```python
 from jinja2 import Environment, FileSystemLoader
 
@@ -1058,7 +1062,7 @@ $ curl -X POST -d '' http://127.0.0.1:8000/user/
 ### JSONResponse
 ]
 .right-column[
-動かし方。
+**動かし方**
 
 ```python
 from app import Response, TemplateResponse, JSONResponse
@@ -1118,7 +1122,6 @@ class SomeMiddleware:
         self.app = app
 
     def __call__(self, env, start_response):
-        print('Requestが発生したよ')
         return self.app(env, start_response)
 
 
@@ -1140,6 +1143,12 @@ app = SomeMiddleware(app)
 - JavaScript
 - 画像ファイル
 - などなど
+
+本番環境では Nginx 等を使って配信
+
+(開発中にNginx使うのは面倒...)
+
+デバッグ環境でのみ有効にしたい！
 ]
 
 ???
@@ -1174,6 +1183,8 @@ from wsgi_static_middleware import StaticMiddleware
 static_dirs = [os.path.join(os.path.abspath('.'), 'static')]
 app = StaticMiddleware(app, static_dirs=static_dirs, static_root='static')
 ```
+
+ミドルウェアとして実装すれば、BottleやFlaskなど他のWSGIフレームワークでも使いまわせる！
 ]
 
 ???
@@ -1264,7 +1275,7 @@ if __name__ == '__main__':
 他に何が足りない？
 
 - Routing: URLの逆引き
-- Requestオブジェクト: ヘッダの取得, envにはたくさんの情報が!
+- Requestオブジェクト: ヘッダの取得、その他リクエスト情報をラップ
 - Responseオブジェクト: Cookieのハンドリング
 - セッションの管理
 - テスト支援ツール
@@ -1291,23 +1302,11 @@ template: inverse
 ### About
 ]
 .right-column[
-*Kobinとは*
+**Kobinとは**
 
 - https://github.com/c-bata/kobin
 - 全体で500行未満
-]
-???
-最後にですね、私が開発しているKobinというフレームワークと、それを用いた実際のアプリケーションを紹介します。
-Kobinは本発表で紹介した機能を全て実装していますが、その実装は500行に満たない程度(5/17現在)と非常に短く、勉強用途としては最適なWebフレームワークとなっています。
-またType Hintsを活用しているためコードを読む上での手がかりとなる情報も既存のフレームワークに比べ多いでしょう。
 
----
-.left-column[
-## Kobin
-### About
-### Usage
-]
-.right-column[
 **使い方**
 
 ```python
@@ -1331,12 +1330,15 @@ if __name__ == '__main__':
 - request, responseオブジェクトがスレッド内でグローバルなオブジェクト
 - 正規表現ではなく、コード例のようなルーティング方法
     - Reverse Routing(逆引き)が用意
+???
+最後にですね、私が開発しているKobinというフレームワークと、それを用いた実際のアプリケーションを紹介します。
+Kobinは本発表で紹介した機能を全て実装していますが、その実装は500行に満たない程度(5/17現在)と非常に短く、勉強用途としては最適なWebフレームワークとなっています。
+またType Hintsを活用しているためコードを読む上での手がかりとなる情報も既存のフレームワークに比べ多いでしょう。
 
 ---
 .left-column[
 ## Kobin
 ### About
-### Usage
 ### ToDo
 ]
 .right-column[
@@ -1346,15 +1348,21 @@ https://github.com/c-bata/kobin-example
 
 <img src="https://github.com/c-bata/kobin-example/raw/master/anim.gif" width="550px"/>
 ]
+???
+400行程度のアプリケーションフレームワークで何が作れるの？と思うかもしれませんが、実際に作ったアプリケーションがこちらです。
+さっきまでつくったWebフレームワークで本当にアプリケーションが作れるのかイマイチ実感が湧かないという方はこちらのRepositoryのコードをよんでみてください。
 
 ---
 ## 家に帰ってから
 
 今日のセッションを、フレームワークを読むきっかけに
 
-1. フレームワークを自分で書いてみる
-2. 作ったフレームワークを使って、アプリケーションを作ってみる *大事!*
-3. Bottleのコードを読んでみる
+1. **重要** 作ったフレームワークを使って、アプリケーションを作ってみる
+2. **重要** フレームワークを自分で書いてみる
+3. KobinやBottleのコードを読んでみる
+4. KobinにPRをおくる
+
+質問は `@c_bata_` に送っていただいてもけっこうです。
 
 ???
 素晴らしいフレームワークたくさんあるので、
@@ -1362,4 +1370,4 @@ https://github.com/c-bata/kobin-example
 ---
 template: inverse
 
-## THANK YOU!!
+## Q&A
