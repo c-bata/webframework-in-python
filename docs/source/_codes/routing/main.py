@@ -6,13 +6,19 @@ app = App()
 
 
 @app.route('^/$', 'GET')
-def hello(env, start_response):
+def hello(request, start_response):
     start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
     return [b'Hello World']
 
 
+@app.route('^/user/$', 'POST')
+def create_user(request, start_response):
+    start_response('201 Created', [('Content-type', 'text/plain; charset=utf-8')])
+    return [b'User Created']
+
+
 @app.route('^/user/(?P<name>\w+)$', 'GET')
-def user_detail(env, start_response, name):
+def user_detail(request, start_response, name):
     start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
     body = 'Hello {name}'.format(name=name)
     return [body.encode('utf-8')]
