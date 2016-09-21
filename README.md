@@ -2,6 +2,11 @@
 
 このリポジトリはPyCon JP 2016「基礎から学ぶWebアプリケーション・フレームワーク」の発表資料です。
 
+**資料**
+
+- [スライド](http://c-bata.link/webframework-in-python/slide.html)
+- [補足資料](http://c-bata.link/webframework-in-python/)
+
 **関連URL**
 
 - [kobin](https://github.com/c-bata/kobin)
