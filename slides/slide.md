@@ -102,7 +102,6 @@ layout: false
 .right-column[
 ```python
 from app import App, Response, TemplateResponse, JSONResponse
-import os
 from wsgiref.simple_server import make_server
 
 
@@ -1187,6 +1186,93 @@ $ curl http://localhost:8000/static/style.css
   font-size: 12px;
 }
 ```
+
+<!-- ================================================================== -->
+<!-- =========================== ふりかえり ============================ -->
+<!-- ================================================================== -->
+---
+template: inverse
+# まとめ
+
+???
+ここまでで実装した機能を振り返ってみましょう。
+
+---
+.left-column[
+## まとめ
+### Features
+]
+.right-column[
+**今作ったフレームワーク振り返り**
+
+- 正規表現ベースのルーティング
+- デコレータベースで割り当て
+- リクエストをいい感じにラップするRequestクラス
+- レスポンスをいい感じにラップするResponseクラス
+- View関数はリクエストクラスのオブジェクトとURL変数を受け取ってレスポンスクラスのオブジェクトを返す
+- HTMLテンプレートは Jinja2 を使用
+- 静的ファイルは wsgi-static-middleware で配信
+]
+
+---
+.left-column[
+## まとめ
+### Features
+### Usage
+]
+.right-column[
+FWのユーザはこんなふうに使える
+
+```python
+from app import App, Response, TemplateResponse, JSONResponse
+from wsgiref.simple_server import make_server
+
+
+app = App()
+
+
+@app.route('^/$', 'GET')
+def hello(request):
+    return Response('Hello World')
+
+
+@app.route('^/user/$', 'POST')
+def create_user(request):
+    return JSONResponse({'message': 'User Created'}, status='201 Created')
+
+
+@app.route('^/user/(?P<name>\w+)$', 'GET')
+def user_detail(request, name):
+    return Response('Hello {name}'.format(name=name))
+
+if __name__ == '__main__':
+    httpd = make_server('', 8000, app)
+    httpd.serve_forever()
+```
+]
+
+---
+.left-column[
+## まとめ
+### Features
+### Usage
+### Next
+]
+.right-column[
+**おおまかな機能要素は実装**
+
+他に何が足りない？
+
+- Routing: URLの逆引き
+- Requestオブジェクト: ヘッダの取得, envにはたくさんの情報が!
+- Responseオブジェクト: Cookieのハンドリング
+- セッションの管理
+- テスト支援ツール
+- などなど
+
+使ってみると色々と欲しい機能がでてくる。
+]
+
 
 <!-- ================================================================== -->
 <!-- ========================== Kobinの紹介 ============================ -->
