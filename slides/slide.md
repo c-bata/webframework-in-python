@@ -829,6 +829,10 @@ class Response:
 アプリケーションに組み込む
 
 ```python
+def http404(request):
+    return Response('404 Not Found', status='404 Not Found')
+
+
 class App:
     def __init__(self):
         self.router = Router()
@@ -890,7 +894,115 @@ start_responseをユーザが直接呼び出す必要がなくなった。
 <!-- ================================================================== -->
 <!-- ========================= テンプレート ============================= -->
 <!-- ================================================================== -->
+---
+.left-column[
+## Template
+### Jinja2
+]
+.right-column[
+Jinja2を使う。
 
+```python
+>>> import os
+>>> from jinja2 import Environment, FileSystemLoader
+>>> 
+>>> templates = [os.path.join(os.path.abspath('.'), 'templates')]
+>>> env = Environment(loader=FileSystemLoader(templates))
+>>> template = env.get_tempplate('users.html')
+>>> template.render(title='Hello World', users=['user1', 'users2'])
+```
+]
+---
+.left-column[
+## Template
+### Jinja2
+### TemplateResponse
+]
+.right-column[
+```python
+class TemplateResponse(Response):
+    default_content_type = 'text/html; charset=UTF-8'
+
+    def __init__(self, filename, status='200 OK', headers=None, charset='utf-8', **tpl_args):
+        self.filename = filename
+        self.tpl_args = tpl_args
+        super().__init__(body='', status=status, headers=headers, charset=charset)
+
+    def render_body(self, jinja2_environment):
+        template = jinja2_environment.get_template(self.filename)
+        return template.render(**self.tpl_args).encode(self.charset)
+```
+]
+
+---
+.left-column[
+## Template
+### Jinja2
+### TemplateResponse
+]
+.right-column[
+```python
+from jinja2 import Environment, FileSystemLoader
+
+class App:
+    def __init__(self, templates=None):
+        self.router = Router()
+        if templates is None:
+            templates = [os.path.join(os.path.abspath('.'), 'templates')]
+        self.jinja2_environment = Environment(loader=FileSystemLoader(templates))
+
+    (中略)
+
+    def __call__(self, env, start_response):
+        method = env['REQUEST_METHOD'].upper()
+        path = env['PATH_INFO'] or '/'
+        callback, kwargs = self.router.match(method, path)
+
+        response = callback(Request(env), **kwargs)
+        start_response(response.status, response.header_list)
+        if isinstance(response, TemplateResponse):
+            return [response.render_body(self.jinja2_environment)]
+        return [response.body]
+```
+]
+???
+render_bodyを呼び出す際に、environmentを渡す必要があるため、つぎのようにAppクラスを書き換えましょう.
+
+
+---
+.left-column[
+## Template
+### Jinja2
+### TemplateResponse
+### JSONResponse
+]
+.right-column[
+ついでにJSONResponseも実装
+
+```python
+import json
+
+
+class JSONResponse(Response):
+    default_content_type = 'text/json; charset=UTF-8'
+
+    def __init__(self, dic, status='200 OK', headers=None, charset='utf-8', **dump_args):
+        self.dic = dic
+        self.json_dump_args = dump_args
+        super().__init__('', status=status, headers=headers, charset=charset)
+
+    @property
+    def body(self):
+        return json.dumps(self.dic, **self.json_dump_args).encode(self.charset)
+```
+]
+
+
+???
+```bash
+$ curl -X POST -d '' http://127.0.0.1:8000/user/
+{"message": "User Created"}[
+```
 
 <!-- ================================================================== -->
 <!-- ========================== ミドルウェア ============================ -->
@@ -946,6 +1058,41 @@ app = SomeMiddleware(app)
 .right-column[
 CSSやJS、画像などの静的ファイルは...
 ]
+
+
+---
+.left-column[
+## Middleware
+### Router
+### Static files
+### Static Middleware
+]
+.right-column[
+ミドルウェアを使ってみましょう。今回のために実装してきました。
+
+```bash
+$ pip install wsgi-static-middleware
+``
+
+```python
+import os
+from wsgi_static_middleware import StaticMiddleware
+
+(中略)
+
+static_dirs = [os.path.join(os.path.abspath('.'), 'static')]
+app = StaticMiddleware(app, static_dirs=static_dirs, static_root='static')
+```
+]
+
+???
+WSGIのミドルウェアはフレームワークに依存しないため、BottleとかFlaskでも使えます
+```bash
+$ curl http://localhost:8000/static/style.css
+.foo {
+  font-size: 12px;
+}
+```
 
 <!-- ================================================================== -->
 <!-- ========================== Kobinの紹介 ============================ -->
