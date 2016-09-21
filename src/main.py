@@ -1,4 +1,4 @@
-from app import App, Response
+from app import App, Response, TemplateResponse
 from wsgiref.simple_server import make_server
 
 
@@ -13,6 +13,12 @@ def hello(request):
 @app.route('^/user/$', 'POST')
 def create_user(request):
     return Response('User Created', status='201 Created')
+
+
+@app.route('^/user/$', 'GET')
+def users(request):
+    users = ['user%s' % i for i in range(10)]
+    return TemplateResponse('users.html', title='User List', users=users)
 
 
 @app.route('^/user/(?P<name>\w+)$', 'GET')

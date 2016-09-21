@@ -1,12 +1,13 @@
+import os
 import re
 import cgi
 from urllib.parse import parse_qs
 from wsgiref.headers import Headers
+from jinja2 import Environment, FileSystemLoader
 
 
-def http404(env, start_response):
-    start_response('404 Not Found', [('Content-type', 'text/plain; charset=utf-8')])
-    return [b'404 Not Found']
+def http404(request):
+    return Response('404 Not Found', status='404 Not Found')
 
 
 class Router:
@@ -87,9 +88,25 @@ class Response:
         return self.headers.items()
 
 
+class TemplateResponse(Response):
+    default_content_type = 'text/html; charset=UTF-8'
+
+    def __init__(self, filename, status='200 OK', headers=None, charset='utf-8', **tpl_args):
+        self.filename = filename
+        self.tpl_args = tpl_args
+        super().__init__(body='', status=status, headers=headers, charset=charset)
+
+    def render_body(self, jinja2_environment):
+        template = jinja2_environment.get_template(self.filename)
+        return template.render(**self.tpl_args).encode(self.charset)
+
+
 class App:
-    def __init__(self):
+    def __init__(self, templates=None):
         self.router = Router()
+        if templates is None:
+            templates = [os.path.join(os.path.abspath('.'), 'templates')]
+        self.jinja2_environment = Environment(loader=FileSystemLoader(templates))
 
     def route(self, path=None, method='GET', callback=None):
         def decorator(callback_func):
@@ -104,4 +121,6 @@ class App:
 
         response = callback(Request(env), **kwargs)
         start_response(response.status, response.header_list)
+        if isinstance(response, TemplateResponse):
+            return [response.render_body(self.jinja2_environment)]
         return [response.body]
