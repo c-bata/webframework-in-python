@@ -3,51 +3,99 @@
 import cgi
 import json
 from jinja2 import Environment, PackageLoader
-import re
+from typing import get_type_hints
 from urllib.parse import parse_qs
 from wsgiref.headers import Headers
+
+DEFAULT_ARG_TYPE = str
 
 
 def http404(request):
     return Response(body='404 Not Found', status='404 Not Found')
 
 
+def split_by_slash(path):
+    stripped_path = path.lstrip('/').rstrip('/')
+    return stripped_path.split('/')
+
+
 class Route:
-    def __init__(self, method, path, callback):
+    def __init__(self, rule, method, name, callback):
+        self.rule = rule
         self.method = method.upper()
-        self.path = path
+        self.name = name
         self.callback = callback
 
+    @property
+    def callback_types(self):
+        return get_type_hints(self.callback)
+
+    def get_typed_url_vars(self, url_vars):
+        typed_url_vars = {}
+        for k, v in url_vars.items():
+            arg_type = self.callback_types.get(k, DEFAULT_ARG_TYPE)
+            typed_url_vars[k] = arg_type(v)
+        return typed_url_vars
+
+    def _match_method(self, method):
+        return self.method == method.upper()
+
+    def _match_path(self, path):
+        split_rule = split_by_slash(self.rule)
+        split_path = split_by_slash(path)
+        url_vars = {}
+
+        if len(split_rule) != len(split_path):
+            return None
+
+        for r, p in zip(split_rule, split_path):
+            if r.startswith('{') and r.endswith('}'):
+                url_var_key = r.lstrip('{').rstrip('}')
+                url_vars[url_var_key] = p
+                continue
+            if r != p:
+                return None
+        return self.get_typed_url_vars(url_vars)
+
     def match(self, method, path):
-        if self.method == method:
-            return re.match(self.path, path)
+        if not self._match_method(method):
+            return None
+
+        url_vars = self._match_path(path)
+        if url_vars is not None:
+            return self.get_typed_url_vars(url_vars)
 
 
 class Router:
     def __init__(self):
         self.routes = []
 
-    def add(self, method, path, callback):
-        route = Route(method=method, path=path, callback=callback)
-        self.routes.append(route)
-
     def match(self, environ):
         method = environ['REQUEST_METHOD'].upper()
         path = environ['PATH_INFO'] or '/'
 
-        for r in self.routes:
-            result = r.match(method, path)
-            if result:
-                kwargs = result.groupdict()
-                return r.callback, kwargs
+        for route in self.routes:
+            url_vars = route.match(method, path)
+            if url_vars is not None:
+                return route.callback, url_vars
         return http404, {}
+
+    def add(self, method, rule, name, callback):
+        route = Route(method=method.upper(), rule=rule, name=name, callback=callback)
+        self.routes.append(route)
+
+    def reverse(self, name, **kwargs):
+        for route in self.routes:
+            if name == route.name:
+                return route.rule.format(**kwargs)
 
 
 class Request:
-    __slots__ = ('environ', '_body', )
+    __slots__ = ('environ', '_body', 'charset',)
 
-    def __init__(self, environ):
+    def __init__(self, environ, charset='utf-8'):
         self.environ = environ
+        self.charset = charset
         self._body = None
 
     @property
@@ -65,15 +113,15 @@ class Request:
         return parse_qs(self.environ['QUERY_STRING'])
 
     @property
-    def body(self):
+    def body(self) -> bytes:
         if self._body is None:
             content_length = int(self.environ.get('CONTENT_LENGTH', 0))
             self._body = self.environ['wsgi.input'].read(content_length)
         return self._body
 
     @property
-    def text(self, charset='utf-8'):
-        return self.body.decode(charset)
+    def text(self):
+        return self.body.decode(self.charset)
 
 
 class Response:
@@ -129,23 +177,24 @@ class Config(dict):
         super().__init__(**kwargs)
         self.module_name = module_name
         self.update(self.default_config)
-
-    @property
-    def jinja2_env(self):
-        return Environment(loader=PackageLoader(self.module_name, self['TEMPLATE_DIR']))
+        self.jinja2_env = Environment(loader=PackageLoader(self.module_name, self['TEMPLATE_DIR']))
 
 config = None
 
 
 class App:
     def __init__(self, module_name):
-        global config
-        config = Config(module_name)
         self.router = Router()
 
-    def route(self, path=None, method='GET', callback=None):
+        global config
+        config = Config(module_name)
+        config.jinja2_env.globals.update(
+            reverse=self.router.reverse
+        )
+
+    def route(self, rule=None, method='GET', name='', callback=None):
         def decorator(callback_func):
-            self.router.add(method, path, callback_func)
+            self.router.add(method, rule, name, callback_func)
             return callback_func
         return decorator(callback) if callback else decorator
 
@@ -164,35 +213,33 @@ class App:
 ##############
 import os
 from collections import OrderedDict
-from wsgi_static_middleware import StaticMiddleware
 
 app = App(__name__)
+BASE_DIR = os.path.dirname(__name__)
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
 
 
-@app.route('^/$')
+@app.route('/')
 def index(request):
-    return Response('Hello World')
+    users_link = app.router.reverse('user-list')
+    return Response('Please go to {users}'.format(users=users_link))
 
 
-@app.route('^/users/$')
+@app.route('/users/', name='user-list')
 def user_list(request):
     title = 'ユーザ一覧'
-    users = ['user{}'.format(i) for i in range(10)]
+    users = [{'name': 'user{}'.format(i), 'id': i} for i in range(10)]
     response = TemplateResponse(filename='users.html', title=title, users=users)
     return response
 
 
-@app.route('^/users/(?P<user_id>\d+)/$')
-def user_detail(request, user_id):
+@app.route('/users/{user_id}/', name='user-detail')
+def user_detail(request, user_id: int):
     d = OrderedDict(
         user=user_id,
     )
     response = JSONResponse(dic=d, indent=4)
     return response
-
-
-if os.environ.get('DEBUG'):
-    app = StaticMiddleware(app, static_root='static', static_dirs=[STATIC_DIR])
 
 if __name__ == '__main__':
     from wsgiref.simple_server import make_server
