@@ -604,7 +604,123 @@ def forms(self):
     params = {k: form[k].value for k in form}
     return params
 ```
+]
 
+
+---
+.left-column[
+## Request
+### Structure
+### Request Body
+### Query Parameters
+### Form Parameters
+### Code
+]
+.right-column[
+全体のコード
+
+```python
+class Request:
+    def __init__(self, environ):
+        self.environ = environ
+        self._body = None
+
+    @property
+    def forms(self):
+        form = cgi.FieldStorage(
+            fp=self.environ['wsgi.input'],
+            environ=self.environ,
+            keep_blank_values=True,
+        )
+        params = {k: form[k].value for k in form}
+        return params
+
+    @property
+    def query(self):
+        return parse_qs(self.environ['QUERY_STRING'])
+
+    @property
+    def body(self) -> str:
+        if self._body is None:
+            content_length = int(self.environ.get('CONTENT_LENGTH', 0))
+            self._body = self.environ['wsgi.input'].read(content_length).decode('utf-8')
+        return self._body
+
+    @property
+    def text(self, charset='utf-8'):
+        return self.body.decode(charset)
+```
+]
+
+
+
+---
+.left-column[
+## Request
+### Structure
+### Request Body
+### Query Parameters
+### Form Parameters
+### Code
+]
+.right-column[
+アプリケーションに組み込む
+```python
+class App:
+    def __init__(self):
+        self.router = Router()
+
+    def route(self, path=None, method='GET', callback=None):
+        def decorator(callback_func):
+            self.router.add(method, path, callback_func)
+            return callback_func
+        return decorator(callback) if callback else decorator
+
+    def __call__(self, env, start_response):
+        method = env['REQUEST_METHOD'].upper()
+        path = env['PATH_INFO'] or '/'
+        callback, kwargs = self.router.match(method, path)
+        return callback(Request(env), start_response, **kwargs)
+```
+]
+
+---
+.left-column[
+## Request
+### Structure
+### Request Body
+### Query Parameters
+### Form Parameters
+### Code
+]
+.right-column[
+アプリケーションに組み込む
+```python
+@app.route('^/$', 'GET')
+def hello(request, start_response):
+    start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+    return [b'Hello World']
+
+
+@app.route('^/user/$', 'POST')
+def hello(request, start_response):
+    start_response('201 Created', [('Content-type', 'text/plain; charset=utf-8')])
+    return [b'User Created']
+
+
+@app.route('^/user/(?P<name>\w+)$', 'GET')
+def user_detail(request, start_response, name):
+    start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+    body = 'Hello {name}'.format(name=name)
+    return [body.encode('utf-8')]
+```
+
+デバッガで見てみよう
+
+```
+$ curl http://127.0.0.1:8000/?name=foo
+$ curl -X POST -d '{"name": "foo"}' http://127.0.0.1:8000/
+```
 ]
 
 <!-- ================================================================== -->
