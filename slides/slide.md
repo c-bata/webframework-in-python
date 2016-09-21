@@ -73,14 +73,17 @@ layout: false
 ### Goal
 ]
 .right-column[
-**今日のゴール: WEBフレームワークを読むきっかけに！**
+**対象読者:**
 
-- Webフレームワークの構成要素とそれぞれがどんな風に使われているかをしっかり覚えて帰ってください。
-    - コードは公開しているので、後からでも追いかけられます
+- FlaskやDjangoなどを使ったWebアプリケーション開発経験のある方
+
+**ゴール:**
+
+- WEBフレームワークを読むきっかけに！
+- コードは公開しているので、後からでも追いかけられます
     - http://c-bata.link/webframework-in-python/
-- 他のフレームワークを読むきっかけに
-    - Kobin
-    - Bottle
+    - コードはメモしなくてもOKです
+- 他のフレームワークを読むきっかけに(Kobin, Bottle)
 ]
 
 ???
@@ -171,7 +174,11 @@ Web Server Gateway Interface
 .right-column[
 **WSGI 【Web Server Gateway Interface】**
 
-PEP 3333にて策定された、サーバとアプリケーションの標準化インタフェース
+- 読み：「ウィズギー」
+- PEP 3333にて v1.0.1 が策定
+- サーバとアプリケーションの標準化インタフェース
+- Webサーバとアプリケーションの組み合わせを柔軟に
+    - この仕様に従えば自分たちでサーバの実装は不要
 ]
 
 ???
@@ -183,24 +190,13 @@ PythonではWeb Server Gateway Interface略してWSGIと読むんですけど、
 .left-column[
 ## WSGI
 ### What's WSGI
-### Specification
-]
-.right-column[
-**WSGI 【Web Server Gateway Interface】**
-
-1. 2つの引数を持った呼び出し可能なオブジェクト
-2. 第2引数として渡されたオブジェクトを呼び出し、HTTPステータスコードとヘッダ情報を渡す
-3. レスポンスボディとしてバイト文字列をyieldするiterableなオブジェクトを返す
-]
-
----
-.left-column[
-## WSGI
-### What's WSGI
 ### Minimum Application
 ]
 .right-column[
 ### 3 lines of Python
+
+PEP3333を読んでいくのは大変なのでコードで解説
+
 ```python
 def application(env, start_response):
     start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
@@ -219,6 +215,9 @@ def application(env, start_response):
 ]
 .right-column[
 ### 3 lines of Python
+
+PEP3333を読んでいくのは大変なのでコードで解説
+
 ```python
 def application(env, start_response):
     start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
@@ -236,6 +235,10 @@ def application(env, start_response):
 ]
 .right-column[
 ### 3 lines of Python
+
+PEP3333を読んでいくのは大変なのでコードで解説
+
+
 ```python
 def application(env, start_response):
     start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
@@ -254,6 +257,9 @@ def application(env, start_response):
 ]
 .right-column[
 ### 3 lines of Python
+
+PEP3333を読んでいくのは大変なのでコードで解説
+
 ```python
 def application(env, start_response):
     start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
