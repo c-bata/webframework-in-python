@@ -27,7 +27,6 @@ layout: false
 
 - 芝田 将 (Masashi Shibata)
 - twitter: @c\_bata\_
-- github: @c-bata
 - 明石高専 専攻科
 - PyCon JP 2015, 2016 スタッフ
 - PyCon Taiwan 2015, JP 2015, Korea 2016 でLT
@@ -42,9 +41,6 @@ layout: false
 これまでPyConにはTaiwan, JP, Koreaと3回参加してきたのですが、全部Lightning Talkをやっていまして、今回は念願の一般トークです。
 聞きに来てくださってありがとうございます。みなさんにはWebフレームワークのコードを読む自信を持ち帰ってもらいたいなと思います。
 
-ジョブズはiPhoneの発表日に、 This is the day (この日を待ってたんだ)って言ったらしい。
-意気込みを伝えたい。堂々としたい。価値を届けるんだっていいたい
-
 今日の発表資料の方はtwitterに流しています。
 
 <!-- ================================================================== -->
@@ -52,8 +48,8 @@ layout: false
 <!-- ================================================================== -->
 ---
 .left-column[
-## はじめに
-### きっかけ
+## Intro
+### Motivation
 ]
 .right-column[
 これまでの悩み
@@ -72,16 +68,19 @@ layout: false
 
 ---
 .left-column[
-## はじめに
-### きっかけ
-### 今日のゴール
+## Intro
+### Motivation
+### Goal
 ]
 .right-column[
+**今日のゴール: WEBフレームワークを読むきっかけに！**
+
 - Webフレームワークの構成要素とそれぞれがどんな風に使われているかをしっかり覚えて帰ってください。
     - コードは公開しているので、後からでも追いかけられます
     - http://c-bata.link/webframework-in-python/
-- それが終わったらBottleかKobinの実装を読んでみてください
-    - Kobinはversionを3.5に絞っていて、Type Hintsもあり読みやすいと思います :)
+- 他のフレームワークを読むきっかけに
+    - Kobin
+    - Bottle
 ]
 
 ???
@@ -89,8 +88,51 @@ layout: false
 最終的に出来上がるアプリケーションは150行ほどです。
 かなり短い方ですが、話を聞きながら細かい実装まで全てをこのセッション中に全員が理解するのは難しいかと思います。
 
-やっぱり自分の聞きたいのと違ったなって思った方は、今からまだ他のセッションに移っていただいても大丈夫です。
-全員移っちゃうと悲しいから、1人ぐらいは残って聞いてくださいね。
+
+---
+.left-column[
+## Intro
+### Motivation
+### Goal
+### WAF
+]
+.right-column[
+```python
+from app import App, Response, TemplateResponse, JSONResponse
+import os
+from wsgiref.simple_server import make_server
+from wsgi_static_middleware import StaticMiddleware
+
+
+app = App()
+static_dirs = [os.path.join(os.path.abspath('.'), 'static')]
+app = StaticMiddleware(app, static_root='static', static_dirs=static_dirs)
+
+
+@app.route('^/$', 'GET')
+def hello(request):
+    return Response('Hello World')
+
+
+@app.route('^/user/$', 'POST')
+def create_user(request):
+    return JSONResponse({'message': 'User Created'}, status='201 Created')
+
+
+@app.route('^/user/(?P<name>\w+)$', 'GET')
+def user_detail(request, name):
+    return Response('Hello {name}'.format(name=name))
+
+
+if __name__ == '__main__':
+    httpd = make_server('', 8000, app)
+    httpd.serve_forever()
+```
+]
+
+???
+最終的に出来上がるアプリケーションは150行ほどです。
+
 
 <!-- ================================================================== -->
 <!-- ============================= WSGI =============================== -->
@@ -552,20 +594,21 @@ import json
 
 
 class Request:
-    def __init__(self, environ):
+    def __init__(self, environ, charset='utf-8'):
         self.environ = environ
         self._body = None
+        self.charset = charset
 
     @property
-    def body(self) -> str:
+    def body(self):
         if self._body is None:
             content_length = int(self.environ.get('CONTENT_LENGTH', 0))
-            self._body = self.environ['wsgi.input'].read(content_length).decode('utf-8')
+            self._body = self.environ['wsgi.input'].read(content_length)
         return self._body
 
     @property
-    def text(self, charset='utf-8'):
-        return self.body.decode(charset)
+    def text(self):
+        return self.body.decode(self.charset)
 
     @property
     def json(self):

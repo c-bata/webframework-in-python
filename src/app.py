@@ -32,9 +32,10 @@ class Router:
 
 
 class Request:
-    def __init__(self, environ):
+    def __init__(self, environ, charset='utf-8'):
         self.environ = environ
         self._body = None
+        self.charset = charset
 
     @property
     def forms(self):
@@ -51,15 +52,19 @@ class Request:
         return parse_qs(self.environ['QUERY_STRING'])
 
     @property
-    def body(self) -> str:
+    def body(self):
         if self._body is None:
             content_length = int(self.environ.get('CONTENT_LENGTH', 0))
-            self._body = self.environ['wsgi.input'].read(content_length).decode('utf-8')
+            self._body = self.environ['wsgi.input'].read(content_length)
         return self._body
 
     @property
-    def text(self, charset='utf-8'):
-        return self.body.decode(charset)
+    def text(self):
+        return self.body.decode(self.charset)
+
+    @property
+    def json(self):
+        return json.loads(self.body)
 
 
 class Response:
