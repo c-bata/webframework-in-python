@@ -703,7 +703,7 @@ def hello(request, start_response):
 
 
 @app.route('^/user/$', 'POST')
-def hello(request, start_response):
+def create_user(request, start_response):
     start_response('201 Created', [('Content-type', 'text/plain; charset=utf-8')])
     return [b'User Created']
 
