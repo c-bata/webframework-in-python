@@ -22,18 +22,6 @@ WSGIミドルウェア
         return self.app(env, start_response)
 
 
-勘のいい方はすでにお気づきかもしれませんが、私たちは既に一度WSGIのミドルウェアを作成しています。
-次の図を見てください。
-
-.. image:: /_static/structure/router.png
-   :width: 300px
-   :align: center
-   :alt: ルーティング用 WSGIミドルウェア
-
-
-この中に登場するルータクラスはWSGIのミドルウェアです。
-
-
 静的ファイルの配信
 ---------
 
