@@ -4,9 +4,8 @@ from urllib.parse import parse_qs
 from wsgiref.headers import Headers
 
 
-def http404(env, start_response):
-    start_response('404 Not Found', [('Content-type', 'text/plain; charset=utf-8')])
-    return [b'404 Not Found']
+def http404(request):
+    return Response('404 Not Found', status='404 Not Found')
 
 
 class Router:
