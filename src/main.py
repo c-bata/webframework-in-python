@@ -1,5 +1,7 @@
 from app import App, Response, TemplateResponse, JSONResponse
+import os
 from wsgiref.simple_server import make_server
+from wsgi_static_middleware import StaticMiddleware
 
 
 app = App()
@@ -27,5 +29,7 @@ def user_detail(request, name):
 
 
 if __name__ == '__main__':
+    static_dirs = [os.path.join(os.path.abspath('.'), 'static')]
+    app = StaticMiddleware(app, static_dirs=static_dirs, static_root='static')
     httpd = make_server('', 8000, app)
     httpd.serve_forever()
