@@ -1032,6 +1032,7 @@ Webサーバ側からはWSGIアプリケーションのように見えWSGIアプ
 .left-column[
 ## Middleware
 ### Structure
+### Example
 ]
 .right-column[
 何もしないミドルウェア
@@ -1052,27 +1053,41 @@ app = SomeMiddleware(app)
 ---
 .left-column[
 ## Middleware
-### Router
+### Structure
+### Example
 ### Static files
 ]
 .right-column[
-CSSやJS、画像などの静的ファイルは...
+**静的ファイルの配信:**
+
+- CSS
+- JavaScript
+- 画像ファイル
+- などなど
 ]
 
+???
+次はJavaScriptやCSS、画像などの静的ファイルを返す機能をつけてみましょう。
+本番環境では、パフォーマンスの観点からNginx等で直接返すことが多いかもしれませんが、 開発環境でもNginxなどの設定をしておくのは、かなり面倒です。
 
 ---
 .left-column[
 ## Middleware
-### Router
+### Structure
+### Example
 ### Static files
 ### Static Middleware
 ]
 .right-column[
-ミドルウェアを使ってみましょう。今回のために実装してきました。
+**静的ファイルを配信するミドルウェア**
+
+https://github.com/c-bata/wsgi-static-middleware
 
 ```bash
 $ pip install wsgi-static-middleware
-``
+```
+
+Usage:
 
 ```python
 import os
@@ -1086,6 +1101,8 @@ app = StaticMiddleware(app, static_dirs=static_dirs, static_root='static')
 ]
 
 ???
+ミドルウェアを使ってみましょう。今回のために実装してきました。
+
 WSGIのミドルウェアはフレームワークに依存しないため、BottleとかFlaskでも使えます
 ```bash
 $ curl http://localhost:8000/static/style.css
