@@ -252,6 +252,7 @@ template: inverse
 ---
 .left-column[
 ## Routing
+### Basic Routing
 ]
 .right-column[
 最もシンプルなルーティング
@@ -270,20 +271,82 @@ def application(env, start_response):
         return [b'404 Not Found']
 ```
 
-リクエストのPathは `env['PATH_INFO']` に含まれる
+`env` はリクエスト情報が入った辞書型オブジェクト.
+
+リクエストのパスは、 `env['PATH_INFO']` から取得
 ]
 
 ???
-最もシンプルなルーティングはこのようになるかなと思います。
-WSGIのアプリケーションの第一引数、ここではenvと名前をつけていますが、
-これは辞書型のオブジェクトでrequestに関する様々な情報が入っています。
+先程のアプリケーションでは、URLのパス情報によらず全て「Hello World」と返しています。
+実際のアプリケーションでは、沢山のページが存在するためパス情報に応じてそれぞれ違ったレスポンスを返す必要があります。
+簡単なルーティング方法はこのような感じになるかと思います。
 
-その中の PATH_INFO はリクエストのPATH情報がはいっているので、
-これを比較すればいいわけですね。
+WSGIのアプリケーションの第一引数には、辞書型オブジェクトが渡されています。
+ここではWebブラウザなどのクライアントから送られたリクエストの情報などが入っています。
+リクエストのパス情報もその一つで、 PATH_INFO により取り出す事ができます。
 
 ---
 .left-column[
 ## Routing
+### Basic Routing
+### URL Variables
+]
+.right-column[
+**URL変数**
+
+Bottleの例:
+
+```python
+@route('/hello/<name>')
+def greet(name='Stranger'):
+    return template('Hello {{name}}, how are you?', name=name)
+
+@route('/users/<user_id:int>')
+def user_detail(user_id):
+    users = ['user{id}'.format(id=i) for i in range(10)]
+    return template('Hello {{user}}', user=users[user_id])
+```
+
+URLのパス情報から変数として取り出したりもしたい
+]
+
+???
+/hello/foo と /hello/bar はそれぞれ別のエンドポイントですが、上のコードではどちらも greet 関数が呼ばれます。
+またURLのパス情報から foo や bar などの変数(以下、URL変数)を取り出しています。
+先程のようにif文で分岐させていくのは大変なので、別の方法を考えてみましょう。
+
+---
+.left-column[
+## Routing
+### Basic Routing
+### URL Variables
+### Regex Module
+]
+.right-column[
+Pythonの正規表現モジュールについておさらい
+
+```python
+>>> import re
+>>> url_scheme = '/users/(?P<user_id>\d+)/'
+>>> re.match('/users/(?P<user_id>\d+)/', '/users/1/').groupdict()
+{'user_id': '1'}
+
+>>> pattern = re.compile(url_scheme)
+>>> pattern.match('/users/1/').groupdict()
+{'user_id': '1'}
+```
+]
+
+???
+正規表現 は普段使わない方も多いかと思います。 ここで簡単におさらいしましょう。
+このように名前付きグループでパターンを定義し、マッチするか確認してからgroupdictを呼ぶことでuser_idの部分の数字が文字列で取得出来ます。
+
+---
+.left-column[
+## Routing
+### Basic Routing
+### URL Variables
+### Regex Module
 ### Structure
 ]
 .right-column[
@@ -293,26 +356,7 @@ WSGIのアプリケーションの第一引数、ここではenvと名前をつ�
 ]
 
 ???
-
-今のアプリケーションはどこにいっても
-
----
-.left-column[
-## Routing
-### Structure
-### Regex Module
-]
-.right-column[
-正規表現モジュールについておさらい
-
-```python
->>> import re
->>> url_scheme = '/users/(?P<user_id>\d+)/'
->>> pattern = re.compile(url_scheme)
->>> pattern.match('/users/1/').groupdict()
-{'user_id': '1'}
-```
-]
+それでは、ルーティング機能を提供するため、フレームワークの実装を始めましょう。 ここで提供するルーティングは次のようなイメージです。
 
 ---
 .left-column[
@@ -324,9 +368,6 @@ WSGIのアプリケーションの第一引数、ここではenvと名前をつ�
 .right-column[
 ```python
 import re
-from collections import namedtuple
-
-Route = namedtuple('Route', ['method', 'path', 'callback'])
 
 
 def http404(env, start_response):
@@ -339,18 +380,18 @@ class Router:
         self.routes = []
 
     def add(self, method, path, callback):
-        route = Route(method=method, path=path, callback=callback)
-        self.routes.append(route)
+        self.routes.append({
+            'method': method,
+            'path': path,
+            'callback': callback
+        })
 
-    def match(self, environ):
-        method = environ['REQUEST_METHOD'].upper()
-        path = environ['PATH_INFO'] or '/'
-
-        for r in filter(lambda x: x.method == method.upper(), self.routes):
-            matched = re.compile(r.path).match(path)
+    def match(self, method, path):
+        for r in filter(lambda x: x['method'] == method.upper(), self.routes):
+            matched = re.compile(r['path']).match(path)
             if matched:
                 kwargs = matched.groupdict()
-                return r.callback, kwargs
+                return r['callback'], kwargs
         return http404, {}
 ```
 ]
@@ -379,7 +420,7 @@ Routerクラスを組み込む。
 WSGIのアプリケーション用のクラスを用意する。
 
 ```python
-class MyFramework:
+class App:
     def __call__(self, env, start_response):
         start_response('200 OK', [('Content-type', 'text/plain')])
         return [b'Hello World']
@@ -394,6 +435,37 @@ class MyFramework:
 そういえば形式が違う。
 オブジェクトを
 
+
+---
+.left-column[
+## Routing
+### Structure
+### Regex Module
+### Code
+]
+
+.right-column[
+アプリケーションに組み込む
+
+```python
+class App:
+    def __init__(self):
+        self.router = Router()
+
+    def route(self, path=None, method='GET', callback=None):
+        def decorator(callback_func):
+            self.router.add(method, path, callback_func)
+            return callback_func
+        return decorator(callback) if callback else decorator
+
+    def __call__(self, env, start_response):
+        method = env['REQUEST_METHOD'].upper()
+        path = env['PATH_INFO'] or '/'
+        callback, kwargs = self.router.match(method, path)
+        return callback(env, start_response, **kwargs)
+```
+]
+
 ---
 .left-column[
 ## Routing
@@ -403,13 +475,32 @@ class MyFramework:
 ### Sample
 ]
 .right-column[
+動かしてみましょう。
+
 ```python
+from app import App
+from wsgiref.simple_server import make_server
+
+
 app = App()
 
-@app.route('^/users/$')
-def users(env, start_response):
-    start_response('200 OK', [('Content-type', 'text/plain')])
-    return 
+
+@app.route('^/$', 'GET')
+def hello(env, start_response):
+    start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+    return [b'Hello World']
+
+
+@app.route('^/user/(?P<name>\w+)$', 'GET')
+def user_detail(env, start_response, name):
+    start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+    body = 'Hello {name}'.format(name=name)
+    return [body.encode('utf-8')]
+
+
+if __name__ == '__main__':
+    httpd = make_server('', 8000, app)
+    httpd.serve_forever()
 ```
 ]
 
@@ -605,10 +696,36 @@ Kobinは本発表で紹介した機能を全て実装していますが、その
 またType Hintsを活用しているためコードを読む上での手がかりとなる情報も既存のフレームワークに比べ多いでしょう。
 ]
 
+.left-column[
+## Kobin
+### About
+### Usage
+]
+.right-column[
+**使い方**
+
+```python
+from kobin import Kobin
+app = Kobin()
+
+@app.route('/')
+def hello() -> str:
+    return "Hello World"
+
+@app.route('/users/{user_id}')
+def hello(user_id: int) -> str:
+    return "Hello {}!!".format(user_id)
+
+if __name__ == '__main__':
+    app.run()
+```
+]
+
 ---
 .left-column[
 ## Kobin
 ### About
+### Usage
 ### ToDo
 ]
 .right-column[
@@ -619,6 +736,6 @@ Kobinのサンプルアプリケーション
 
 
 ---
-# まとめ
+# 帰ってからやってほしいこと
 
-
+コードを読む！
