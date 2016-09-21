@@ -717,7 +717,7 @@ def user_detail(request, start_response, name):
 
 デバッガで見てみよう
 
-```
+```bash
 $ curl http://127.0.0.1:8000/?name=foo
 $ curl -X POST -d '{"name": "foo"}' http://127.0.0.1:8000/
 ```
