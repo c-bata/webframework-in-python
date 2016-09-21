@@ -361,8 +361,10 @@ Pythonの正規表現モジュールについておさらい
 ---
 .left-column[
 ## Routing
-### Structure
+### Basic Routing
+### URL Variables
 ### Regex Module
+### Structure
 ### Code
 ]
 .right-column[
@@ -408,8 +410,10 @@ PyCharmのデバッガで逐次実行しながら、説明 (これだと値を�
 ---
 .left-column[
 ## Routing
-### Structure
+### Basic Routing
+### URL Variables
 ### Regex Module
+### Structure
 ### Code
 ]
 .right-column[
@@ -439,8 +443,10 @@ class App:
 ---
 .left-column[
 ## Routing
-### Structure
+### Basic Routing
+### URL Variables
 ### Regex Module
+### Structure
 ### Code
 ]
 
@@ -469,10 +475,11 @@ class App:
 ---
 .left-column[
 ## Routing
-### Structure
+### Basic Routing
+### URL Variables
 ### Regex Module
+### Structure
 ### Code
-### Sample
 ]
 .right-column[
 動かしてみましょう。
@@ -522,30 +529,36 @@ template: inverse
 全部に、envとstart_responseを渡すのは面倒そうだ
 
 ![リクエストクラス](./img/structure/request.png)
+
+WSGIのEnvironmentではなく、うまくラップしたクラスを返したい。
 ]
 
 ---
 .left-column[
 ## Request
 ### Structure
-### Request Body
+### Request Class
 ]
 .right-column[
 リクエストボディを取得する
 
 ```python
-@property
-def body(self):
-    if self._body is None:
-        content_length = int(self.environ.get('CONTENT_LENGTH', 0))
-        self._body = self.environ['wsgi.input'].read(content_length)
-    return self._body
+class Request:
+    def __init__(self, environ):
+        self.environ = environ
+        self._body = None
 
-@property
-def text(self, charset='utf-8'):
-    return self.body.decode(charset)
+    @property
+    def body(self) -> str:
+        if self._body is None:
+            content_length = int(self.environ.get('CONTENT_LENGTH', 0))
+            self._body = self.environ['wsgi.input'].read(content_length).decode('utf-8')
+        return self._body
+
+    @property
+    def text(self, charset='utf-8'):
+        return self.body.decode(charset)
 ```
-
 ]
 
 ---
