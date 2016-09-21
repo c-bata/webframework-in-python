@@ -737,6 +737,8 @@ template: inverse
 ### Structure
 ]
 .right-column[
+レスポンス情報もうまくラップしてあげたい。
+
 ![レスポンスクラス](./img/structure/response.png)
 ]
 
@@ -761,6 +763,123 @@ template: inverse
 >>> h.add_header('Foo', 'bar')
 >>> h.items()
 [('Content-type', 'text/plain'), ('Foo', 'bar')]
+```
+]
+
+---
+.left-column[
+## Response
+### Structure
+### Headers
+### Response Class
+]
+.right-column[
+
+```python
+from wsgiref.headers import Headers
+
+class Response:
+    default_status = '200 OK'
+    default_content_type = 'text/plain; charset=UTF-8'
+
+    def __init__(self, body='', status=None, headers=None):
+        self._body = body
+        self.status = status or self.default_status
+        self.headers = Headers()
+
+        if headers:
+            for name, value in headers.items():
+                self.headers.add_header(name, value)
+
+    @property
+    def body(self):
+        if isinstance(self._body, str):
+            return self._body.encode('utf-8')
+        return self._body
+
+    @property
+    def header_list(self):
+        if 'Content-Type' not in self.headers:
+            self.headers.add_header('Content-Type', self.default_content_type)
+        return self.headers.items()
+```
+]
+
+???
+* デフォルトのステータスは `200 OK`
+* Content-Type: `text/plain`
+* charset: `UTF-8`
+
+---
+.left-column[
+## Response
+### Structure
+### Headers
+### Response Class
+### Code
+]
+.right-column[
+アプリケーションに組み込む
+
+```python
+class App:
+    def __init__(self):
+        self.router = Router()
+
+    def route(self, path=None, method='GET', callback=None):
+        def decorator(callback_func):
+            self.router.add(method, path, callback_func)
+            return callback_func
+        return decorator(callback) if callback else decorator
+
+    def __call__(self, env, start_response):
+        method = env['REQUEST_METHOD'].upper()
+        path = env['PATH_INFO'] or '/'
+        callback, kwargs = self.router.match(method, path)
+
+        response = callback(Request(env), **kwargs)
+        start_response(response.status, response.header_list)
+        return [response.body]
+```
+]
+
+---
+.left-column[
+## Response
+### Structure
+### Headers
+### Response Class
+### Code
+]
+.right-column[
+アプリケーションに組み込む
+
+```python
+from app import App, Response
+from wsgiref.simple_server import make_server
+
+
+app = App()
+
+
+@app.route('^/$', 'GET')
+def hello(request):
+    return Response('Hello World')
+
+
+@app.route('^/user/$', 'POST')
+def create_user(request):
+    return Response('User Created', status='201 Created')
+
+
+@app.route('^/user/(?P<name>\w+)$', 'GET')
+def user_detail(request, name):
+    return Response('Hello {name}'.format(name=name))
+
+
+if __name__ == '__main__':
+    httpd = make_server('', 8000, app)
+    httpd.serve_forever()
 ```
 ]
 
