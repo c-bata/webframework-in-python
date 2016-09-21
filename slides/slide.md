@@ -856,11 +856,8 @@ class App:
 
 ```python
 from app import App, Response
-from wsgiref.simple_server import make_server
 
-
-app = App()
-
+(中略)
 
 @app.route('^/$', 'GET')
 def hello(request):
@@ -869,18 +866,18 @@ def hello(request):
 
 @app.route('^/user/$', 'POST')
 def create_user(request):
-    return Response('User Created', status='201 Created')
+    response = Response('User Created', status='201 Created')
+    response.headers.add_header('foo', 'bar')
+    return response
 
 
 @app.route('^/user/(?P<name>\w+)$', 'GET')
 def user_detail(request, name):
     return Response('Hello {name}'.format(name=name))
-
-
-if __name__ == '__main__':
-    httpd = make_server('', 8000, app)
-    httpd.serve_forever()
 ```
+
+start_responseをユーザが直接呼び出す必要がなくなった。
+スッキリ！
 ]
 
 <!-- ================================================================== -->
