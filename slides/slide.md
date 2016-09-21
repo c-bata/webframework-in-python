@@ -56,7 +56,12 @@ layout: false
 ### きっかけ
 ]
 .right-column[
-- 何か躓いた時に、自分で修正したい。そもそもバグなのか調べたい。
+これまでの悩み
+
+- 今作りたいアプリケーションには、どのフレームワークが向いている？
+- この機能を使ってみたいけどドキュメントがよく分からない
+- こういうことって出来るのかな？
+- 意図してる挙動と違うような気がするけど、どうしよう
 ]
 
 ???
@@ -69,12 +74,12 @@ layout: false
 .left-column[
 ## はじめに
 ### きっかけ
-### ゴール
+### 今日のゴール
 ]
 .right-column[
-- Webフレームワークの構成要素とそれぞれの目的をしっかり覚えて帰ってください。
-    - あとはコードを読んで理解できるはずです。
-- 細かい部分は、Youtube, Sphinxで復習してください。
+- Webフレームワークの構成要素とそれぞれがどんな風に使われているかをしっかり覚えて帰ってください。
+    - コードは公開しているので、後からでも追いかけられます
+    - http://c-bata.link/webframework-in-python/
 - それが終わったらBottleかKobinの実装を読んでみてください
     - Kobinはversionを3.5に絞っていて、Type Hintsもあり読みやすいと思います :)
 ]
@@ -904,19 +909,32 @@ template: inverse
 ### Structure
 ]
 .right-column[
+Webサーバ側からはWSGIアプリケーションのように見えWSGIアプリケーション側からはWebサーバのように見える
 ![ミドルウェア](./img/structure/middleware.png)
 ]
+???
+ミドルウェアは、Webサーバ側からはWSGIアプリケーションのように見えWSGIアプリケーション側からはWebサーバのように見えます。
+
 
 ---
 .left-column[
 ## Middleware
 ### Structure
-### Router
 ]
 .right-column[
-実はすでに作っていた
+何もしないミドルウェア
+```python
+class SomeMiddleware:
+    def __init__(self, app):
+        self.app = app
 
-![Routerミドルウェア](./img/structure/router.png)
+    def __call__(self, env, start_response):
+        print('Requestが発生したよ')
+        return self.app(env, start_response)
+
+
+app = SomeMiddleware(app)
+```
 ]
 
 ---
@@ -943,11 +961,17 @@ template: inverse
 ### About
 ]
 .right-column[
+*Kobinとは*
+
+- https://github.com/c-bata/kobin
+- 全体で500行未満
+]
+???
 私が開発しているKobinというフレームワークと、それを用いた実際のアプリケーションを紹介します。
 Kobinは本発表で紹介した機能を全て実装していますが、その実装は800行に満たない程度(5/17現在)と非常に短く、勉強用途としては最適なWebフレームワークとなっています。
 またType Hintsを活用しているためコードを読む上での手がかりとなる情報も既存のフレームワークに比べ多いでしょう。
-]
 
+---
 .left-column[
 ## Kobin
 ### About
@@ -972,6 +996,11 @@ if __name__ == '__main__':
     app.run()
 ```
 ]
+???
+主な違いとしては
+- request, responseオブジェクトがスレッド内でグローバルなオブジェクト
+- 正規表現ではなく、コード例のようなルーティング方法
+    - Reverse Routing(逆引き)が用意
 
 ---
 .left-column[
@@ -983,11 +1012,15 @@ if __name__ == '__main__':
 .right-column[
 Kobinのサンプルアプリケーション
 
+https://github.com/c-bata/kobin-example
+
 <img src="https://github.com/c-bata/kobin-example/raw/master/anim.gif" width="550px"/>
 ]
 
 
 ---
-# 帰ってからやってほしいこと
+# 帰ってからのお願い
 
-コードを読む！
+1. フレームワークを自分で書いてみる
+2. 作ったフレームワークを使って、アプリケーションを作ってみる *大事!*
+3. Bottleのコードを読んでみる
