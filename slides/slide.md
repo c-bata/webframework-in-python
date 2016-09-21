@@ -104,12 +104,9 @@ layout: false
 from app import App, Response, TemplateResponse, JSONResponse
 import os
 from wsgiref.simple_server import make_server
-from wsgi_static_middleware import StaticMiddleware
 
 
 app = App()
-static_dirs = [os.path.join(os.path.abspath('.'), 'static')]
-app = StaticMiddleware(app, static_root='static', static_dirs=static_dirs)
 
 
 @app.route('^/$', 'GET')
@@ -126,7 +123,6 @@ def create_user(request):
 def user_detail(request, name):
     return Response('Hello {name}'.format(name=name))
 
-
 if __name__ == '__main__':
     httpd = make_server('', 8000, app)
     httpd.serve_forever()
@@ -135,6 +131,10 @@ if __name__ == '__main__':
 
 ???
 最終的に出来上がるアプリケーションは150行ほどです。
+
+- デコレータベースでView関数に対して、URLやHTTPメソッドを割り当て
+- このフレームワークにおけるView関数は、Requestと呼ばれるオブジェクトとURL変数を受け取る
+- View関数はResponseクラスを返す
 
 
 <!-- ================================================================== -->
@@ -1261,10 +1261,19 @@ https://github.com/c-bata/kobin-example
 <img src="https://github.com/c-bata/kobin-example/raw/master/anim.gif" width="550px"/>
 ]
 
-
 ---
-# 帰ってからのお願い
+## 家に帰ってから
+
+今日のセッションを、フレームワークを読むきっかけに
 
 1. フレームワークを自分で書いてみる
 2. 作ったフレームワークを使って、アプリケーションを作ってみる *大事!*
 3. Bottleのコードを読んでみる
+
+???
+素晴らしいフレームワークたくさんあるので、
+
+---
+template: inverse
+
+## THANK YOU!!
