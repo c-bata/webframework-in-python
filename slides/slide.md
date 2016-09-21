@@ -919,6 +919,10 @@ Jinja2を使う。
 ### TemplateResponse
 ]
 .right-column[
+テンプレート用のResponseクラスを用意
+
+Content-Typeは `text/html`
+
 ```python
 class TemplateResponse(Response):
     default_content_type = 'text/html; charset=UTF-8'
@@ -1003,6 +1007,36 @@ class JSONResponse(Response):
 $ curl -X POST -d '' http://127.0.0.1:8000/user/
 {"message": "User Created"}[
 ```
+
+---
+.left-column[
+## Template
+### Jinja2
+### TemplateResponse
+### JSONResponse
+]
+.right-column[
+動かし方。
+
+```python
+from app import Response, TemplateResponse, JSONResponse
+
+@app.route('^/$', 'GET')
+def hello(request):
+    return Response('Hello World')
+
+
+@app.route('^/user/$', 'POST')
+def create_user(request):
+    return JSONResponse({'message': 'User Created'}, status='201 Created')
+
+
+@app.route('^/user/$', 'GET')
+def users(request):
+    users = ['user%s' % i for i in range(10)]
+    return TemplateResponse('users.html', title='User List', users=users)
+```
+]
 
 <!-- ================================================================== -->
 <!-- ========================== ミドルウェア ============================ -->
