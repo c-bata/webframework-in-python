@@ -13,6 +13,8 @@ PyConJP 2016
 
 2016/09/21 (Wed)
 
+<a href="http://b.hatena.ne.jp/entry/c-bata.link/webframework-in-python/slide.html%231" class="hatena-bookmark-button" data-hatena-bookmark-layout="basic-label-counter" data-hatena-bookmark-lang="ja" title="このエントリーをはてなブックマークに追加"><img src="https://b.st-hatena.com/images/entry-button/button-only@2x.png" alt="このエントリーをはてなブックマークに追加" width="20" height="20" style="border: none;" /></a>
+
 .footnote[Go directly to [Github](https://github.com/c-bata/webframework-in-python)]
 
 ---
