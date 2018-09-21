@@ -162,6 +162,13 @@
   <body>
 	<script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/remark/0.14.0/remark.min.js"></script>
-  <script>var slideshow = remark.create({sourceUrl: './slide.md'});</script>
+  <script>
+    var slideshow = remark.create({
+      sourceUrl: './slide.md',
+      navigation: {
+        scroll: false
+      }
+    });
+  </script>
   </body>
 </html>
