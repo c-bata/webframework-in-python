@@ -92,50 +92,20 @@ URL変数
    パス情報にあわせて別のアプリケーションを呼び出す。
 
 それでは図のRouterを実装していきましょう。
-フレームワークの利用者からは、次のような形で利用出来るようにしてみます。
-
-.. code-block:: python
-
-   from myframework import App
-
-   app = App()
-
-
-   @app.route('^/users/$')
-   def user_list(env, start_response):
-       start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
-       return [b'User List']
-
-
-   @app.route('^/users/(?P<user_id>\d+)/$')
-   def user_detail(env, start_response, user_id):
-       start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
-       res = 'Hello user {user_id}'.format(user_id=user_id)
-       return [res.encode('utf-8')]
-
-   if __name__ == '__main__':
-       from wsgiref.simple_server import make_server
-       httpd = make_server('', 8000, app)
-       httpd.serve_forever()
 
 
 Routerクラス
 ---------
 
-Routerクラスを用意します。
+それではルーティングの機能を提供する ``Router`` クラスを用意していきます。
+このクラスには2つのメソッドを用意します。
 
-1. add メソッドにより、各ルートの情報を辞書型オブジェクトのリストに格納する
-2. matchするか調べる
+1. ``add()``: 各コールバック関数(WSGIアプリケーションオブジェクト)が、どのURLパス・HTTPメソッドに紐づくかを登録する。
+2. ``match()``: 実際に受け取ったリクエストのパスとHTTPメソッドの情報を元に登録していたコールバック関数とURL変数を返す。
+
+まずは ``add()`` メソッドから定義してみましょう。
 
 .. code-block:: python
-
-   import re
-
-
-   def http404(env, start_response):
-       start_response('404 Not Found', [('Content-type', 'text/plain; charset=utf-8')])
-       return [b'404 Not Found']
-
 
    class Router:
        def __init__(self):
@@ -148,58 +118,203 @@ Routerクラスを用意します。
                'callback': callback
            })
 
-       def match(self, method, path):
-           for r in filter(lambda x: x['method'] == method.lower(), self.routes):
-               matched = re.compile(r['path']).match(path)
-            if matched:
-                kwargs = matched.groupdict()
-                return r, kwargs
-        return http404, {}
-
-
-試しに動作確認
+HTTPメソッドとパス、それに紐づくコールバック関数を辞書型のオブジェクトにつめて、リストに追加しました。
+非常に簡単です。呼び出し側はどのようになるでしょうか？ ``match()`` メソッドを定義します。
 
 .. code-block:: python
 
-   >>> from routes import Router
+   import re
+
+
+   def http404(env, start_response):
+       start_response('404 Not Found', [('Content-type', 'text/plain; charset=utf-8')])
+       return [b'404 Not Found']
+
+
+   class Router:
+       ...
+
+       def match(self, method, path):
+           for r in self.routes:
+               matched = re.compile(r['path']).match(path)
+               if matched and r['method'] == method:
+                   url_vars = matched.groupdict()
+                   return r['callback'], url_vars
+           return http404, {}
+
+
+このメソッドでは、 ``add()`` メソッドで登録したエンドポイントのパス情報とメソッド情報が一致するかをチェックします。
+もし一致した場合には、URL変数を取り出し、ひも付けられていたコールバック関数を返します。
+一致しない場合には、 ``404 Not Found`` を返すようになりました。
+こちらも非常にシンプルなコードですが、基本的にルーティングに必要な機能を備えています。
+念の為動作も確認しましょう。
+
+.. code-block:: python
+
+   >>> from app import Router
    >>> router = Router()
-   >>> def users():
-   ...     return 'user list'
+
+   # コールバック関数の定義
    >>> def create_user():
-   ...     return 'create user'
+   ...     return 'user is created'
+   ...
    >>> def user_detail(id):
    ...     return 'user{id} detail'.format(id)
-   >>> router.add('get', '^/users/$', users)
-   >>> router.add('post', '^/users/$', create_user)
-   >>> router.add('get', '^/users/(?P<user_id>\d+)/$', user_detail)
-   >>> callback, kwargs = router.match('get', '/users/')
+   ...
+
+   # エンドポイントの登録
+   >>> router.add('POST', '^/users/$', create_user)
+   >>> router.add('GET', '^/users/(?P<user_id>\d+)/$', user_detail)
+
+   # 呼び出し確認
+   >>> callback, kwargs = router.match('POST', '/users/')
    >>> callback(**kwargs)
-   'user list'
-   >>> route, kwargs = router.match('post', '/users/')
-   >>> callback(**kwargs)
-   'create user'
-   >>> route, kwargs = router.match('get', '/users/1/')
+   'user is created'
+   >>> callback, kwargs = router.match('GET', '/users/1/')
    >>> callback(**kwargs)
    'user1 detail'
 
-うまく機能していますね。
+   # 定義されていないエンドポイントでは次のように http404 関数が callback として返ってきます。
+   >>> callback, kwargs = r.match('POST', '/foobar')
+   >>> callback
+   <function http404 at 0x103696840>
+   >>> dummy_start_response = lambda x, y: print(x, y)
+   >>> callback({}, dummy_start_response, **kwargs)
+   404 Not Found [('Content-type', 'text/plain; charset=utf-8')]
+   [b'404 Not Found']
+
+
+うまく動作していることが確認できます。
+ここではついでに2つ改善を加えておきましょう。
+
+1. パスは定義されているもののメソッドだけが一致しない場合には ``405 Method Not Allowed`` を返す。
+2. ``re.compile()`` は ``Router.add()`` メソッドの呼び出し時に行っておく。
+
+修正を加えると全体像は次のようになります。
+
+.. code-block:: python
+
+   import re
+
+
+   def http404(env, start_response):
+       start_response('404 Not Found', [('Content-type', 'text/plain; charset=utf-8')])
+       return [b'404 Not Found']
+
+
+   def http405(env, start_response):
+       start_response('405 Method Not Allowed', [('Content-type', 'text/plain; charset=utf-8')])
+       return [b'405 Method Not Allowed']
+
+
+   class Router:
+       def __init__(self):
+           self.routes = []
+
+       def add(self, method, path, callback):
+           self.routes.append({
+               'method': method,
+               'path': path,
+               'path_compiled': re.compile(path),
+               'callback': callback
+           })
+
+       def match(self, method, path):
+           error_callback = http404
+           for r in self.routes:
+               matched = r['path_compiled'].match(path)
+               if not matched:
+                   continue
+
+               error_callback = http405
+               url_vars = matched.groupdict()
+               if method == r['method']:
+                   return r['callback'], url_vars
+           return error_callback, {}
+
+
+他にもいろいろと考えることはありますが、今はこれくらいにしておきます。
+それでは ``Router`` クラスを実際にアプリケーションに組み込んでいきます。
 
 
 Routerを組み込んだWSGIのアプリケーション用クラスを作る
 --------------------------------
 
-.. literalinclude:: _codes/routing/app.py
+``Router`` クラスを組み込んで行きたいのですが、関数のままだと少し扱いづらいです。
+ここではWSGIアプリケーションをクラスで定義してみましょう。
 
-動作確認
-----
+.. code-block:: python
 
-動かしてみましょう
+   class App:
+       def __call__(self, env, start_response):
+           start_response('200 OK', [('Content-type', 'text/plain')])
+           return [b'Hello World']
+
+ここで注目してほしいのは ``__call__()`` メソッドが定義されている点です。
+``__call__`` メソッドを定義すると、このクラスのオブジェクト自身が呼び出し可能(callable)になります。
+つまり ``app = App()`` は、関数 ``def app(env, start_response): pass`` 同じように振る舞ってくれます。
+これでだいぶ拡張がしやすくなりました。 ``Router`` クラスを組み込んでみましょう。
+
+.. code-block:: python
+
+   class App:
+       def __init__(self):
+           self.router = Router()
+
+       def route(self, path=None, method='GET', callback=None):
+           def decorator(callback_func):
+               self.router.add(method, path, callback_func)
+               return callback_func
+           return decorator(callback) if callback else decorator
+
+       def __call__(self, env, start_response):
+           method = env['REQUEST_METHOD'].upper()
+           path = env['PATH_INFO'] or '/'
+           callback, kwargs = self.router.match(method, path)
+           return callback(env, start_response, **kwargs)
+
+
+``route`` デコレーターを使ってコールバック関数にHTTPメソッドと正規表現で書かれたパスを割り当てできるようにしました。
+このフレームワークの利用者からは、次のような形で利用出来るようにしてみます。
 
 .. literalinclude:: _codes/routing/main.py
 
+随分フレームワークっぽくなってきました。
+実際にアプリケーションを実行して動作確認してみましょう。
+定義されたエンドポイントにアクセスすると、次のように正しくレスポンスを受け取ることができます。
 
-.. todo:: Reverse routingについて
+.. code-block:: console
 
+   $ curl http://127.0.0.1:8000/
+   Hello World
+   $ curl -X POST http://127.0.0.1:8000/user/
+   User Created
+   $ curl http://127.0.0.1:8000/user/shibata/
+   Hello shibata
+   $ curl -X POST http://127.0.0.1:8000/user/shibata/follow/
+   Followed shibata
+
+一方で定義されていないパスや、メソッドが定義されていないエンドポイントでは、404 や 405が返ってきます。
+
+.. code-block:: console
+
+   $ curl http://127.0.0.1:8000/foobar
+   404 Not Found
+   $ curl http://127.0.0.1:8000/user/shibata/follow/
+   405 Method Not Allowed
+
+
+まとめ
+------
+
+ここまでルーティングの役割について考え、実装しました。
+用意した ``Router`` クラスは、正規表現で記述されたパスにマッチするかどうかを判定し、
+マッチした場合には登録しておいたコールバック関数とURL変数を返してくれます。
+デコレーターでルーティングの情報を指定することで、ユーザーは複数のエンドポイントを見通しよく定義できるようになりました。
+
+.. ここでは reverse routing とか traversal routing を扱わない
+
+..
 .. 逆引き(Reversing)に対応する
 .. -------------------
 ..
@@ -237,8 +352,6 @@ Routerを組み込んだWSGIのアプリケーション用クラスを作る
 ..     - '{' で開始して '}' で終了するときは、TypeHintsの情報にキャストできるかどうかチェック
 .. 4. 全て一致する、もしくはキャスト可能であればOK
 
-
-.. todo:: traversal routingについて書く
 
 .. TraversalとURL Dispatch
 .. ----------------------
