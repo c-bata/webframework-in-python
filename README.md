@@ -12,9 +12,9 @@
 
 **関連Repository**
 
-- [kobin](https://github.com/c-bata/kobin)
-- [kobin-example](https://github.com/c-bata/kobin-example)
-- [wsgi-static-middleware](https://github.com/c-bata/wsgi-static-middleware)
+- [kobin](https://github.com/kobinpy/kobin)
+- [kobin-example](https://github.com/kobinpy/kobin-example)
+- [wsgi-static-middleware](https://github.com/kobinpy/wsgi-static-middleware)
 
 ## LICENSE
 
