@@ -4,15 +4,18 @@ import os
 import re
 import cgi
 import json
-from urllib.parse import parse_qs, SplitResult, urljoin
+from urllib.parse import parse_qs, urljoin
 from wsgiref.headers import Headers
 from jinja2 import Environment, FileSystemLoader
 
 
 def redirect(request, path):
-    status_code = 303 if request.server_protocol == "HTTP/1.1" else 302
+    status_code = 303
+    if request.server_protocol == "HTTP/1.0":
+        status_code = 302
     status = "%d %s" % (status_code, http_responses[status_code])
-    location = urljoin(request.url, path)
+
+    location = urljoin(f"{request.url_scheme}://{request.host}", path)
     response = Response(f"Redirecting to {location}", status=status)
     response.headers.add_header('Location', location)
     return response
@@ -75,15 +78,17 @@ class Request:
 
     @property
     def server_protocol(self):
-        return self.environ['SERVER_PROTOCOL'] == "HTTP/1.1"
+        return self.environ['SERVER_PROTOCOL']  # ex) 'HTTP/1.1'
 
     @property
-    def url(self):
-        protocol = self.environ.get('HTTP_X_FORWARDED_PROTO') or self.environ.get('wsgi.url_scheme', 'http')
-        host = self.environ.get('HTTP_X_FORWARDED_HOST') or self.environ.get('HTTP_HOST')
-        query_params = self.environ.get("QUERY_STRING")
-        url_split_result = SplitResult(protocol, host, self.path, query_params, '')
-        return url_split_result.geturl()
+    def url_scheme(self):
+        return self.environ.get('HTTP_X_FORWARDED_PROTO') or \
+               self.environ.get('wsgi.url_scheme', 'http')
+
+    @property
+    def host(self):
+        return self.environ.get('HTTP_X_FORWARDED_HOST') or \
+               self.environ.get('HTTP_HOST')
 
     @property
     def forms(self):
