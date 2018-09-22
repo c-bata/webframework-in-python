@@ -52,6 +52,14 @@ class Request:
         self.charset = charset
 
     @property
+    def path(self):
+        return self.environ['PATH_INFO'] or '/'
+
+    @property
+    def method(self):
+        return self.environ['REQUEST_METHOD'].upper()
+
+    @property
     def forms(self):
         form = cgi.FieldStorage(
             fp=self.environ['wsgi.input'],
@@ -148,11 +156,10 @@ class App:
         return decorator(callback) if callback else decorator
 
     def __call__(self, env, start_response):
-        method = env['REQUEST_METHOD'].upper()
-        path = env['PATH_INFO'] or '/'
-        callback, kwargs = self.router.match(method, path)
+        request = Request(env)
+        callback, kwargs = self.router.match(request.method, request.path)
 
-        response = callback(Request(env), **kwargs)
+        response = callback(request, **kwargs)
         start_response(response.status, response.header_list)
         if isinstance(response, TemplateResponse):
             return [response.render_body(self.jinja2_environment)]
