@@ -1,6 +1,8 @@
 # general
 jinja2
 wsgi-static-middleware
+mypy
+mypy_extensions
 
 # documentation
 sphinx
