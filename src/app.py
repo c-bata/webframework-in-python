@@ -1,24 +1,38 @@
+import functools
+from http.client import responses as http_responses
 import os
 import re
 import cgi
 import itertools
 import json
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, SplitResult, urljoin
 from wsgiref.headers import Headers
 from jinja2 import Environment, FileSystemLoader
 
 
+def redirect(request, path):
+    status_code = 303 if request.server_protocol == "HTTP/1.1" else 302
+    status = "%d %s" % (status_code, http_responses[status_code])
+    location = urljoin(request.url, path)
+    response = Response(f"Redirecting to {location}", status=status)
+    response.headers.add_header('Location', location)
+    return response
+
+
 def http404(request):
-    return Response('404 Not Found', status='404 Not Found')
+    status = "%d %s" % (404, http_responses[404])
+    return Response('404 Not Found', status=status)
 
 
 def http405(request):
-    return Response('405 Method Not Allowed', status='405 Method Not Allowed')
+    status = "%d %s" % (405, http_responses[405])
+    return Response('405 Method Not Allowed', status=status)
 
 
 class Router:
-    def __init__(self):
+    def __init__(self, append_slash=True):
         self.routes = []
+        self.append_slash = append_slash
 
     def add(self, method, path, callback):
         self.routes.append({
@@ -28,6 +42,9 @@ class Router:
         })
 
     def match(self, method, path):
+        if self.append_slash and not path.endswith('/'):
+            return functools.partial(redirect, path=path + '/'), {}
+
         routes_grouped_by_path = itertools.groupby(
             sorted(self.routes, key=lambda x: x['path']), key=lambda x: x['path']
         )
@@ -58,6 +75,18 @@ class Request:
     @property
     def method(self):
         return self.environ['REQUEST_METHOD'].upper()
+
+    @property
+    def server_protocol(self):
+        return self.environ['SERVER_PROTOCOL'] == "HTTP/1.1"
+
+    @property
+    def url(self):
+        protocol = self.environ.get('HTTP_X_FORWARDED_PROTO') or self.environ.get('wsgi.url_scheme', 'http')
+        host = self.environ.get('HTTP_X_FORWARDED_HOST') or self.environ.get('HTTP_HOST')
+        query_params = self.environ.get("QUERY_STRING")
+        url_split_result = SplitResult(protocol, host, self.path, query_params, '')
+        return url_split_result.geturl()
 
     @property
     def forms(self):
