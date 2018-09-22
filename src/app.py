@@ -1,4 +1,3 @@
-import functools
 from http.client import responses as http_responses
 import os
 import re
@@ -7,14 +6,6 @@ import json
 from urllib.parse import parse_qs, urljoin
 from wsgiref.headers import Headers
 from jinja2 import Environment, FileSystemLoader
-
-
-def redirect(request, path):
-    status = 303 if request.server_protocol != "HTTP/1.0" else 302  # minimum support is HTTP/1.0
-    location = urljoin(f"{request.url_scheme}://{request.host}", path)
-    response = Response(f"Redirecting to {location}", status=status)
-    response.headers.add_header('Location', location)
-    return response
 
 
 def http404(request):
@@ -40,19 +31,21 @@ class Router:
 
     def match(self, method, path):
         if self.append_slash and not path.endswith('/'):
-            return functools.partial(redirect, path=path + '/'), {}
+            def callback(request):
+                return make_redirect_response(request, path)
+            return callback, {}
 
-        client_error = http404
+        error_callback = http404
         for r in self.routes:
             matched = r['path_compiled'].match(path)
             if not matched:
                 continue
 
-            client_error = http405
+            error_callback = http405
             url_vars = matched.groupdict()
             if method == r['method']:
                 return r['callback'], url_vars
-        return client_error, {}
+        return error_callback, {}
 
 
 class Request:
@@ -169,6 +162,13 @@ class JSONResponse(Response):
     @property
     def body(self):
         return [json.dumps(self.dic, **self.json_dump_args).encode(self.charset)]
+
+
+def make_redirect_response(request, path):
+    status = 303 if request.server_protocol != "HTTP/1.0" else 302  # minimum support is HTTP/1.0
+    location = urljoin(f"{request.url_scheme}://{request.host}", path)
+    headers = {'Location': location}
+    return Response(f"Redirecting to {location}", status=status, headers=headers)
 
 
 class App:
