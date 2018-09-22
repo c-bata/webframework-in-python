@@ -10,11 +10,7 @@ from jinja2 import Environment, FileSystemLoader
 
 
 def redirect(request, path):
-    status_code = 303
-    if request.server_protocol == "HTTP/1.0":
-        status_code = 302
-    status = "%d %s" % (status_code, http_responses[status_code])
-
+    status = 303 if request.server_protocol != "HTTP/1.0" else 302  # minimum support is HTTP/1.0
     location = urljoin(f"{request.url_scheme}://{request.host}", path)
     response = Response(f"Redirecting to {location}", status=status)
     response.headers.add_header('Location', location)
@@ -22,13 +18,11 @@ def redirect(request, path):
 
 
 def http404(request):
-    status = "%d %s" % (404, http_responses[404])
-    return Response('404 Not Found', status=status)
+    return Response('404 Not Found', status=404)
 
 
 def http405(request):
-    status = "%d %s" % (405, http_responses[405])
-    return Response('405 Method Not Allowed', status=status)
+    return Response('405 Method Not Allowed', status=405)
 
 
 class Router:
@@ -121,7 +115,7 @@ class Request:
 
 
 class Response:
-    default_status = '200 OK'
+    default_status = 200
     default_content_type = 'text/html; charset=UTF-8'
 
     def __init__(self, body='', status=None, headers=None, charset='utf-8'):
@@ -141,6 +135,10 @@ class Response:
         return self._body
 
     @property
+    def status_code(self):
+        return "%d %s" % (self.status, http_responses[self.status])
+
+    @property
     def header_list(self):
         if 'Content-Type' not in self.headers:
             self.headers.add_header('Content-Type', self.default_content_type)
@@ -150,7 +148,7 @@ class Response:
 class TemplateResponse(Response):
     default_content_type = 'text/html; charset=UTF-8'
 
-    def __init__(self, filename, status='200 OK', headers=None, charset='utf-8', **tpl_args):
+    def __init__(self, filename, status=200, headers=None, charset='utf-8', **tpl_args):
         self.filename = filename
         self.tpl_args = tpl_args
         super().__init__(body='', status=status, headers=headers, charset=charset)
@@ -163,7 +161,7 @@ class TemplateResponse(Response):
 class JSONResponse(Response):
     default_content_type = 'text/json; charset=UTF-8'
 
-    def __init__(self, dic, status='200 OK', headers=None, charset='utf-8', **dump_args):
+    def __init__(self, dic, status=200, headers=None, charset='utf-8', **dump_args):
         self.dic = dic
         self.json_dump_args = dump_args
         super().__init__('', status=status, headers=headers, charset=charset)
