@@ -3,7 +3,6 @@ from http.client import responses as http_responses
 import os
 import re
 import cgi
-import itertools
 import json
 from urllib.parse import parse_qs, SplitResult, urljoin
 from wsgiref.headers import Headers
@@ -38,6 +37,7 @@ class Router:
         self.routes.append({
             'method': method,
             'path': path,
+            'path_compiled': re.compile(path),
             'callback': callback
         })
 
@@ -45,21 +45,18 @@ class Router:
         if self.append_slash and not path.endswith('/'):
             return functools.partial(redirect, path=path + '/'), {}
 
-        routes_grouped_by_path = itertools.groupby(
-            sorted(self.routes, key=lambda x: x['path']), key=lambda x: x['path']
-        )
-
-        for p, routes in routes_grouped_by_path:
-            matched = re.compile(p).match(path)
+        callback = http404
+        method = method.upper()
+        for r in self.routes:
+            matched = r['path_compiled'].match(path)
             if not matched:
                 continue
 
+            callback = http405
             url_vars = matched.groupdict()
-            for r in routes:
-                if method.upper() == r['method']:
-                    return r['callback'], url_vars
-            return http405, {}
-        return http404, {}
+            if method == r['method']:
+                return r['callback'], url_vars
+        return callback, {}
 
 
 class Request:
