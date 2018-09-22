@@ -1,6 +1,7 @@
 import os
 import re
 import cgi
+import itertools
 import json
 from urllib.parse import parse_qs
 from wsgiref.headers import Headers
@@ -9,6 +10,10 @@ from jinja2 import Environment, FileSystemLoader
 
 def http404(request):
     return Response('404 Not Found', status='404 Not Found')
+
+
+def http405(request):
+    return Response('405 Method Not Allowed', status='405 Method Not Allowed')
 
 
 class Router:
@@ -23,11 +28,20 @@ class Router:
         })
 
     def match(self, method, path):
-        for r in filter(lambda x: x['method'] == method.upper(), self.routes):
-            matched = re.compile(r['path']).match(path)
-            if matched:
-                kwargs = matched.groupdict()
-                return r['callback'], kwargs
+        routes_grouped_by_path = itertools.groupby(
+            sorted(self.routes, key=lambda x: x['path']), key=lambda x: x['path']
+        )
+
+        for p, routes in routes_grouped_by_path:
+            matched = re.compile(p).match(path)
+            if not matched:
+                continue
+
+            url_vars = matched.groupdict()
+            for r in routes:
+                if method.upper() == r['method']:
+                    return r['callback'], url_vars
+            return http405, {}
         return http404, {}
 
 
