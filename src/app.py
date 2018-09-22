@@ -43,7 +43,6 @@ class Router:
             return functools.partial(redirect, path=path + '/'), {}
 
         callback = http404
-        method = method.upper()
         for r in self.routes:
             matched = r['path_compiled'].match(path)
             if not matched:
@@ -131,8 +130,8 @@ class Response:
     @property
     def body(self):
         if isinstance(self._body, str):
-            return self._body.encode(self.charset)
-        return self._body
+            return [self._body.encode(self.charset)]
+        return [self._body]
 
     @property
     def status_code(self):
@@ -155,7 +154,7 @@ class TemplateResponse(Response):
 
     def render_body(self, jinja2_environment):
         template = jinja2_environment.get_template(self.filename)
-        return template.render(**self.tpl_args).encode(self.charset)
+        return [template.render(**self.tpl_args).encode(self.charset)]
 
 
 class JSONResponse(Response):
@@ -168,7 +167,7 @@ class JSONResponse(Response):
 
     @property
     def body(self):
-        return json.dumps(self.dic, **self.json_dump_args).encode(self.charset)
+        return [json.dumps(self.dic, **self.json_dump_args).encode(self.charset)]
 
 
 class App:
@@ -189,7 +188,7 @@ class App:
         callback, kwargs = self.router.match(request.method, request.path)
 
         response = callback(request, **kwargs)
-        start_response(response.status, response.header_list)
+        start_response(response.status_code, response.header_list)
         if isinstance(response, TemplateResponse):
-            return [response.render_body(self.jinja2_environment)]
-        return [response.body]
+            return response.render_body(self.jinja2_environment)
+        return response.body
