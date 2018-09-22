@@ -13,7 +13,7 @@ def hello(request):
 
 @app.route('^/user/$', 'POST')
 def create_user(request):
-    return JSONResponse({'message': 'User Created'}, status='201 Created')
+    return JSONResponse({'message': 'User Created'}, status=201)
 
 
 @app.route('^/user/$', 'GET')

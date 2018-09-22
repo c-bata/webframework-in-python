@@ -1,34 +1,58 @@
+import functools
+from http.client import responses as http_responses
 import os
 import re
 import cgi
 import json
-from urllib.parse import parse_qs
+from urllib.parse import parse_qs, urljoin
 from wsgiref.headers import Headers
 from jinja2 import Environment, FileSystemLoader
 
 
+def redirect(request, path):
+    status = 303 if request.server_protocol != "HTTP/1.0" else 302  # minimum support is HTTP/1.0
+    location = urljoin(f"{request.url_scheme}://{request.host}", path)
+    response = Response(f"Redirecting to {location}", status=status)
+    response.headers.add_header('Location', location)
+    return response
+
+
 def http404(request):
-    return Response('404 Not Found', status='404 Not Found')
+    return Response('404 Not Found', status=404)
+
+
+def http405(request):
+    return Response('405 Method Not Allowed', status=405)
 
 
 class Router:
-    def __init__(self):
+    def __init__(self, append_slash=True):
         self.routes = []
+        self.append_slash = append_slash
 
     def add(self, method, path, callback):
         self.routes.append({
             'method': method,
             'path': path,
+            'path_compiled': re.compile(path),
             'callback': callback
         })
 
     def match(self, method, path):
-        for r in filter(lambda x: x['method'] == method.upper(), self.routes):
-            matched = re.compile(r['path']).match(path)
-            if matched:
-                kwargs = matched.groupdict()
-                return r['callback'], kwargs
-        return http404, {}
+        if self.append_slash and not path.endswith('/'):
+            return functools.partial(redirect, path=path + '/'), {}
+
+        callback = http404
+        for r in self.routes:
+            matched = r['path_compiled'].match(path)
+            if not matched:
+                continue
+
+            callback = http405
+            url_vars = matched.groupdict()
+            if method == r['method']:
+                return r['callback'], url_vars
+        return callback, {}
 
 
 class Request:
@@ -36,6 +60,28 @@ class Request:
         self.environ = environ
         self._body = None
         self.charset = charset
+
+    @property
+    def path(self):
+        return self.environ['PATH_INFO'] or '/'
+
+    @property
+    def method(self):
+        return self.environ['REQUEST_METHOD'].upper()
+
+    @property
+    def server_protocol(self):
+        return self.environ['SERVER_PROTOCOL']  # ex) 'HTTP/1.1'
+
+    @property
+    def url_scheme(self):
+        return self.environ.get('HTTP_X_FORWARDED_PROTO') or \
+               self.environ.get('wsgi.url_scheme', 'http')
+
+    @property
+    def host(self):
+        return self.environ.get('HTTP_X_FORWARDED_HOST') or \
+               self.environ.get('HTTP_HOST')
 
     @property
     def forms(self):
@@ -68,7 +114,7 @@ class Request:
 
 
 class Response:
-    default_status = '200 OK'
+    default_status = 200
     default_content_type = 'text/html; charset=UTF-8'
 
     def __init__(self, body='', status=None, headers=None, charset='utf-8'):
@@ -84,8 +130,12 @@ class Response:
     @property
     def body(self):
         if isinstance(self._body, str):
-            return self._body.encode(self.charset)
-        return self._body
+            return [self._body.encode(self.charset)]
+        return [self._body]
+
+    @property
+    def status_code(self):
+        return "%d %s" % (self.status, http_responses[self.status])
 
     @property
     def header_list(self):
@@ -97,27 +147,27 @@ class Response:
 class TemplateResponse(Response):
     default_content_type = 'text/html; charset=UTF-8'
 
-    def __init__(self, filename, status='200 OK', headers=None, charset='utf-8', **tpl_args):
+    def __init__(self, filename, status=200, headers=None, charset='utf-8', **tpl_args):
         self.filename = filename
         self.tpl_args = tpl_args
         super().__init__(body='', status=status, headers=headers, charset=charset)
 
     def render_body(self, jinja2_environment):
         template = jinja2_environment.get_template(self.filename)
-        return template.render(**self.tpl_args).encode(self.charset)
+        return [template.render(**self.tpl_args).encode(self.charset)]
 
 
 class JSONResponse(Response):
     default_content_type = 'text/json; charset=UTF-8'
 
-    def __init__(self, dic, status='200 OK', headers=None, charset='utf-8', **dump_args):
+    def __init__(self, dic, status=200, headers=None, charset='utf-8', **dump_args):
         self.dic = dic
         self.json_dump_args = dump_args
         super().__init__('', status=status, headers=headers, charset=charset)
 
     @property
     def body(self):
-        return json.dumps(self.dic, **self.json_dump_args).encode(self.charset)
+        return [json.dumps(self.dic, **self.json_dump_args).encode(self.charset)]
 
 
 class App:
@@ -134,12 +184,11 @@ class App:
         return decorator(callback) if callback else decorator
 
     def __call__(self, env, start_response):
-        method = env['REQUEST_METHOD'].upper()
-        path = env['PATH_INFO'] or '/'
-        callback, kwargs = self.router.match(method, path)
+        request = Request(env)
+        callback, kwargs = self.router.match(request.method, request.path)
 
-        response = callback(Request(env), **kwargs)
-        start_response(response.status, response.header_list)
+        response = callback(request, **kwargs)
+        start_response(response.status_code, response.header_list)
         if isinstance(response, TemplateResponse):
-            return [response.render_body(self.jinja2_environment)]
-        return [response.body]
+            return response.render_body(self.jinja2_environment)
+        return response.body
