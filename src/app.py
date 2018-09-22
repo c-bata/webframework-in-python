@@ -42,17 +42,17 @@ class Router:
         if self.append_slash and not path.endswith('/'):
             return functools.partial(redirect, path=path + '/'), {}
 
-        callback = http404
+        client_error = http404
         for r in self.routes:
             matched = r['path_compiled'].match(path)
             if not matched:
                 continue
 
-            callback = http405
+            client_error = http405
             url_vars = matched.groupdict()
             if method == r['method']:
                 return r['callback'], url_vars
-        return callback, {}
+        return client_error, {}
 
 
 class Request:
@@ -174,9 +174,8 @@ class JSONResponse(Response):
 class App:
     def __init__(self, templates=None):
         self.router = Router()
-        if templates is None:
-            templates = [os.path.join(os.path.abspath('.'), 'templates')]
-        self.jinja2_environment = Environment(loader=FileSystemLoader(templates))
+        loader = FileSystemLoader(templates or [os.path.join(os.path.abspath('.'), 'templates')])
+        self.jinja_environment = Environment(loader=loader)
 
     def route(self, path=None, method='GET', callback=None):
         def decorator(callback_func):
@@ -191,5 +190,5 @@ class App:
         response = callback(request, **kwargs)
         start_response(response.status_code, response.header_list)
         if isinstance(response, TemplateResponse):
-            return response.render_body(self.jinja2_environment)
+            return response.render_body(self.jinja_environment)
         return response.body
