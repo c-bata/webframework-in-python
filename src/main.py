@@ -22,7 +22,7 @@ def users(request):
     return TemplateResponse('users.html', title='User List', users=users)
 
 
-@app.route('^/user/(?P<name>\w+)$', 'GET')
+@app.route('^/user/(?P<name>\w+)/$', 'GET')
 def user_detail(request, name):
     return Response('Hello {name}'.format(name=name))
 
