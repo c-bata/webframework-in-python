@@ -42,12 +42,11 @@ def worker(conn, wsgi_app, env):
 
 class WSGIServer:
     def __init__(self, app, host="127.0.0.1", port=8000,
-                 max_accept=128, max_read=4096, timeout=10.0, rbufsize=-1):
+                 max_accept=128, timeout=10.0, rbufsize=-1):
         self.app = app
         self.host = host
         self.port = port
         self.max_accept = max_accept
-        self.max_read = max_read
         self.timeout = timeout
         self.rbufsize = rbufsize
 
@@ -83,7 +82,8 @@ class WSGIServer:
             if line in (b'\r\n', b'\n', b''):
                 break
 
-            key, value = line.decode('iso-8859-1').split(":", maxsplit=1)
+            key, value = line.decode('iso-8859-1').rstrip("\r\n").split(":", maxsplit=1)
+            value = value.lstrip(" ")
             if key.upper() == "CONTENT-TYPE":
                 env['CONTENT_TYPE'] = value
             if key.upper() == "CONTENT-LENGTH":
@@ -107,7 +107,7 @@ class WSGIServer:
                 conn.settimeout(self.timeout)
                 rfile = conn.makefile('rb', self.rbufsize)
                 env = self.make_wsgi_environ(rfile, client_address)
-                Thread(target=worker, args=(conn, app, env), daemon=True).start()
+                Thread(target=worker, args=(conn, self.app, env), daemon=True).start()
 
 
 if __name__ == '__main__':
