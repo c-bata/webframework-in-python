@@ -1,59 +1,81 @@
-リクエスト・レスポンス
-===========
+リクエストオブジェクト
+======================
 
-前節にて、ルーティングの実装が完了しました。
+次はリクエスト情報の扱いを見直していきます。
+クライアントのリクエストに関する情報はWSGIアプリケーションの第一引数に辞書型のオブジェクトとして渡されることはすでに解説しました。
+ルーティングに必要なリクエストのHTTPメソッドやURLパスは、このオブジェクトから取り出す必要があります。
+他にも様々な情報が格納されていて、例えばHTTPリクエストボディを取り出したい際には、次のように記述します。
 
+.. code-block:: python
 
-WSGI Environment
-----------------
+   content_length = int(env.get('CONTENT_LENGTH', 0))
+   body = env['wsgi.input'].read(content_length)
 
-WSGIのアプリケーションの第一引数には、各種リクエストの情報が含まれています。
-しかしこの辞書型のオブジェクトから、様々な情報を取り出すのは少し大変でしょう。
-またviewの関数
+辞書型オブジェクトから ``CONTENT_LENGTH`` と ``wsgi.input`` を取り出します。
+``env["CONTENT_LENGTH"]`` には、クライアントがHTTPヘッダー ``Content-Length`` で指定したレスポンスボディの長さが格納されています。
+レスポンスボディはファイルオブジェクトになっているので、 ``Content-Length`` の長さ分 ``read()`` して上げる必要があります。
+リクエストボディを取り出すだけでも少し大変なように思います。
+これをうまくラップして使いやすくしてくれるクラスがあれば便利です。
+ほとんどのWSGIフレームワークがこれをラップする ``Request`` クラスや ``HttpRequest`` クラスを提供します。
+私達も早速定義してみましょう。
 
 
 Requestをラップする
 -------------
 
 厳密にはWSGIのEnvironをラップします。
+プロパティメソッドを通して、WSGI Environに格納されている様々な情報にシンプルなAPIでアクセスできるようにします。
 
 .. code-block:: python
 
    class Request:
        def __init__(self, environ):
            self.environ = environ
+           self._body = None
 
-各view関数には、envの代わりにbodyを渡しましょう。
+       @property
+       def path(self):
+           return self.environ['PATH_INFO'] or '/'
+
+       @property
+       def method(self):
+           return self.environ['REQUEST_METHOD'].upper()
+
+       @property
+       def body(self):
+           if self._body is None:
+               content_length = int(self.environ.get('CONTENT_LENGTH', 0))
+               self._body = self.environ['wsgi.input'].read(content_length)
+           return self._body
+
+WSGI Environには様々な情報が格納されていますが、まずは3つだけプロパティメソッドを定義してみました。
+この ``Request`` クラスのオブジェクトを渡してあげれば、フレームワークの利用者は ``body`` プロパティにアクセスするだけで、リクエストボディの情報を取得できます。
+各関数には、WSGI Environの代わりに ``Request(env)`` を渡すように書き換えてみましょう。
 
 .. code-block:: python
 
    class App:
-       :
+       ...
+
        def __call__(self, env, start_response):
-           callback, kwargs = self.router.match(env)
            request = Request(env)
+           callback, kwargs = self.router.match(request.method, request.path)
            return callback(request, start_response, **kwargs)
 
-これでRequestがview関数に渡せるようになりました。
-しかしRequestクラスには何も実装していません。
-リクエストボディを読み取りましょう。
 
+これで ``Request`` クラスのオブジェクトが各関数に渡せるようになりました。
+アプリケーション側のインターフェイスは次のようになります。
 
 .. code-block:: python
 
-   @property
-   def body(self) -> str:
-       if self._body is None:
-           content_length = int(self.environ.get('CONTENT_LENGTH', 0))
-           self._body = self.environ['wsgi.input'].read(content_length).decode('utf-8')
-       return self._body
+   @app.route('^/users/$', 'POST')
+   def hello(request, start_response):
+       print(request.body.decode('utf-8'))
+       return [b'User is created']
 
-
-`request.body` と呼び出すだけで、bodyを取り出すことが出来ました。
-curlでjsonを叩いてみましょう。
-
-
-.. todo:: curlでリクエスト
+リクエストボディの文字コードをすべて ``utf-8`` として扱っている点には改善の余地があります。
+実際には ``Content-Type`` ヘッダーなどで指定されている ``charset`` を確認してあげるといいでしょう。
+とはいえひとまず、フレームワークの利用者は簡単にリクエストボディにアクセスできるようになりました。
 
 
 Responseをラップする
@@ -115,6 +137,17 @@ Responseクラスは次のようになります
            start_response(response.status, response.header_list)
            return response.body
 
+.. code-block:: python
+
+   >>> from http.client import responses
+   >>> responses[200]
+   'OK'
+   >>> responses[404]
+   'Not Found'
+   >>> responses[500]
+   'Internal Server Error'
+
+
 
 
 チューニング
@@ -144,7 +177,7 @@ Before
 After
 ~~~~~
 
-.. code-block::
+.. code-block:: python
 
    In [1]: %load_ext memory_profiler
    In [2]: import app
