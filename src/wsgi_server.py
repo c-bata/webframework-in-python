@@ -1,4 +1,3 @@
-import io
 import socket
 import urllib.parse
 from threading import Thread
@@ -37,56 +36,64 @@ def worker(conn, wsgi_app, env):
             content_length += len(b)
         headers.append(f"Content-Length: {content_length}")
         header_bytes = "\r\n".join(headers).encode("utf-8")
+        env["wsgi.input"].close()  # this doesn't raise error if close twice.
         conn.sendall(status_line + b"\r\n" + header_bytes + b"\r\n\r\n" + response_body)
 
 
 class WSGIServer:
-    def __init__(self, app, host="127.0.0.1", port=8000, max_accept=128, max_read=4096):
+    def __init__(self, app, host="127.0.0.1", port=8000,
+                 max_accept=128, max_read=4096, timeout=10.0, rbufsize=-1):
         self.app = app
         self.host = host
         self.port = port
         self.max_accept = max_accept
         self.max_read = max_read
+        self.timeout = timeout
+        self.rbufsize = rbufsize
 
-    def make_wsgi_environ(self, conn, client_addr):
-        raw_request = b''
-        content_length = 0
-        while True:
-            chunk = conn.recv(self.max_read)
-            raw_request += chunk
-            content_length += len(chunk)
-            if len(chunk) < self.max_read:
-                break
-
-        header_bytes, body = raw_request.split(sep=b'\r\n\r\n', maxsplit=1)
-        headers = header_bytes.decode('utf-8').splitlines()
-        request_line = headers[0]
-        headers = headers[1:]
-        method, path, proto = request_line.split(' ', maxsplit=2)
+    def make_wsgi_environ(self, rfile, client_address):
+        # should return '414 URI Too Long' if line is longer than 65536.
+        raw_request_line = rfile.readline(65537)
+        method, path, version = str(raw_request_line, 'iso-8859-1').rstrip('\r\n').split(' ', maxsplit=2)
         if '?' in path:
             path, query = path.split('?', 1)
         else:
             path, query = path, ''
+
         env = {
             'REQUEST_METHOD': method,
             'PATH_INFO': urllib.parse.unquote(path, 'iso-8859-1'),
             'QUERY_STRING': query,
             'SERVER_PROTOCOL': "HTTP/1.1",
-            'SERVER_NAME': self.host,
+            'SERVER_NAME': socket.getfqdn(),
             'SERVER_PORT': self.port,
-            'REMOTE_ADDR': f"{client_addr[0]}:{client_addr[1]}",
+            'REMOTE_ADDR': client_address,
+            'SCRIPT_NAME': "",
+            'wsgi.version': (1, 0),
             'wsgi.url_scheme': "http",
-            'wsgi.input': io.BytesIO(body),
             'wsgi.multithread': True,
-            'wsgi.version': (1, 0, 1),
+            'wsgi.multiprocess': False,
+            'wsgi.run_once': False,
         }
-        for l in headers:
-            key, value = l.split(":", maxsplit=1)
+
+        while True:
+            # should return '431 Request Header Fields Too Large'
+            # if line is longer than 65536 or header exceeds 100 lines.
+            line = rfile.readline(65537)
+            if line in (b'\r\n', b'\n', b''):
+                break
+
+            key, value = line.decode('iso-8859-1').split(":", maxsplit=1)
+            if key.upper() == "CONTENT-TYPE":
+                env['CONTENT_TYPE'] = value
+            if key.upper() == "CONTENT-LENGTH":
+                env['CONTENT_LENGTH'] = value
             env_key = "HTTP_" + key.replace("-", "_").upper()
             if env_key in env:
                 env[env_key] = env[env_key] + ',' + value
             else:
                 env[env_key] = value
+        env['wsgi.input'] = rfile
         return env
 
     def run_forever(self):
@@ -96,8 +103,10 @@ class WSGIServer:
             sock.listen(self.max_accept)
 
             while True:
-                conn, client_addr = sock.accept()
-                env = self.make_wsgi_environ(conn, client_addr)
+                conn, client_address = sock.accept()
+                conn.settimeout(self.timeout)
+                rfile = conn.makefile('rb', self.rbufsize)
+                env = self.make_wsgi_environ(rfile, client_address)
                 Thread(target=worker, args=(conn, app, env), daemon=True).start()
 
 
