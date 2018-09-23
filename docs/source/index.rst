@@ -27,7 +27,6 @@ Webアプリケーションフレームワークの作り方 in Python
 
    introduction
    wsgi
-   structure
    routing
    environ
    template

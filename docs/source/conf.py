@@ -101,7 +101,7 @@ html_theme_path = [solar_theme.theme_path]
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
 #
-html_title = u'Webアプリケーションフレームワークの作り方 in Python'
+html_title = u'c-bata.link'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #
