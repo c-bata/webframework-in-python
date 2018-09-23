@@ -32,7 +32,7 @@ class Router:
     def match(self, method, path):
         if self.append_slash and not path.endswith('/'):
             def callback(request):
-                return make_redirect_response(request, path)
+                return make_redirect_response(request, path + '/')
             return callback, {}
 
         error_callback = http404
