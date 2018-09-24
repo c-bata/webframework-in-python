@@ -1,6 +1,5 @@
 import socket
 import urllib.parse
-from threading import Thread
 
 
 class ResponseWriter:
@@ -17,48 +16,40 @@ class ResponseWriter:
         return self.headers is not None and self.status_code is not None
 
 
-def worker(conn, wsgi_app, env):
-    with conn:
-        response = ResponseWriter()
-        wsgi_response = wsgi_app(env, response.start_response)
-        print(f"{env['REMOTE_ADDR']} - {response.status_code}")
+def worker(wsgi_app, env):
+    response = ResponseWriter()
+    wsgi_response = wsgi_app(env, response.start_response)
+    if not response.called:
+        return b'HTTP/1.1 500\r\n\r\Internal Server Error\n'
 
-        if not response.called:
-            conn.sendall(b'HTTP/1.1 500\r\n\r\nInternal Server Error\n')
-            return
+    status_line = f"HTTP/1.1 {response.status_code}".encode("utf-8")
+    headers = [f"{k}: {v}" for k, v in response.headers]
 
-        status_line = f"HTTP/1.1 {response.status_code}".encode("utf-8")
-        headers = [f"{k}: {v}" for k, v in response.headers]
-
-        response_body = b""
-        content_length = 0
-        for b in wsgi_response:
-            response_body += b
-            content_length += len(b)
-        headers.append(f"Content-Length: {content_length}")
-        header_bytes = "\r\n".join(headers).encode("utf-8")
-        env["wsgi.input"].close()  # this doesn't raise error if close twice.
-        conn.sendall(status_line + b"\r\n" + header_bytes + b"\r\n\r\n" + response_body)
+    response_body = b""
+    content_length = 0
+    for b in wsgi_response:
+        response_body += b
+        content_length += len(b)
+    headers.append(f"Content-Length: {content_length}")
+    header_bytes = "\r\n".join(headers).encode("utf-8")
+    env["wsgi.input"].close()  # this doesn't raise error if close twice.
+    return status_line + b"\r\n" + header_bytes + b"\r\n\r\n" + response_body
 
 
 class WSGIServer:
-    def __init__(self, app, host="127.0.0.1", port=8000,
-                 max_accept=128, timeout=30.0, rbufsize=-1):
+    def __init__(self, app, host="127.0.0.1", port=8000, rbufsize=-1):
         self.app = app
         self.host = host
         self.port = port
-        self.max_accept = max_accept
-        self.timeout = timeout
         self.rbufsize = rbufsize
 
     def make_wsgi_environ(self, rfile, client_address):
-        # should return '414 URI Too Long' if line is longer than 65536.
-        raw_request_line = rfile.readline(65537)
-        method, path, version = str(raw_request_line, 'iso-8859-1').rstrip('\r\n').split(' ', maxsplit=2)
-        if '?' in path:
-            path, query = path.split('?', 1)
+        raw_request_line = rfile.readline().decode('iso-8859-1').rstrip('\r\n')
+        method, path_with_query, version = raw_request_line.split(' ', maxsplit=2)
+        if '?' in path_with_query:
+            path, query = path_with_query.split('?', 1)
         else:
-            path, query = path, ''
+            path, query = path_with_query, ''
 
         env = {
             'REQUEST_METHOD': method,
@@ -71,15 +62,13 @@ class WSGIServer:
             'SCRIPT_NAME': "",
             'wsgi.version': (1, 0),
             'wsgi.url_scheme': "http",
-            'wsgi.multithread': True,
+            'wsgi.multithread': False,
             'wsgi.multiprocess': False,
             'wsgi.run_once': False,
         }
 
         while True:
-            # should return '431 Request Header Fields Too Large'
-            # if line is longer than 65536 or header exceeds 100 lines.
-            line = rfile.readline(65537)
+            line = rfile.readline()
             if line in (b'\r\n', b'\n', b''):
                 break
 
@@ -94,6 +83,7 @@ class WSGIServer:
                 env[env_key] = env[env_key] + ',' + value
             else:
                 env[env_key] = value
+
         env['wsgi.input'] = rfile
         return env
 
@@ -101,14 +91,17 @@ class WSGIServer:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
             sock.bind((self.host, self.port))
-            sock.listen(self.max_accept)
+            sock.listen(1)
 
             while True:
                 conn, client_address = sock.accept()
-                conn.settimeout(self.timeout)
                 rfile = conn.makefile('rb', self.rbufsize)
                 env = self.make_wsgi_environ(rfile, client_address)
-                Thread(target=worker, args=(conn, self.app, env), daemon=True).start()
+
+                with conn:
+                    response = worker(self.app, env)
+                    conn.sendall(response)
+                    rfile.close()
 
 
 if __name__ == '__main__':
