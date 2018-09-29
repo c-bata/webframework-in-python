@@ -1,5 +1,4 @@
-from app import App, Response
-from wsgiref.simple_server import make_server
+from .app import App, Response
 
 
 app = App()
@@ -12,14 +11,9 @@ def hello(request):
 
 @app.route('^/user/$', 'POST')
 def create_user(request):
-    return Response('User Created', status='201 Created')
+    return Response('User Created', status=201)
 
 
 @app.route('^/user/(?P<name>\w+)$', 'GET')
 def user_detail(request, name):
     return Response('Hello {name}'.format(name=name))
-
-
-if __name__ == '__main__':
-    httpd = make_server('', 8000, app)
-    httpd.serve_forever()

@@ -1,63 +1,45 @@
-Responseをラップする
-====================
+レスポンスオブジェクト
+======================
 
-*この章はまだ書き途中です。気が向いたときに書き直していきますがこの資料の感想をいただけると頑張るかもしれません*
+レスポンス情報の扱いについて
+----------------------------------------
 
-次に気になるのは、ヘッダ情報の管理が面倒です。
-もう少し簡単に管理できるように、Response情報をラップするクラスを用意してみましょう。
-
-またView関数の責務も考えます。
-これまでのView関数は `env` や `start_response` , URL変数を受け取って、WSGIのResponseと同じように
-yieldするとbytesのオブジェクトを返すようなオブジェクトを返していました。
-
-今回からは、requestを受け取ってresponseを返すとしっかり決めてしまいましょう。
-各View関数でResponseのオブジェクトを生成します。
-
+一度、各エンドポイントの処理の定義方法を見直してみましょう。
 
 .. code-block:: python
 
-   @app.route('^/users/(?P<user_id>\d+)/$')
-   def user_detail(request, user_id):
-       res = 'Hello user {user_id}'.format(user_id=user_id)
-       response = Response(body=[res.encode('utf-8')],
-                           headers={'Content-type': 'text/plain; charset=utf-8'})
-       return response
+   @app.route('^/$', 'GET')
+   def hello(request, start_response):
+       start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
+       return [b'Hello World']
 
-
-Responseクラスは次のようになります
+ここで気になるのは、レスポンス情報の返し方です。
+WSGIのインターフェイスでは、レスポンスステータスとレスポンスヘッダーを第2引数で受け取る ``start_response`` 関数により指定します。
+これはFlaskやBottleのサンプルコードに比べると、少々面倒に感じます。
+もう少し簡単に管理できるように、Response情報をラップするクラスがあると便利かもしれません。
+具体的には次のように各エンドポイントの処理を記述できるようにしてみます。
 
 .. code-block:: python
 
-   class Response:
-       default_status = '200 OK'
-       default_content_type = 'text/html; charset=UTF-8'
+   @app.route('^/$', 'GET')
+   def hello(request):
+       return Response('Hello World')
 
-       def __init__(self, body='', status=None, headers=None):
-           self.body = body
-           self.status = status or self.default_status
-           self.headers = Headers()
+   @app.route('^/user/$', 'POST')
+   def create_user(request):
+       return Response('User is created', headers={"foo": "bar"}, status=201)
 
-           if headers:
-               for name, value in headers.items():
-                   self.headers.add_header(name, value)
+Responseクラスというのを追加して、レスポンスボディやヘッダー情報、ステータスコードの番号をそこに指定できるようにしました。
+クラスでラップしているので、デフォルトのヘッダー情報も継承を使って自由に変更することもできます。
 
-       @property
-       def header_list(self):
-           if 'Content-Type' not in self.headers:
-               self.headers.add_header('Content-Type', self.default_content_type)
-           out = [(key, value)
-                  for key in self.headers.keys()
-                  for value in self.headers.get_all(key)]
-           return [(k, v.encode('utf8').decode('latin1')) for (k, v) in out]
 
-   class App:
-       :
-       def __call__(self, env, start_response):
-           callback, kwargs = self.router.match(env)
-           request = Request(env)
-           response = callback(request, **kwargs)
-           start_response(response.status, response.header_list)
-           return response.body
+ヘッダー情報とステータス情報を簡単に扱う方法
+--------------------------------------------
+
+Responseクラスを実装していく前に、ヘッダー情報とステータス情報を簡単に扱う方法を詳解します。
+まずはステータス情報の扱いです。 ``start_response`` の第一引数にはステータスコードを ``200 OK`` や ``404 Not Found`` のように指定しますが、
+番号に対応する文字列は決まっているので、番号の指定だけで済むほうが楽なものです。
+``http.client`` モジュールの ``responses`` オブジェクトには、ステータスコードの番号に対するメッセージが格納されています。
 
 .. code-block:: python
 
@@ -69,7 +51,115 @@ Responseクラスは次のようになります
    >>> responses[500]
    'Internal Server Error'
 
+非常に簡単に取り出すことができました。ユーザーは ``200`` のように番号を指定してあげるだけで、次のようにステータスコードを生成できます。
 
+.. code-block:: python
+
+   >>> from http.client import responses
+   >>> def get_status_code(number):
+   ...     return f"{number} {responses[number]}"
+   ...
+   >>> get_status_code(200)
+   '200 OK'
+   >>> get_status_code(400)
+   '400 Bad Request'
+
+ステータス情報の管理には ``wsgiref.headers`` モジュールの中にある ``Header`` クラスが便利です。
+
+.. code-block:: python
+
+   >>> from wsgiref.headers import Headers
+   >>> h = Headers()
+   >>> h.add_header('Content-type', 'text/plain')
+   >>> h.add_header('Foo', 'bar')
+   >>> h.items()
+   [('Content-type', 'text/plain'), ('Foo', 'bar')]
+
+``add_header(key, value)`` メソッドをとおして、ヘッダー情報をセットします。
+またWSGIの仕様上、ヘッダー情報をキーとバリューのタプルのリストを用意する必要がありますが、
+``items()`` メソッドはその形式でヘッダー情報を吐き出してくれます。
+
+
+Responseクラスを用意して組み込む
+----------------------------------------
+
+レスポンスクラスは次のようになります。
+
+.. code-block:: python
+
+   from http.client import responses as http_responses
+   from wsgiref.headers import Headers
+
+   class Response:
+       default_status = 200
+       default_charset = 'utf-8'
+       default_content_type = 'text/html; charset=UTF-8'
+
+       def __init__(self, body='', status=None, headers=None, charset=None):
+           self._body = body
+           self.status = status or self.default_status
+           self.headers = Headers()
+           self.charset = charset or self.default_charset
+
+           if headers:
+               for name, value in headers.items():
+                   self.headers.add_header(name, value)
+
+       @property
+       def status_code(self):
+           return "%d %s" % (self.status, http_responses[self.status])
+
+       @property
+       def header_list(self):
+           if 'Content-Type' not in self.headers:
+               self.headers.add_header('Content-Type', self.default_content_type)
+           return self.headers.items()
+
+       @property
+       def body(self):
+           if isinstance(self._body, str):
+               return [self._body.encode(self.charset)]
+           return [self._body]
+
+デフォルトのステータスコードやコンテントタイプをクラス変数にもたせておくことにしました。
+ユーザーはレスポンスボディの内容を文字列で指定していますが、WSGIのインターフェイスではバイト文字列を yield するイテラブルなオブジェクトとして返さなくてはいけません。
+``body`` プロパティメソッドが適切に文字列をエンコードして返してくれます。
+
+アプリケーションにも組み込んでみましょう。
+
+.. code-block:: python
+
+   class App:
+       ...
+
+       def __call__(self, env, start_response):
+           request = Request(env)
+           callback, url_vars = self.router.match(request.method, request.path)
+
+           response = callback(request, **url_vars)
+           start_response(response.status_code, response.header_list)
+           return response.body
+
+組み込みはこのように非常に簡単です。これまでとは違い ``start_response`` を各関数に渡す必要はありません。
+そのかわり返ってきたレスポンスオブジェクトから、ステータス情報とヘッダー情報を取り出して呼び出して上げる必要があります。
+
+こうするとユーザーの定義する関数は驚くほどシンプルになります。
+具体的には、次のようになりました。
+
+.. literalinclude:: _codes/response/main.py
+
+いかがでしょう、FlaskやBottleを使ったことのある方には随分と見慣れた形になってきたのではないでしょうか。
+
+
+まとめ
+-------
+
+ここではレスポンス情報の扱いを見直しました。
+Responseクラスを追加することで随分ユーザーにとって使いやすいAPIに変えることができました。
+実際にアプリケーションを作っていくにはまだまだ欲しい機能がありますが、ここまでくればまさにWebフレームワークと言えるものになってきたのではないでしょうか。
+
+ここでは全部文字列をただ返していましたが、実際のユースケースではHTMLやJSONを返すことが多いでしょう。
+その内容は次の節で扱っていきます。
 
 
 .. チューニング

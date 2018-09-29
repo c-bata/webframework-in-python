@@ -116,6 +116,10 @@ WSGI Environに入っているすべての情報をラップすることはこ�
 
 .. code-block:: python
 
+   import cgi
+   import json
+   from urllib.parse import parse_qs, urljoin
+
    class Request:
        def __init__(self, environ, charset='utf-8'):
            self.environ = environ

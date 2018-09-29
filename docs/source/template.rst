@@ -1,11 +1,40 @@
-テンプレートエンジン
-==========
+JSONやHTMLを返す
+===============
+
+*この章はまだ書き途中です。気が向いたときに書き直していきますがこの資料の感想をいただけると頑張るかもしれません*
+
+JSONResponseクラスを用意する
+----------------------------------
+
+Responseオブジェクトは文字列を返すのには非常に向いていました。
+実際Webアプリケーションを開発する中ではこのように文字列を返すことはあまりなく、
+Webブラウザで表示するためのHTMLを返したり、クライアントアプリケーションのためにJSON形式のAPIを用意することのほうが多くあります。
+まずはJSON APIの開発に便利な JSONResponse クラスを用意してみましょう。
+
+.. code-block:: python
+
+   class JSONResponse(Response):
+       default_content_type = 'text/json; charset=UTF-8'
+
+       def __init__(self, dic, status=200, headers=None, charset=None, **dump_args):
+           self.dic = dic
+           self.json_dump_args = dump_args
+           super().__init__('', status=status, headers=headers, charset=charset)
+
+       @property
+       def body(self):
+           return [json.dumps(self.dic, **self.json_dump_args).encode(self.charset)]
+
+
+
+Jinja2を使ってHTMLを返す
+-----------------------------
 
 BottleやDjangoのようなフレームワークでは自前でテンプレートエンジンを用意していますが、
-今回は、デファクトスタンダードとなっているJinja2を使用しましょう。
+今回は、デファクトスタンダードとなっているJinja2を使ってHTMLを返していきましょう。
 
 Jinja2 おさらい
------------
+~~~~~~~~~~~
 
 Jinja2の使い方をおさらいしてみましょう.
 
@@ -20,8 +49,8 @@ Jinja2の使い方をおさらいしてみましょう.
    >>> template.render(title='Hello World', users=['user1', 'users2'])
 
 
-TemplateReponse クラス
--------------------
+TemplateResponse クラス
+~~~~~~~~~~~~~~~~~~~
 
 それではこれを簡単に扱えるようなResponseクラスを用意します。
 

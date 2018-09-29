@@ -1,5 +1,6 @@
 import re
 import cgi
+from http.client import responses as http_responses
 import json
 from urllib.parse import parse_qs
 from wsgiref.headers import Headers
@@ -86,7 +87,7 @@ class Request:
 
 
 class Response:
-    default_status = '200 OK'
+    default_status = 200
     default_charset = 'utf-8'
     default_content_type = 'text/html; charset=UTF-8'
 
@@ -101,16 +102,20 @@ class Response:
                 self.headers.add_header(name, value)
 
     @property
-    def body(self):
-        if isinstance(self._body, str):
-            return [self._body.encode(self.charset)]
-        return [self._body]
+    def status_code(self):
+        return "%d %s" % (self.status, http_responses[self.status])
 
     @property
     def header_list(self):
         if 'Content-Type' not in self.headers:
             self.headers.add_header('Content-Type', self.default_content_type)
         return self.headers.items()
+
+    @property
+    def body(self):
+        if isinstance(self._body, str):
+            return [self._body.encode(self.charset)]
+        return [self._body]
 
 
 class App:
