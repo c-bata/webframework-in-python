@@ -1,4 +1,17 @@
 import socket
+from threading import Thread
+
+
+def http_handler(conn):
+    with conn:
+        rfile = conn.makefile('rb', -1)
+        while True:
+            line = rfile.readline()
+            if line == b'\r\n':
+                break  # end of request header
+        print(line.decode('iso-8859-1'), end="")
+    rfile.close()
+    conn.sendall(b'HTTP/1.1 501\r\n\r\nNot Implemented\r\n')
 
 
 class WSGIServer:
@@ -15,8 +28,8 @@ class WSGIServer:
 
             while True:
                 conn, client_address = sock.accept()
-                with conn:
-                    conn.sendall(b'HTTP/1.1 501\r\n\r\nNot Implemented\r\n')
+                print("Connection", client_address)
+                Thread(target=http_handler, args=(conn,), daemon=True).start()
 
 
 if __name__ == '__main__':

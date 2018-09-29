@@ -1,4 +1,5 @@
 import socket
+from threading import Thread
 
 
 class ResponseWriter:
@@ -64,3 +65,44 @@ if __name__ == '__main__':
     from main import app
     serv = WSGIServer(app)
     serv.run_forever()
+
+
+def run_server(wsgi_app, address):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+        sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
+        sock.bind(address)
+        sock.listen(5)
+
+        while True:
+            conn, client_address = sock.accept()
+            print("Connection", client_address)
+            Thread(target=echo_handler, args=(wsgi_app, conn), daemon=True).start()
+
+
+def echo_handler(wsgi_app, conn):
+    with conn:
+        rfile = conn.makefile('rb', -1)
+        while True:
+            line = rfile.readline()
+            if line == b'\r\n':
+                break  # end of request header
+            print(line.decode('iso-8859-1'), end="")
+        rfile.close()
+
+        env = {
+            'REQUEST_METHOD': "GET",
+            'PATH_INFO': "/",
+            'QUERY_STRING': "",
+        }
+
+        start_response = lambda status_code, headers: print(status_code, headers)
+        body = wsgi_app(env, start_response)
+        for b in body:
+            conn.sendall()
+
+        conn.sendall(b'HTTP/1.1 501\r\n\r\nNot Implemented\r\n')
+
+
+if __name__ == '__main__':
+    from main import app
+    run_server(app, ('127.0.0.1', 8000))
