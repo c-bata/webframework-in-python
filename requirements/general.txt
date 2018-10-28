@@ -5,6 +5,7 @@ wsgi-static-middleware
 # documentation
 sphinx
 solar-theme
+sphinx-intl
 
 # develop
 gunicorn
