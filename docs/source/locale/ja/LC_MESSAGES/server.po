@@ -6,57 +6,47 @@
 #
 #, fuzzy
 msgid ""
-msgstr ""
-"Project-Id-Version: devwebframework 0.0.1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-28 20:25+0900\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.6.0\n"
+msgstr " "
 
 #: ../../source/server.rst:2
 msgid "WIP: WSGIサーバーのつくりかた"
-msgstr ""
+msgstr "&quot;WIP: How to create a WSGI server"
 
 #: ../../source/server.rst:4
 msgid ""
 "WSGIアプリケーションフレームワークとして最低限必要な機能をある程度実装しました。 "
 "200行弱のフレームワークですが、ルーティングやリクエストオブジェクト、レスポンスオブジェクトを実装したことで、 "
 "WSGIのインターフェイスよりは随分使いやすくなりました。"
-msgstr ""
+msgstr "We implemented the minimum necessary functions as WSGI application framework to some extent. It is a framework of less than 200 lines, but by implementing routing, request object, response object, it is much easier to use than the WSGI interface."
 
 #: ../../source/server.rst:8
 msgid ""
 "次はHTTP 1.xの解説も兼ねて、WSGIサーバーの作り方についてお話します。 "
 "作るのは150行に満たないWSGIサーバーですが、手元のDjangoアプリケーションも問題なく動かすことができました。 "
 "パフォーマンスや脆弱性の問題を抱えてはいますが、動作を理解するにはうってつけです。"
-msgstr ""
+msgstr "Next, I will talk about how to make a WSGI server as a commentary on HTTP 1.x. I make less than 150 lines of WSGI server, but I was able to run Django application at hand without trouble. I am having problems with performance and vulnerability, but it is perfect for understanding the behavior."
 
 #: ../../source/server.rst:14
 msgid "ソケットモジュールを使ったTCP通信"
-msgstr ""
+msgstr "&quot;TCP communication using a socket module"
 
 #: ../../source/server.rst:16
 msgid "日頃の業務の中で、TCPのsocket通信プログラムを書くことはあまりないかもしれません。 もし難しければ定型文として、覚えてもらっても大丈夫です。"
-msgstr ""
+msgstr "&quot;In my daily work, I may not write TCP socket communication program so much, so if it is difficult, I can remember it as a fixed form sentence."
 
 #: ../../source/server.rst:41
 msgid "なにかリクエストを受け取ったら ``Hello`` とだけ返し、接続を終了するシンプルなプログラムです。"
-msgstr ""
+msgstr "&quot;It is a simple program that simply returns` `Hello`` if it receives any request and ends the connection."
 
 #: ../../source/server.rst:45
 msgid "HTTP レスポンスを返す"
-msgstr ""
+msgstr "&quot;Return HTTP response"
 
 #: ../../source/server.rst:80
 msgid "ブラウザーで開いてみてください。"
-msgstr ""
+msgstr "&quot;Please try opening it in the browser."
 
 #: ../../source/server.rst:84
 msgid "クラスに載せる"
-msgstr ""
+msgstr "&quot;Post your class"
 

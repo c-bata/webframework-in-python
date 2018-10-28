@@ -6,123 +6,113 @@
 #
 #, fuzzy
 msgid ""
-msgstr ""
-"Project-Id-Version: devwebframework 0.0.1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-28 20:25+0900\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.6.0\n"
+msgstr " "
 
 #: ../../source/routing.rst:2
 msgid "ルーティング"
-msgstr ""
+msgstr "&quot;routing"
 
 #: ../../source/routing.rst:5
 msgid "シンプルなルーティング"
-msgstr ""
+msgstr "&quot;Simple routing"
 
 #: ../../source/routing.rst:7
 msgid ""
 "前章では、WSGIの仕様について確認し、それを満たす小さなアプリケーションをつくりました。 "
 "ここからは実際にWebフレームワークを作っていきましょう。"
-msgstr ""
+msgstr "In the previous chapter, I checked the specification of WSGI and made a small application to satisfy it. Let&#39;s actually make a web framework from here."
 
 #: ../../source/routing.rst:10
 msgid ""
 "先程のアプリケーションでは、URLのパス情報によらず全て「Hello World」と返しています。 "
 "実際のアプリケーションでは、沢山のページが存在するためパス情報に応じてそれぞれ違ったレスポンスを返す必要があります。 "
 "最も簡単なルーティング方法を次に示します。"
-msgstr ""
+msgstr "In the previous application, it returns &quot;Hello World&quot; regardless of the path information of the URL. In an actual application, since there are many pages, it is necessary to return different responses according to the path information. The simplest routing method is shown below."
 
 #: ../../source/routing.rst:28
 msgid ""
 "WSGIのアプリケーションの第一引数には、辞書型オブジェクトが渡されています。 これは WSGI Environment "
 "と呼ばれ、クライアントから受け取ったリクエストの情報が格納されています。 リクエストのパス情報もその一つで、 `PATH_INFO` "
 "により取り出すことができます。 またHTTPのメソッドも同様に ``REQUEST_METHOD`` により取り出すことができます。"
-msgstr ""
+msgstr "As a first argument of WSGI&#39;s application, a dictionary type object is passed. This is called WSGI Environment, which stores information on requests received from clients. The path information of the request is one of them and can be retrieved by `PATH_INFO`. Also HTTP methods can be retrieved by `` REQUEST_METHOD`` as well."
 
 #: ../../source/routing.rst:35
 msgid "URL変数と正規表現によるルーティング"
-msgstr ""
+msgstr "&quot;URL variable and regular expression routing"
 
 #: ../../source/routing.rst:38
 msgid "URL変数"
-msgstr ""
+msgstr "&quot;URL variable"
 
 #: ../../source/routing.rst:40
 msgid "もう少し複雑なケースを考えてみましょう。 こちらのBottleのアプリケーションの一部を見てください。"
-msgstr ""
+msgstr "&quot;Consider a more complicated case, please look at some of the applications of Bottle here."
 
 #: ../../source/routing.rst:54
 msgid ""
 "`/hello/foo` と `/hello/bar` はそれぞれ別のエンドポイントですが、上のコードではどちらも `greet` "
 "関数が呼ばれます。 またURLのパス情報から `foo` や `bar` などの変数(以下、URL変数)を取り出しています。"
-msgstr ""
+msgstr "`/ hello / foo` and` / hello / bar` are different endpoints, but in the code above the `greet` function is called. Variables such as `foo` and` bar` (URL variable) are taken from the path information of the URL."
 
 #: ../../source/routing.rst:57
 msgid "先程のようにif文で分岐させていくのは大変なので、別の方法を考えてみましょう。 解決策の一つとして正規表現の利用があります。"
-msgstr ""
+msgstr "&quot;Since it is difficult to branch with an if statement as before, let&#39;s consider another method.There is use of regular expression as a solution."
 
 #: ../../source/routing.rst:62
 msgid "正規表現モジュール"
-msgstr ""
+msgstr "&quot;Regular Expression Module"
 
 #: ../../source/routing.rst:64
 msgid ""
 "`正規表現 <http://docs.python.jp/3/library/re.html>`_ は普段使わない方も多いかと思います。 "
 "ここで簡単におさらいしましょう。"
-msgstr ""
+msgstr "`Regular Expression <http://docs.python.jp/3/library/re.html> I think that there are also many people who do not normally use _. Here&#39;s a quick overview."
 
 #: ../../source/routing.rst:78
 msgid "このように名前付きグループでパターンを定義し、マッチするか確認してからgroupdictを呼ぶことでuser_idの部分の数字が文字列で取得出来ます。"
-msgstr ""
+msgstr "&quot;By defining a pattern in a named group and checking if it matches like this, you can get the number in user_id as a string by calling groupdict."
 
 #: ../../source/routing.rst:82
 msgid "構成図"
-msgstr ""
+msgstr "&quot;Diagram"
 
 #: ../../source/routing.rst:84
 msgid "それでは、ルーティング機能を提供するため、フレームワークの実装を始めましょう。 ここで提供するルーティングは次のようなイメージです。"
-msgstr ""
+msgstr "&quot;Let&#39;s start implementing the framework to provide the routing function.The routing provided here is as follows."
 
 #: ../../source/routing.rst:92
 msgid "ルーティングのイメージ。 パス情報にあわせて別のアプリケーションを呼び出す。"
-msgstr ""
+msgstr "&quot;Routing image. Call another application according to path information."
 
 #: ../../source/routing.rst:95
 msgid "それでは図のRouterを実装していきましょう。"
-msgstr ""
+msgstr "&quot;Let&#39;s implement the routers in the figure."
 
 #: ../../source/routing.rst:99
 msgid "Routerクラス"
-msgstr ""
+msgstr "&quot;Router class"
 
 #: ../../source/routing.rst:101
 msgid "それではルーティングの機能を提供する ``Router`` クラスを用意していきます。 このクラスには2つのメソッドを用意します。"
-msgstr ""
+msgstr "&quot;Now we will prepare a` `Router`` class that provides routing capabilities, and we have two methods for this class."
 
 #: ../../source/routing.rst:104
 msgid "``add()``: 各コールバック関数(WSGIアプリケーションオブジェクト)が、どのURLパス・HTTPメソッドに紐づくかを登録する。"
-msgstr ""
+msgstr "&quot;` `add ()` `: Register which URL path · HTTP method is associated with each callback function (WSGI application object)."
 
 #: ../../source/routing.rst:105
 msgid "``match()``: 実際に受け取ったリクエストのパスとHTTPメソッドの情報を元に登録していたコールバック関数とURL変数を返す。"
-msgstr ""
+msgstr "&quot;` `match ()` `: Returns the callback function and URL variable registered based on the path of the actual request and information on the HTTP method."
 
 #: ../../source/routing.rst:107
 msgid "まずは ``add()`` メソッドから定義してみましょう。"
-msgstr ""
+msgstr "&quot;Let&#39;s start by defining it from the` `add ()` `method."
 
 #: ../../source/routing.rst:122
 msgid ""
 "HTTPメソッドとパス、それに紐づくコールバック関数を辞書型のオブジェクトにつめて、リストに追加しました。 "
 "非常に簡単です。呼び出し側はどのようになるでしょうか？ ``match()`` メソッドを定義します。"
-msgstr ""
+msgstr "We added HTTP methods, paths, and callback functions associated therewith to dictionary type objects and added them to the list. Very easy. What will the caller look like? Define `` match () `` method."
 
 #: ../../source/routing.rst:147
 msgid ""
@@ -130,39 +120,39 @@ msgid ""
 "もし一致した場合には、URL変数を取り出し、ひも付けられていたコールバック関数を返します。 一致しない場合には、 ``404 Not "
 "Found`` を返すようになりました。 こちらも非常にシンプルなコードですが、基本的にルーティングに必要な機能を備えています。 "
 "念の為動作も確認しましょう。"
-msgstr ""
+msgstr "In this method, it checks whether the path information and method information of the endpoint registered by the `` add () `` method match. If it matches, it retrieves the URL variable and returns the callback function that was tied. If they do not match, `` 404 Not Found`` is now returned. This is also a very simple code, but basically it has the necessary functions for routing. Just to be sure, let&#39;s check the operation."
 
 #: ../../source/routing.rst:188
 msgid "うまく動作していることが確認できます。 ここではついでに2つ改善を加えておきましょう。"
-msgstr ""
+msgstr "&quot;It can be confirmed that it works well. Let&#39;s add two improvements in addition here."
 
 #: ../../source/routing.rst:191
 msgid "パスは定義されているもののメソッドだけが一致しない場合には ``405 Method Not Allowed`` を返す。"
-msgstr ""
+msgstr "&quot;If the path is defined but only the methods do not match, it returns` `405 Method Not Allowed``."
 
 #: ../../source/routing.rst:192
 msgid "``re.compile()`` は ``Router.add()`` メソッドの呼び出し時に行っておく。"
-msgstr ""
+msgstr "&quot;` `re.compile ()` `is done when calling the` `Router.add ()` `method."
 
 #: ../../source/routing.rst:194
 msgid "修正を加えると全体像は次のようになります。"
-msgstr ""
+msgstr "&quot;If you make corrections, the overall picture looks like the following."
 
 #: ../../source/routing.rst:237
 msgid ""
 "他にもいろいろと考えることはありますが、今はこれくらいにしておきます。 それでは ``Router`` "
 "クラスを実際にアプリケーションに組み込んでいきます。"
-msgstr ""
+msgstr "There are other things to think about, but I will keep it for now. So we will actually include the `` Router`` class in the application."
 
 #: ../../source/routing.rst:242
 msgid "Routerを組み込んだWSGIのアプリケーション用クラスを作る"
-msgstr ""
+msgstr "&quot;Make a WSGI application class that incorporates Router"
 
 #: ../../source/routing.rst:244
 msgid ""
 "``Router`` クラスを組み込んで行きたいのですが、関数のままだと少し扱いづらいです。 "
 "ここではWSGIアプリケーションをクラスで定義してみましょう。"
-msgstr ""
+msgstr "I&#39;d like to incorporate the `` Router`` class, but it&#39;s a bit hard to handle if you keep the function. Let&#39;s define the WSGI application in the class here."
 
 #: ../../source/routing.rst:254
 msgid ""
@@ -170,32 +160,32 @@ msgid ""
 "メソッドを定義すると、このクラスのオブジェクト自身が呼び出し可能(callable)になります。 つまり ``app = App()`` は、関数"
 " ``def app(env, start_response): pass`` 同じように振る舞ってくれます。 "
 "これでだいぶ拡張がしやすくなりました。 ``Router`` クラスを組み込んでみましょう。"
-msgstr ""
+msgstr "The point to watch out here is that the `` __call __ () `` method is defined. If you define the `` __call__`` method, the object of this class is itself callable. In other words, `` app = App () `` behaves in the same way as the function `` def app (env, start_response): pass``. This makes it much easier to expand. Let&#39;s include the `` Router`` class."
 
 #: ../../source/routing.rst:278
 msgid ""
 "``route`` デコレーターを使ってコールバック関数にHTTPメソッドと正規表現で書かれたパスを割り当てできるようにしました。 "
 "このフレームワークの利用者からは、次のような形で利用出来ます。"
-msgstr ""
+msgstr "You can now use the `` route`` decorator to assign paths written in HTTP methods and regular expressions to callback functions. Users of this framework can use it in the following form."
 
 #: ../../source/routing.rst:283
 msgid ""
 "実際にアプリケーションを実行して動作確認してみましょう。 "
 "定義されたエンドポイントにアクセスすると、次のように正しくレスポンスを受け取ることができます。"
-msgstr ""
+msgstr "Let&#39;s actually run the application and check its operation. By accessing the defined endpoint, you can receive the correct response as follows:"
 
 #: ../../source/routing.rst:297
 msgid "一方で定義されていないパスや、メソッドが定義されていないエンドポイントでは、404 や 405が返ってきます。"
-msgstr ""
+msgstr "&quot;On the other hand, 404 or 405 will be returned for paths that are not defined, or endpoints for which methods are not defined."
 
 #: ../../source/routing.rst:308
 msgid "まとめ"
-msgstr ""
+msgstr "&quot;Summary"
 
 #: ../../source/routing.rst:310
 msgid ""
 "ここまでルーティングの役割について考え、実装しました。 用意した ``Router`` "
 "クラスは、正規表現で記述されたパスにマッチするかどうかを判定し、 マッチした場合には登録しておいたコールバック関数とURL変数を返してくれます。 "
 "デコレーターでルーティングの情報を指定することで、ユーザーは複数のエンドポイントを見通しよく定義できるようになりました。"
-msgstr ""
+msgstr "I thought about the role of routing so far and implemented it. The prepared `` Router`` class determines whether or not it matches the path described in the regular expression, and if it matches, it returns the registered callback function and URL variable. By specifying routing information with a decorator, users can better define multiple endpoints forepectedly."
 

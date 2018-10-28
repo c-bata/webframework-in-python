@@ -6,29 +6,19 @@
 #
 #, fuzzy
 msgid ""
-msgstr ""
-"Project-Id-Version: devwebframework 0.0.1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-28 20:25+0900\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.6.0\n"
+msgstr " "
 
 #: ../../source/template.rst:2
 msgid "JSONやHTMLを返す"
-msgstr ""
+msgstr "&quot;Return JSON or HTML"
 
 #: ../../source/template.rst:4
 msgid "*この章はまだ書き途中です。気が向いたときに書き直していきますがこの資料の感想をいただけると頑張るかもしれません*"
-msgstr ""
+msgstr "&quot;* This chapter is still in the process of being written.I will rewrite it when I feel it, but if I receive the impression of this material it may work hard *"
 
 #: ../../source/template.rst:7
 msgid "JSONResponseクラスを用意する"
-msgstr ""
+msgstr "&quot;Prepare the JSONResponse class"
 
 #: ../../source/template.rst:9
 msgid ""
@@ -36,47 +26,47 @@ msgid ""
 "実際Webアプリケーションを開発する中ではこのように文字列を返すことはあまりなく、 "
 "Webブラウザで表示するためのHTMLを返したり、クライアントアプリケーションのためにJSON形式のAPIを用意することのほうが多くあります。 "
 "まずはJSON APIの開発に便利な JSONResponse クラスを用意してみましょう。"
-msgstr ""
+msgstr "The Response object was very suitable for returning strings. In fact when developing a web application, it is rare to return such a string in this way, and there are more cases to return HTML for displaying in a web browser or to prepare a JSON format API for client applications. Let&#39;s first prepare the JSONResponse class which is useful for developing JSON API."
 
 #: ../../source/template.rst:31
 msgid "Jinja2を使ってHTMLを返す"
-msgstr ""
+msgstr "&quot;Return HTML using Jinja 2"
 
 #: ../../source/template.rst:33
 msgid ""
 "BottleやDjangoのようなフレームワークでは自前でテンプレートエンジンを用意していますが、 "
 "今回は、デファクトスタンダードとなっているJinja2を使ってHTMLを返していきましょう。"
-msgstr ""
+msgstr "In the framework like Bottle and Django, we prepare our own template engine, but this time, let&#39;s return HTML using Jinja 2 which is the de facto standard."
 
 #: ../../source/template.rst:37
 msgid "Jinja2 おさらい"
-msgstr ""
+msgstr "&quot;Jinja 2 Review"
 
 #: ../../source/template.rst:39
 msgid "Jinja2の使い方をおさらいしてみましょう."
-msgstr ""
+msgstr "Let&#39;s review how to use Jinja 2."
 
 #: ../../source/template.rst:53
 msgid "TemplateResponse クラス"
-msgstr ""
+msgstr "&quot;TemplateResponse class"
 
 #: ../../source/template.rst:55
 msgid "それではこれを簡単に扱えるようなResponseクラスを用意します。"
-msgstr ""
+msgstr "&quot;We will prepare a Response class that can handle this easily."
 
 #: ../../source/template.rst:72
 msgid "render_bodyを呼び出す際に、environmentを渡す必要があるため、つぎのようにAppクラスを書き換えましょう."
-msgstr ""
+msgstr "&quot;When calling render_body, we need to pass environment, so let&#39;s rewrite the App class as follows."
 
 #: ../../source/template.rst:100
 msgid "これで実装はOKです。使ってみましょう。"
-msgstr ""
+msgstr "&quot;Implementation is OK with this, let&#39;s use it."
 
 #: ../../source/template.rst:102
 msgid "`main.py`"
-msgstr ""
+msgstr " "`main.py`"
 
 #: ../../source/template.rst:112
 msgid "`templates/users.html`"
-msgstr ""
+msgstr " "`templates/users.html`"
 

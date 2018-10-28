@@ -6,36 +6,26 @@
 #
 #, fuzzy
 msgid ""
-msgstr ""
-"Project-Id-Version: devwebframework 0.0.1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-28 20:25+0900\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.6.0\n"
+msgstr " "
 
 #: ../../source/index.rst:3
 msgid "Webアプリケーションフレームワークの作り方 in Python"
-msgstr ""
+msgstr "&quot;How to make a Web application framework in Python"
 
 #: ../../source/index.rst:5
 msgid "こんにちは、芝田 将 ( `@c_bata_ <https://twitter.com/c_bata_>`_ ) です。"
-msgstr ""
+msgstr "&quot;Hello, Masashi Shibata (` @ c_bata _ <https://twitter.com/c_bata_> `_)."
 
 #: ../../source/index.rst:7
 msgid ""
 "この資料はPyCon JP 2016で行った `「基礎から学ぶWebアプリケーションフレームワークの作り方」 "
 "<https://pycon.jp/2016/ja/schedule/presentation/14/>`_ の書き起こし資料です。 "
 "誤字等があれば、Issue or PRをお待ちしております。"
-msgstr ""
+msgstr "This document is based on PyCon JP 2016 `` How to make a Web application framework to learn from the basics&#39; <https://pycon.jp/2016/ja/schedule/presentation/14/> It is a transcript of `_. We will be waiting for Issue or PR if there are misspellings etc."
 
 #: ../../source/index.rst:16
 msgid "はじめに"
-msgstr ""
+msgstr "&quot;Introduction"
 
 #: ../../source/index.rst:18
 msgid ""
@@ -46,7 +36,7 @@ msgid ""
 " "
 "各種フレームワークの設計方針の違いに気づき、フレームワークを利用しているだけでは気づくことのできなかった多くのHTTPに関する知識を得ることができました。"
 " 最近ではGo言語などPython以外の言語を書くことも多くなってきましたが、ここで得た多くの知識が役に立ったと感じています。"
-msgstr ""
+msgstr "When I decided to make my best advantage on the server side, I first wanted to know the implementation of major web frameworks such as Django and Flask. It is because I want to be able to fix it myself when I encounter some bug. So while I was a student I was reading the implementation of Bottle and Flask. At first I did not know where to start by reading hands, but I could see the whole picture of various WSGI frameworks by reading while holding my head. I noticed the differences in the design policies of the various frameworks and gained a lot of knowledge about HTTP that I could not notice by merely using the framework. Recently, it has become more common to write languages ​​other than Python such as Go language, but I feel that many knowledge gained here has been useful."
 
 #: ../../source/index.rst:25
 msgid ""
@@ -55,11 +45,11 @@ msgid ""
 "小さなフレームワークを1から作ってみることは、全体像を把握するのに有効なやり方です。 "
 "ここで解説する内容を抑えておけば、Bottleの実装を読むことにはそれほど苦労しないでしょう。 "
 "またFlaskやDjangoを読むときにも全体像を把握しながら読み進められれば、どこから手をつければいいかも想像がつきます。"
-msgstr ""
+msgstr "However, it is very difficult to read the code base of thousands of lines to hundreds of thousands of lines from the beginning while the knowledge is shallow like the author. This article will explain how to make a simple web framework that is less than 200 lines in a bottom-up manner. Creating a small framework from 1 is an effective way to grasp the overall picture. If you keep down the content to explain here, you will not have much trouble reading Bottle&#39;s implementation. Also, when you read Flask or Django, you can imagine where you should start a hand as long as you can read through while understanding the overall picture."
 
 #: ../../source/index.rst:33
 msgid "対象読者"
-msgstr ""
+msgstr "&quot;Audience"
 
 #: ../../source/index.rst:35
 msgid ""
@@ -67,15 +57,15 @@ msgid ""
 "そのため既にWeb開発の経験があり、基本的なHTTPの知識があると理解がしやすいかと思います。 "
 "もし読み進めていく中で難しいと感じた場合は、これらの知識をもう少し復習してみるといいかもしれません。 "
 "どうしてもわからない場合はGithubの方にIssueをたてていただけると、そのあたりの補足説明を増やせるかもしれません。 お気軽に連絡ください。"
-msgstr ""
+msgstr "In this article, we will actually create a framework for Web applications in Python. For that reason, I have already experienced web development and I think that it is easy to understand if there is basic HTTP knowledge. If you feel it is difficult as you continue reading, you may want to review these knowledge a bit more. If you do not understand in any way, you can increase Issue to Github, you may increase supplementary explanation about that. Please do not hesitate to contact me."
 
 #: ../../source/index.rst:43
 msgid "目次"
-msgstr ""
+msgstr "&quot;table of contents"
 
 #: ../../source/index.rst:57
 msgid "関連URL"
-msgstr ""
+msgstr "&quot;Related URL"
 
 #: ../../source/index.rst:59
 msgid ""
@@ -85,25 +75,25 @@ msgid ""
 "/webframework-in-python/blob/master/src/wsgi_server.py>`_ / `サンプルアプリケーション"
 " <https://github.com/c-bata/webframework-in-"
 "python/blob/master/src/main.py>`_ )"
-msgstr ""
+msgstr "`Github <https://github.com/c-bata/webframework-in-python> `_ (` WSGI framework <https://github.com/c-bata/webframework-in-python/blob/master/src/app.py> `_ /` WSGI server <https://github.com/c-bata/webframework-in-python/blob/master/src/wsgi_server.py> `_ /` Sample application <https://github.com/c-bata/webframework-in-python/blob/master/src/main.py> `_)"
 
 #: ../../source/index.rst:60
 msgid "`スライド <https://c-bata.link/webframework-in-python/slide.html#1>`_"
-msgstr ""
+msgstr "&quot;` Slide <https://c-bata.link/webframework-in-python/slide.html#1> `_"
 
 #: ../../source/index.rst:61
 msgid "`動画(Youtube) <https://www.youtube.com/watch?v=S-InxJA5NOg>`_"
-msgstr ""
+msgstr "&quot;` Video (Youtube) <https://www.youtube.com/watch?v=S-InxJA5NOg> `_"
 
 #: ../../source/index.rst:64
 msgid "Indices and tables"
-msgstr ""
+msgstr " "Indices and tables"
 
 #: ../../source/index.rst:66
 msgid ":ref:`genindex`"
-msgstr ""
+msgstr "&quot;: Ref:` genindex`"
 
 #: ../../source/index.rst:67
 msgid ":ref:`search`"
-msgstr ""
+msgstr " ":ref:`search`"
 

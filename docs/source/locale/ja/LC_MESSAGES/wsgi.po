@@ -6,31 +6,21 @@
 #
 #, fuzzy
 msgid ""
-msgstr ""
-"Project-Id-Version: devwebframework 0.0.1\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-10-28 20:25+0900\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
-"MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Generated-By: Babel 2.6.0\n"
+msgstr " "
 
 #: ../../source/wsgi.rst:2
 msgid "WSGI について"
-msgstr ""
+msgstr "About WSGI"
 
 #: ../../source/wsgi.rst:5
 msgid "アプリケーション・サーバ間のやりとり"
-msgstr ""
+msgstr "&quot;Application-server interaction"
 
 #: ../../source/wsgi.rst:7
 msgid ""
 "FlaskやDjangoで書かれたアプリケーションを動かすときは、当然ですがサーバーが必要になります。 本番環境で動かすときには gunicorn"
 " や uWSGI が広く利用されます。"
-msgstr ""
+msgstr "When running an application written in Flask or Django, of course, a server is necessary. When running in a production environment gunicorn and uWSGI are widely used."
 
 #: ../../source/wsgi.rst:12
 msgid ""
@@ -38,18 +28,18 @@ msgid ""
 "シングルスレッドでしか動作しないなど性能面の問題はありますが、標準ライブラリに含まれていて別途インストールする必要はないため、 "
 "開発環境ではこちらが使われることも多くあります。 例えばFlaskクラスが提供する ``run()`` メソッドや、Djangoの "
 "``manage.py runserver`` はデフォルトで wsgiref を利用します。"
-msgstr ""
+msgstr "Actually there is also a server implementation called `` wsgiref`` in the Python standard library. Although there are performance issues such as it only works with single thread, it is included in the standard library and there is no need to install it separately, so this is often used in the development environment. For example, the `` run () `` method provided by Flask class and Django `` manage.py runserver`` will use wsgiref by default."
 
 #: ../../source/wsgi.rst:18
 msgid ""
 "Webアプリを開発する際には、これらのサーバ上で作成したアプリケーションを動かしますが、 "
 "具体的にWebサーバと私達の開発しているアプリケーションがどのようなやりとりを行っているのか、日頃の開発の中で意識することは少ないのではないでしょうか。"
 " しかし、Webフレームワークを開発するとなるとどのようにやり取りが行われているのかを知っておく必要があります。"
-msgstr ""
+msgstr "When developing a Web application, I will run applications created on these servers, but I will explain in detail what kind of exchanges between the Web server and the application we are developing, daily development There is not much to be aware of within. However, when developing a Web framework it is necessary to know how exchanges are being done."
 
 #: ../../source/wsgi.rst:27
 msgid "サーバとアプリケーションの間では何かしらのやり取りが行われています。"
-msgstr ""
+msgstr "&quot;There is some communication between the server and the application."
 
 #: ../../source/wsgi.rst:29
 msgid ""
@@ -59,7 +49,7 @@ msgid ""
 "などの有名なPythonのWebフレームワークはどれもWSGIの仕様に準拠しています。 ここでは私達も WSGI "
 "の仕様に準拠したアプリケーションフレームワークを開発していきます。 こうすることで gunicorn や uWSGI "
 "などの優れた既存のWSGIサーバーを利用できます。"
-msgstr ""
+msgstr "In Python, as an interface between an application and a Web server `PEP 3333 <https://www.python.org/dev/peps/pep-3333/> WSGI (Web Server Gateway Interface) specification defined by `_ is widely used. Every well-known Python web framework such as Django, Flask, Bottle, Pyramid, etc. conforms to WSGI specifications. Here we will also develop an application framework that conforms to WSGI specifications. By doing this you can use an excellent existing WSGI server such as gunicorn or uWSGI."
 
 #: ../../source/wsgi.rst:37
 msgid ""
@@ -68,33 +58,33 @@ msgid ""
 "<http://www.python.org/dev/peps/pep-0333/>`_ も存在します。 PEP333 はPython "
 "2を前提としていましたが、Python3から文字列の扱いが大きく変化したためそれに合わせてアップデートされ、 その他の細かい仕様変更が "
 "PEP3333 には加わっています。"
-msgstr ""
+msgstr "`PEP 3333 <https://www.python.org/dev/peps/pep-3333/> The WSGI version defined in `_ is v1.0.1, but in PEP,` PEP 333 (WSGI v 1.0) <http://www.python.org/dev/peps/pep-0333/> `_ Also exists. Although PEP 333 assumed Python 2, since the handling of the character string changed significantly from Python 3, it was updated accordingly, and other detailed specification changes were added to PEP 3333."
 
 #: ../../source/wsgi.rst:44
 msgid "WSGI (Web Server Gateway Interface)"
-msgstr ""
+msgstr " "WSGI (Web Server Gateway Interface)"
 
 #: ../../source/wsgi.rst:46
 msgid ""
 "それではWSGIの仕様について勉強していきましょう。 PEP3333 "
 "を全て読むのは大変なので、実際のPythonのコードをベースに概要だけ理解していきましょう。"
-msgstr ""
+msgstr "Let&#39;s learn about the specification of WSGI. It is hard to read all PEP 3333, so let&#39;s understand only the outline based on the actual Python code."
 
 #: ../../source/wsgi.rst:55
 msgid "このたった3行のPythonのコードはWSGIの仕様を満たしています。 それではどのような仕様だったのでしょうか？行ごとに説明していきます。"
-msgstr ""
+msgstr "&quot;This 3 lines of Python code fulfills the WSGI specification.What kind of specification was then? I will explain each line."
 
 #: ../../source/wsgi.rst:58
 msgid "WSGIのアプリケーションは、2つの引数を持った呼び出し可能なオブジェクトである"
-msgstr ""
+msgstr "&quot;WSGI&#39;s application is a callable object with two arguments"
 
 #: ../../source/wsgi.rst:59
 msgid "第2引数として渡されたオブジェクトを呼び出し、HTTPステータスコードとヘッダ情報を渡す"
-msgstr ""
+msgstr "&quot;Call the object passed as the second argument and pass the HTTP status code and header information"
 
 #: ../../source/wsgi.rst:60
 msgid "レスポンスボディとしてバイト文字列をyieldするiterableなオブジェクトを返す。"
-msgstr ""
+msgstr "&quot;Return an iterable object that yields a byte string as a response body."
 
 #: ../../source/wsgi.rst:62
 msgid ""
@@ -102,42 +92,42 @@ msgid ""
 "たった3行のコードですが、本当にWSGIの仕様を満たしているのであれば、gunicornやuWSGIといった "
 "おなじみのWSGIサーバで動かすことができるはずですね。 実際に動かしてみましょう。 上のコードを `hello.py` "
 "という名前で保存し、下記のコマンドを実行してください。"
-msgstr ""
+msgstr "What do you think. It is a very simple interface. It is only three lines of code, but if it really meets the WSGI specifications, you should be able to run it on a familiar WSGI server such as gunicorn or uWSGI. Let&#39;s actually move it. Save the above code as `hello.py` and execute the command below."
 
 #: ../../source/wsgi.rst:78
 msgid "3行のコードをgunicornで動かしてみる"
-msgstr ""
+msgstr "&quot;Let&#39;s move 3 lines of code with gunicorn"
 
 #: ../../source/wsgi.rst:80
 msgid ""
 "動きましたか？正常に動作した場合はWebブラウザなどでアクセスすると、上のGIFアニメーションのように `Hello World` "
 "と表示されるはずです。 それでは次の章でこれから作るWebフレームワークに必要な機能を考えていきましょう。"
-msgstr ""
+msgstr "Have you moved? If it works normally, when accessing with a web browser etc., it should be displayed as `Hello World` like the above GIF animation. Let&#39;s think about the functions necessary for the future web framework in the next chapter."
 
 #: ../../source/wsgi.rst:84
 msgid "フレームワークに求められる機能とは？"
-msgstr ""
+msgstr "&quot;What is required of the framework?"
 
 #: ../../source/wsgi.rst:86
 msgid ""
 "Hello Worldを表示するだけの簡単なアプリケーションであれば、フレームワークを使わずに実装することが出来ました。 "
 "それではこれからWebアプリケーションを開発する上で、Webフレームワークがどのような機能を提供すると楽になるでしょうか。 "
 "Webアプリケーションの開発経験がある方なら、このあたりは容易に想像がつくでしょう。 例として次のような機能があると開発が楽になりそうです。"
-msgstr ""
+msgstr "If it was a simple application that only displayed Hello World, it could be implemented without using framework. So what kind of function does the Web framework provide for Web application development in the future? If you are experienced in web application development, this area will be easy to imagine. As an example, development will be easier if you have the following functions."
 
 #: ../../source/wsgi.rst:92
 msgid "ルーティング"
-msgstr ""
+msgstr "&quot;routing"
 
 #: ../../source/wsgi.rst:94
 msgid ""
 "先ほどのHello WorldのアプリケーションはどこにアクセスしてもHello Worldが返ってきます。 "
 "実際のWebサイトにはたくさんのページが存在し、URLやHTTPメソッドに応じてサーバー側の処理が異なります。"
-msgstr ""
+msgstr "Hello World comes back no matter where you access the application of Hello World. There are many pages on the actual Web site, and processing on the server side depends on the URL and HTTP method."
 
 #: ../../source/wsgi.rst:99
 msgid "リクエストオブジェクト・レスポンスオブジェクト"
-msgstr ""
+msgstr "&quot;Request object · Response object"
 
 #: ../../source/wsgi.rst:101
 msgid ""
@@ -145,11 +135,11 @@ msgid ""
 "ここから直接、GETのクエリパラメータやその他のリクエスト情報を取り出すのは大変なため、 "
 "それらの情報をうまくラップしてくれるクラスがあるといいでしょう。 "
 "またレスポンスのヘッダ情報やステータス情報もうまく管理してくれるクラスがあるとよさそうです。"
-msgstr ""
+msgstr "Request information is provided as the first argument of the WSGI application, but this is a dictionary type object. Since it is difficult to retrieve GET&#39;s query parameters and other request information directly from here, it would be nice to have a class that successfully wraps that information. Also, it seems to be good if there are classes that manage the header information and status information of the response well."
 
 #: ../../source/wsgi.rst:108
 msgid "HTMLテンプレート"
-msgstr ""
+msgstr "&quot;HTML template"
 
 #: ../../source/wsgi.rst:110
 msgid ""
@@ -157,59 +147,59 @@ msgid ""
 "BottleやDjangoのように、自前でテンプレートエンジンを用意してもいいかもしれませんが、Jinja2などすでに "
 "広く利用されているテンプレートエンジンのローダがあると便利かもしれません。 "
 "今回は一から実装はせずに、Jinja2のテンプレートエンジンのローダを用意します。"
-msgstr ""
+msgstr "It is useful to evaluate and embed Python variables when displaying HTML. Like Bottle and Django, you may be able to prepare a template engine on your own, but it may be useful to have a loader of template engine already widely used such as Jinja 2. In this time we will prepare a Jinja 2 template engine loader without implementing it from scratch."
 
 #: ../../source/wsgi.rst:117
 msgid "静的ファイルの配信"
-msgstr ""
+msgstr "&quot;Static file delivery"
 
 #: ../../source/wsgi.rst:119
 msgid ""
 "CSSやJS、画像ファイルなどの静的ファイルは、本番環境の場合、 Nginx 等で返す場合が多いかもしれません。 しかし開発中や手元のパソコンでも"
 " Nginx の設定をして静的ファイルを返すように設定するのは面倒なので、 フレームワークにも静的ファイルを返す機能があると開発が捗りそうです。"
-msgstr ""
+msgstr "Static files such as CSS, JS, and image files are often returned by Nginx etc. in the production environment. However, it is troublesome to set Nginx settings and return static files on the PC at hand or at hand, so development seems to be improving if the framework also has a function to return static files."
 
 #: ../../source/wsgi.rst:125
 msgid "今回作成するWebフレームワーク"
-msgstr ""
+msgstr "&quot;Web framework to create this time"
 
 #: ../../source/wsgi.rst:128
 msgid "使い方"
-msgstr ""
+msgstr "How to use"
 
 #: ../../source/wsgi.rst:130
 msgid ""
 "この資料で作成するフレームワークを使うと次のようにコードを記述出来ます。 "
 "FlaskやBottleでの開発に慣れた方であれば、簡単に扱えることができるのではないでしょうか。"
-msgstr ""
+msgstr "Using the framework created in this document, you can write the code as follows. If you are accustomed to developing with Flask or Bottle, you can easily handle it."
 
 #: ../../source/wsgi.rst:157
 msgid "全体像"
-msgstr ""
+msgstr "&quot;All images"
 
 #: ../../source/wsgi.rst:159
 msgid "今の時点で理解できている必要はありませんが、フレームワークの全体像も載せておきます。"
-msgstr ""
+msgstr "&quot;It is not necessary to understand at this point, but I will also put a big picture of the framework."
 
 #: ../../source/wsgi.rst:166
 msgid "フレームワークの全体像"
-msgstr ""
+msgstr "&quot;The whole picture of the framework"
 
 #: ../../source/wsgi.rst:168
 msgid ""
 "Router や Request 、 Response "
 "クラスを1つずつ実装していけば、徐々に上の図に書かれているフレームワークに近づいていきます。 "
 "この資料を読み終えるころにはBottleやFlaskのようなフレームワークがどのように構成されているのかコンセプトも含めてイメージできるようになるでしょう。"
-msgstr ""
+msgstr "Implementing Router, Request, Response class one by one gradually approaches the framework described in the above figure. By the time you finish reading this material you will be able to imagine including concepts on how frameworks such as Bottle and Flask are organized."
 
 #: ../../source/wsgi.rst:172
 msgid "まとめ"
-msgstr ""
+msgstr "&quot;Summary"
 
 #: ../../source/wsgi.rst:174
 msgid ""
 "この章ではWSGIの概要について解説しました。 "
 "またWSGIの提供するインターフェイスでは足りない機能を解説し、これからつくるWebフレームワークの完成形について紹介しました。 "
 "ここからは一緒にWSGIのアプリケーションフレームワークを作っていきましょう。"
-msgstr ""
+msgstr "This chapter explained the outline of WSGI. In addition, the interface provided by WSGI explains the missing functions and introduced the completion form of the Web framework to be created. Let&#39;s make the application framework of WSGI together from now."
 
