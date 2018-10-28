@@ -1,0 +1,201 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2016, Masashi Shibata
+# This file is distributed under the same license as the devwebframework
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: devwebframework 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-28 20:25+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../source/routing.rst:2
+msgid "ルーティング"
+msgstr ""
+
+#: ../../source/routing.rst:5
+msgid "シンプルなルーティング"
+msgstr ""
+
+#: ../../source/routing.rst:7
+msgid ""
+"前章では、WSGIの仕様について確認し、それを満たす小さなアプリケーションをつくりました。 "
+"ここからは実際にWebフレームワークを作っていきましょう。"
+msgstr ""
+
+#: ../../source/routing.rst:10
+msgid ""
+"先程のアプリケーションでは、URLのパス情報によらず全て「Hello World」と返しています。 "
+"実際のアプリケーションでは、沢山のページが存在するためパス情報に応じてそれぞれ違ったレスポンスを返す必要があります。 "
+"最も簡単なルーティング方法を次に示します。"
+msgstr ""
+
+#: ../../source/routing.rst:28
+msgid ""
+"WSGIのアプリケーションの第一引数には、辞書型オブジェクトが渡されています。 これは WSGI Environment "
+"と呼ばれ、クライアントから受け取ったリクエストの情報が格納されています。 リクエストのパス情報もその一つで、 `PATH_INFO` "
+"により取り出すことができます。 またHTTPのメソッドも同様に ``REQUEST_METHOD`` により取り出すことができます。"
+msgstr ""
+
+#: ../../source/routing.rst:35
+msgid "URL変数と正規表現によるルーティング"
+msgstr ""
+
+#: ../../source/routing.rst:38
+msgid "URL変数"
+msgstr ""
+
+#: ../../source/routing.rst:40
+msgid "もう少し複雑なケースを考えてみましょう。 こちらのBottleのアプリケーションの一部を見てください。"
+msgstr ""
+
+#: ../../source/routing.rst:54
+msgid ""
+"`/hello/foo` と `/hello/bar` はそれぞれ別のエンドポイントですが、上のコードではどちらも `greet` "
+"関数が呼ばれます。 またURLのパス情報から `foo` や `bar` などの変数(以下、URL変数)を取り出しています。"
+msgstr ""
+
+#: ../../source/routing.rst:57
+msgid "先程のようにif文で分岐させていくのは大変なので、別の方法を考えてみましょう。 解決策の一つとして正規表現の利用があります。"
+msgstr ""
+
+#: ../../source/routing.rst:62
+msgid "正規表現モジュール"
+msgstr ""
+
+#: ../../source/routing.rst:64
+msgid ""
+"`正規表現 <http://docs.python.jp/3/library/re.html>`_ は普段使わない方も多いかと思います。 "
+"ここで簡単におさらいしましょう。"
+msgstr ""
+
+#: ../../source/routing.rst:78
+msgid "このように名前付きグループでパターンを定義し、マッチするか確認してからgroupdictを呼ぶことでuser_idの部分の数字が文字列で取得出来ます。"
+msgstr ""
+
+#: ../../source/routing.rst:82
+msgid "構成図"
+msgstr ""
+
+#: ../../source/routing.rst:84
+msgid "それでは、ルーティング機能を提供するため、フレームワークの実装を始めましょう。 ここで提供するルーティングは次のようなイメージです。"
+msgstr ""
+
+#: ../../source/routing.rst:92
+msgid "ルーティングのイメージ。 パス情報にあわせて別のアプリケーションを呼び出す。"
+msgstr ""
+
+#: ../../source/routing.rst:95
+msgid "それでは図のRouterを実装していきましょう。"
+msgstr ""
+
+#: ../../source/routing.rst:99
+msgid "Routerクラス"
+msgstr ""
+
+#: ../../source/routing.rst:101
+msgid "それではルーティングの機能を提供する ``Router`` クラスを用意していきます。 このクラスには2つのメソッドを用意します。"
+msgstr ""
+
+#: ../../source/routing.rst:104
+msgid "``add()``: 各コールバック関数(WSGIアプリケーションオブジェクト)が、どのURLパス・HTTPメソッドに紐づくかを登録する。"
+msgstr ""
+
+#: ../../source/routing.rst:105
+msgid "``match()``: 実際に受け取ったリクエストのパスとHTTPメソッドの情報を元に登録していたコールバック関数とURL変数を返す。"
+msgstr ""
+
+#: ../../source/routing.rst:107
+msgid "まずは ``add()`` メソッドから定義してみましょう。"
+msgstr ""
+
+#: ../../source/routing.rst:122
+msgid ""
+"HTTPメソッドとパス、それに紐づくコールバック関数を辞書型のオブジェクトにつめて、リストに追加しました。 "
+"非常に簡単です。呼び出し側はどのようになるでしょうか？ ``match()`` メソッドを定義します。"
+msgstr ""
+
+#: ../../source/routing.rst:147
+msgid ""
+"このメソッドでは、 ``add()`` メソッドで登録したエンドポイントのパス情報とメソッド情報が一致するかをチェックします。 "
+"もし一致した場合には、URL変数を取り出し、ひも付けられていたコールバック関数を返します。 一致しない場合には、 ``404 Not "
+"Found`` を返すようになりました。 こちらも非常にシンプルなコードですが、基本的にルーティングに必要な機能を備えています。 "
+"念の為動作も確認しましょう。"
+msgstr ""
+
+#: ../../source/routing.rst:188
+msgid "うまく動作していることが確認できます。 ここではついでに2つ改善を加えておきましょう。"
+msgstr ""
+
+#: ../../source/routing.rst:191
+msgid "パスは定義されているもののメソッドだけが一致しない場合には ``405 Method Not Allowed`` を返す。"
+msgstr ""
+
+#: ../../source/routing.rst:192
+msgid "``re.compile()`` は ``Router.add()`` メソッドの呼び出し時に行っておく。"
+msgstr ""
+
+#: ../../source/routing.rst:194
+msgid "修正を加えると全体像は次のようになります。"
+msgstr ""
+
+#: ../../source/routing.rst:237
+msgid ""
+"他にもいろいろと考えることはありますが、今はこれくらいにしておきます。 それでは ``Router`` "
+"クラスを実際にアプリケーションに組み込んでいきます。"
+msgstr ""
+
+#: ../../source/routing.rst:242
+msgid "Routerを組み込んだWSGIのアプリケーション用クラスを作る"
+msgstr ""
+
+#: ../../source/routing.rst:244
+msgid ""
+"``Router`` クラスを組み込んで行きたいのですが、関数のままだと少し扱いづらいです。 "
+"ここではWSGIアプリケーションをクラスで定義してみましょう。"
+msgstr ""
+
+#: ../../source/routing.rst:254
+msgid ""
+"ここで注目してほしいのは ``__call__()`` メソッドが定義されている点です。 ``__call__`` "
+"メソッドを定義すると、このクラスのオブジェクト自身が呼び出し可能(callable)になります。 つまり ``app = App()`` は、関数"
+" ``def app(env, start_response): pass`` 同じように振る舞ってくれます。 "
+"これでだいぶ拡張がしやすくなりました。 ``Router`` クラスを組み込んでみましょう。"
+msgstr ""
+
+#: ../../source/routing.rst:278
+msgid ""
+"``route`` デコレーターを使ってコールバック関数にHTTPメソッドと正規表現で書かれたパスを割り当てできるようにしました。 "
+"このフレームワークの利用者からは、次のような形で利用出来ます。"
+msgstr ""
+
+#: ../../source/routing.rst:283
+msgid ""
+"実際にアプリケーションを実行して動作確認してみましょう。 "
+"定義されたエンドポイントにアクセスすると、次のように正しくレスポンスを受け取ることができます。"
+msgstr ""
+
+#: ../../source/routing.rst:297
+msgid "一方で定義されていないパスや、メソッドが定義されていないエンドポイントでは、404 や 405が返ってきます。"
+msgstr ""
+
+#: ../../source/routing.rst:308
+msgid "まとめ"
+msgstr ""
+
+#: ../../source/routing.rst:310
+msgid ""
+"ここまでルーティングの役割について考え、実装しました。 用意した ``Router`` "
+"クラスは、正規表現で記述されたパスにマッチするかどうかを判定し、 マッチした場合には登録しておいたコールバック関数とURL変数を返してくれます。 "
+"デコレーターでルーティングの情報を指定することで、ユーザーは複数のエンドポイントを見通しよく定義できるようになりました。"
+msgstr ""
+

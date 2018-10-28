@@ -1,0 +1,62 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2016, Masashi Shibata
+# This file is distributed under the same license as the devwebframework
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: devwebframework 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-28 20:25+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../source/server.rst:2
+msgid "WIP: WSGIサーバーのつくりかた"
+msgstr ""
+
+#: ../../source/server.rst:4
+msgid ""
+"WSGIアプリケーションフレームワークとして最低限必要な機能をある程度実装しました。 "
+"200行弱のフレームワークですが、ルーティングやリクエストオブジェクト、レスポンスオブジェクトを実装したことで、 "
+"WSGIのインターフェイスよりは随分使いやすくなりました。"
+msgstr ""
+
+#: ../../source/server.rst:8
+msgid ""
+"次はHTTP 1.xの解説も兼ねて、WSGIサーバーの作り方についてお話します。 "
+"作るのは150行に満たないWSGIサーバーですが、手元のDjangoアプリケーションも問題なく動かすことができました。 "
+"パフォーマンスや脆弱性の問題を抱えてはいますが、動作を理解するにはうってつけです。"
+msgstr ""
+
+#: ../../source/server.rst:14
+msgid "ソケットモジュールを使ったTCP通信"
+msgstr ""
+
+#: ../../source/server.rst:16
+msgid "日頃の業務の中で、TCPのsocket通信プログラムを書くことはあまりないかもしれません。 もし難しければ定型文として、覚えてもらっても大丈夫です。"
+msgstr ""
+
+#: ../../source/server.rst:41
+msgid "なにかリクエストを受け取ったら ``Hello`` とだけ返し、接続を終了するシンプルなプログラムです。"
+msgstr ""
+
+#: ../../source/server.rst:45
+msgid "HTTP レスポンスを返す"
+msgstr ""
+
+#: ../../source/server.rst:80
+msgid "ブラウザーで開いてみてください。"
+msgstr ""
+
+#: ../../source/server.rst:84
+msgid "クラスに載せる"
+msgstr ""
+

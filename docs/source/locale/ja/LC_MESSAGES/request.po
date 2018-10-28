@@ -1,0 +1,145 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2016, Masashi Shibata
+# This file is distributed under the same license as the devwebframework
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: devwebframework 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-28 20:25+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../source/request.rst:2
+msgid "リクエストオブジェクト"
+msgstr ""
+
+#: ../../source/request.rst:5
+msgid "リクエストに関する情報の扱いについて"
+msgstr ""
+
+#: ../../source/request.rst:7
+msgid ""
+"次はリクエスト情報の扱い方について考えてみましょう。 "
+"クライアントのリクエストに関する情報はWSGIアプリケーションの第一引数に辞書型のオブジェクトとして渡されることはすでに解説しました。 "
+"ルーティングに必要なリクエストのHTTPメソッドやURLパスは、次のようにこのオブジェクトから取り出す必要があります。"
+msgstr ""
+
+#: ../../source/request.rst:16
+msgid "また他にも様々な情報が格納されていて、例えばHTTPリクエストボディを取り出したい際には、次のように記述します。"
+msgstr ""
+
+#: ../../source/request.rst:23
+msgid ""
+"辞書型オブジェクトから ``CONTENT_LENGTH`` と ``wsgi.input`` を取り出します。 "
+"``env[\"CONTENT_LENGTH\"]`` には、クライアントがHTTPヘッダー ``Content-Length`` "
+"で指定したレスポンスボディの長さが格納されています。 レスポンスボディはファイルオブジェクトになっているので、 ``Content-"
+"Length`` の長さ分 ``read()`` して上げる必要があります。 リクエストボディを取り出すだけでも少し大変なように思います。"
+msgstr ""
+
+#: ../../source/request.rst:28
+msgid ""
+"これらをうまくラップして使いやすくしてくれるクラスがあれば便利です。 "
+"ほとんどのWSGIフレームワークがこれをラップした「リクエストオブジェクト」を提供します。 このフレームワークにも同様に ``Request`` "
+"クラスを定義してみましょう。"
+msgstr ""
+
+#: ../../source/request.rst:34
+msgid "WSGI Environオブジェクトをラップする"
+msgstr ""
+
+#: ../../source/request.rst:36
+msgid ""
+"リクエストオブジェクトがどういうものかというと、WSGIのEnvironをラップしたクラスのオブジェクトです。 WSGI "
+"Environに格納されている様々なリクエスト情報をシンプルなAPIで取り出せるよう、 プロパティメソッドが定義された ``Response`` "
+"クラスを用意します。"
+msgstr ""
+
+#: ../../source/request.rst:62
+msgid ""
+"WSGI Environには様々な情報が格納されていますが、まずは3つだけプロパティメソッドを定義してみました。 この ``Request`` "
+"クラスのオブジェクトを渡してあげれば、フレームワークの利用者は ``body`` "
+"プロパティにアクセスするだけで、リクエストボディの情報を取得できます。 "
+"実際にはここであげた他にもたくさんの情報が詰まっているので、必要に応じて拡張していく必要がありますが基本的な考え方はこれだけです。 "
+"次はアプリケーションに組み込んでみましょう。"
+msgstr ""
+
+#: ../../source/request.rst:69
+msgid "アプリケーションに組み込む"
+msgstr ""
+
+#: ../../source/request.rst:71
+msgid "各関数には、WSGI Environの代わりに ``Request(env)`` を渡すように書き換えてみましょう。"
+msgstr ""
+
+#: ../../source/request.rst:84
+msgid "これで ``Request`` クラスのオブジェクトが各関数に渡せるようになりました。 アプリケーション側のインターフェイスは次のようになります。"
+msgstr ""
+
+#: ../../source/request.rst:94
+msgid ""
+"リクエストボディの文字コードをすべて ``utf-8`` として扱っている点には改善の余地があります。 実際には ``Content-Type``"
+" ヘッダーなどで指定されている ``charset`` を確認してあげるといいでしょう。 "
+"とはいえひとまず、フレームワークの利用者は簡単にリクエストボディにアクセスできるようになりました。 既存のアプリケーションを書き換えてみます。"
+msgstr ""
+
+#: ../../source/request.rst:104
+msgid "リクエストオブジェクトを拡張していく"
+msgstr ""
+
+#: ../../source/request.rst:106
+msgid ""
+"せっかくなのでもう少し他の情報にアクセスできるようにしておきましょう。 WSGI "
+"Environに入っているすべての情報をラップすることはここではしませんが、次に挙げる項目は利用頻度が高いため、プロパティメソッドが定義されていると便利かと思います。"
+msgstr ""
+
+#: ../../source/request.rst:109
+msgid "`query` プロパティ: URLのクエリパラメーターを手軽に取り出したい"
+msgstr ""
+
+#: ../../source/request.rst:110
+msgid "``env['QUERY_STRING']`` より取り出して ``urllib.parse.parse_qs`` を用いてパースできます"
+msgstr ""
+
+#: ../../source/request.rst:111
+msgid ""
+"`forms` プロパティ: ``form-urlencoded`` 形式や ``multipart`` "
+"形式で格納されているHTMLフォーム等から送られたパラメーターを受け取りたい。"
+msgstr ""
+
+#: ../../source/request.rst:112
+msgid "リクエストボディから取り出して、 ``cgi.FieldStorage`` を用いてパースできます。"
+msgstr ""
+
+#: ../../source/request.rst:113
+msgid "`text` プロパティ: リクエストボディをバイト列ではなくテキストで受け取りたい。"
+msgstr ""
+
+#: ../../source/request.rst:114
+msgid "`json` プロパティ: リクエストボディの内容をjson decodeして、辞書型オブジェクトとして受け取りたい。"
+msgstr ""
+
+#: ../../source/request.rst:116
+msgid "コードはそれほど難しくないので細かい説明は省きますが、プロパティメソッドは次のようになります。"
+msgstr ""
+
+#: ../../source/request.rst:169
+msgid "まとめ"
+msgstr ""
+
+#: ../../source/request.rst:171
+msgid ""
+"ここではリクエストオブジェクトの扱いについて見直していきました。 WSGI "
+"Environではそのままではリクエスト情報の取り出しが少し面倒でしたが、 "
+"それをラップするリクエストクラスを用意することで、プロパティメソッドを通して 様々な情報を手軽に取り出せる様になりました。 "
+"リクエストの次はレスポンス情報を扱いやすいAPIになおしていきましょう。"
+msgstr ""
+

@@ -1,0 +1,82 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2016, Masashi Shibata
+# This file is distributed under the same license as the devwebframework
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: devwebframework 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-28 20:25+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../source/template.rst:2
+msgid "JSONやHTMLを返す"
+msgstr ""
+
+#: ../../source/template.rst:4
+msgid "*この章はまだ書き途中です。気が向いたときに書き直していきますがこの資料の感想をいただけると頑張るかもしれません*"
+msgstr ""
+
+#: ../../source/template.rst:7
+msgid "JSONResponseクラスを用意する"
+msgstr ""
+
+#: ../../source/template.rst:9
+msgid ""
+"Responseオブジェクトは文字列を返すのには非常に向いていました。 "
+"実際Webアプリケーションを開発する中ではこのように文字列を返すことはあまりなく、 "
+"Webブラウザで表示するためのHTMLを返したり、クライアントアプリケーションのためにJSON形式のAPIを用意することのほうが多くあります。 "
+"まずはJSON APIの開発に便利な JSONResponse クラスを用意してみましょう。"
+msgstr ""
+
+#: ../../source/template.rst:31
+msgid "Jinja2を使ってHTMLを返す"
+msgstr ""
+
+#: ../../source/template.rst:33
+msgid ""
+"BottleやDjangoのようなフレームワークでは自前でテンプレートエンジンを用意していますが、 "
+"今回は、デファクトスタンダードとなっているJinja2を使ってHTMLを返していきましょう。"
+msgstr ""
+
+#: ../../source/template.rst:37
+msgid "Jinja2 おさらい"
+msgstr ""
+
+#: ../../source/template.rst:39
+msgid "Jinja2の使い方をおさらいしてみましょう."
+msgstr ""
+
+#: ../../source/template.rst:53
+msgid "TemplateResponse クラス"
+msgstr ""
+
+#: ../../source/template.rst:55
+msgid "それではこれを簡単に扱えるようなResponseクラスを用意します。"
+msgstr ""
+
+#: ../../source/template.rst:72
+msgid "render_bodyを呼び出す際に、environmentを渡す必要があるため、つぎのようにAppクラスを書き換えましょう."
+msgstr ""
+
+#: ../../source/template.rst:100
+msgid "これで実装はOKです。使ってみましょう。"
+msgstr ""
+
+#: ../../source/template.rst:102
+msgid "`main.py`"
+msgstr ""
+
+#: ../../source/template.rst:112
+msgid "`templates/users.html`"
+msgstr ""
+

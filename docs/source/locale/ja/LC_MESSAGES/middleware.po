@@ -1,0 +1,75 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2016, Masashi Shibata
+# This file is distributed under the same license as the devwebframework
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: devwebframework 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-28 20:25+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../source/middleware.rst:2
+msgid "WSGIミドルウェア"
+msgstr ""
+
+#: ../../source/middleware.rst:5
+msgid "ミドルウェアとは"
+msgstr ""
+
+#: ../../source/middleware.rst:7
+msgid ""
+"次はJavaScriptやCSS、画像などの静的ファイルを返す機能をつけてみましょう。 "
+"本番環境では、パフォーマンスの観点からNginx等で直接返すことが多いかもしれませんが、 "
+"開発環境でもNginxなどの設定をしておくのは、かなり面倒です。"
+msgstr ""
+
+#: ../../source/middleware.rst:11
+msgid "静的ファイルを返す機能をどのように追加するか、いくつか方法はありますが今回はWSGIのミドルウェアとして実装してみます。"
+msgstr ""
+
+#: ../../source/middleware.rst:13
+msgid "ミドルウェアは、Webサーバ側からはWSGIアプリケーションのように見えWSGIアプリケーション側からはWebサーバのように見えます。"
+msgstr ""
+
+#: ../../source/middleware.rst:26
+msgid "静的ファイルの配信"
+msgstr ""
+
+#: ../../source/middleware.rst:28
+msgid ""
+"CSSやJS、画像などの静的ファイルの配信は、本番環境ではNginx等で返すことが多いかと思います。 "
+"しかし開発中にNginx等で返すように設定するのは面倒です。"
+msgstr ""
+
+#: ../../source/middleware.rst:31
+msgid ""
+"開発環境でのみ、静的ファイルを配信するミドルウェアを有効化してみましょう。 静的ファイルの配信方法の実装については、ここでは割愛します。 "
+"既に公開されている静的ファイルを返すミドルウェアは古いものが多かったので筆者の方で用意しました。"
+msgstr ""
+
+#: ../../source/middleware.rst:35
+msgid ""
+"`wsgi-static-middleware <https://pypi.python.org/pypi/wsgi-static-"
+"middleware>`_"
+msgstr ""
+
+#: ../../source/middleware.rst:37
+msgid "この wsgi-static-middleware を使って静的ファイルを有効にしてみましょう。"
+msgstr ""
+
+#: ../../source/middleware.rst:61
+msgid ""
+"WSGIのミドルウェアとして実装すると、フレームワークの実装に依存しません。 "
+"Bottleなどのフレームワークは静的ファイルの配信が少し貧弱ですが、ここで実装したミドルウェアで補うことが出来ます。"
+msgstr ""
+

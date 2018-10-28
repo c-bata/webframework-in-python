@@ -1,0 +1,121 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2016, Masashi Shibata
+# This file is distributed under the same license as the devwebframework
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: devwebframework 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-28 20:25+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../source/response.rst:2
+msgid "レスポンスオブジェクト"
+msgstr ""
+
+#: ../../source/response.rst:5
+msgid "レスポンス情報の扱いについて"
+msgstr ""
+
+#: ../../source/response.rst:7
+msgid "リクエスト情報が簡単に取り扱えるようになったので、次はレスポンス情報の扱い方を見直します。 各エンドポイントの処理は次のように定義していました。"
+msgstr ""
+
+#: ../../source/response.rst:17
+msgid ""
+"ここで気になるのは、レスポンス情報の返し方です。 WSGIのインターフェイスでは、レスポンスステータスとレスポンスヘッダーを第2引数で受け取る "
+"``start_response`` 関数により指定します。 これはFlaskやBottleのサンプルコードに比べると、少々面倒に感じます。 "
+"もう少し簡単に管理できるように、Response情報をラップするクラスがあると便利かもしれません。 "
+"具体的には次のように各エンドポイントの処理を記述できるようにしてみます。"
+msgstr ""
+
+#: ../../source/response.rst:33
+msgid ""
+"``Response`` クラスというのを追加して、レスポンスボディやヘッダー情報、ステータスコードの番号をそこに指定できるようにしました。 "
+"クラスでラップしているので、デフォルトのヘッダー情報も継承を使って自由に変更することもできます。"
+msgstr ""
+
+#: ../../source/response.rst:38
+msgid "ヘッダー情報とステータス情報を簡単に扱う方法"
+msgstr ""
+
+#: ../../source/response.rst:40
+msgid ""
+"Responseクラスを実装していく前に、ヘッダー情報とステータス情報を簡単に扱う方法を詳解します。 まずはステータス情報の扱いです。 "
+"``start_response`` の第一引数にはステータスコードを ``200 OK`` や ``404 Not Found`` "
+"のように指定しますが、 番号に対応する文字列は決まっているので、番号の指定だけで済むほうが楽なものです。 ``http.client`` "
+"モジュールの ``responses`` オブジェクトには、ステータスコードの番号に対するメッセージが格納されています。"
+msgstr ""
+
+#: ../../source/response.rst:55
+msgid "非常に簡単に取り出すことができました。ユーザーは ``200`` のように番号を指定してあげるだけで、次のようにステータスコードを生成できます。"
+msgstr ""
+
+#: ../../source/response.rst:68
+msgid "ステータス情報の管理には ``wsgiref.headers`` モジュールの中にある ``Header`` クラスが便利です。"
+msgstr ""
+
+#: ../../source/response.rst:79
+msgid ""
+"``add_header(key, value)`` メソッドをとおして、ヘッダー情報をセットします。 "
+"またWSGIの仕様上、ヘッダー情報をキーとバリューのタプルのリストを用意する必要がありますが、 ``items()`` "
+"メソッドはその形式でヘッダー情報を吐き出してくれます。"
+msgstr ""
+
+#: ../../source/response.rst:85
+msgid "Responseクラスを用意して組み込む"
+msgstr ""
+
+#: ../../source/response.rst:87
+msgid "``Response`` クラスは次のようになります。"
+msgstr ""
+
+#: ../../source/response.rst:125
+msgid ""
+"デフォルトのステータスコードやコンテントタイプをクラス変数にもたせておくことにしました。 "
+"ユーザーはレスポンスボディの内容を文字列で指定していますが、WSGIのインターフェイスではバイト文字列を yield "
+"するイテラブルなオブジェクトとして返さなくてはいけません。 ``body`` プロパティメソッドが適切に文字列をエンコードして返してくれます。"
+msgstr ""
+
+#: ../../source/response.rst:129
+msgid "アプリケーションにも組み込んでみましょう。"
+msgstr ""
+
+#: ../../source/response.rst:144
+msgid ""
+"組み込みはこのように非常に簡単です。これまでとは違い ``start_response`` を各関数に渡す必要はありません。 "
+"そのかわり返ってきたレスポンスオブジェクトから、ステータス情報とヘッダー情報を取り出して呼び出して上げる必要があります。"
+msgstr ""
+
+#: ../../source/response.rst:147
+msgid "こうするとユーザーの定義する関数は驚くほどシンプルになります。 具体的には、次のようになりました。"
+msgstr ""
+
+#: ../../source/response.rst:152
+msgid "いかがでしょう、FlaskやBottleを使ったことのある方には随分と見慣れた形になってきたのではないでしょうか。"
+msgstr ""
+
+#: ../../source/response.rst:156
+msgid "まとめ"
+msgstr ""
+
+#: ../../source/response.rst:158
+msgid ""
+"ここではレスポンス情報の扱いを見直しました。 Responseクラスを追加することで随分ユーザーにとって使いやすいAPIに変えることができました。"
+" "
+"実際にアプリケーションを作っていくにはまだまだ欲しい機能がありますが、ここまでくればまさにWebフレームワークと言えるものになってきたのではないでしょうか。"
+msgstr ""
+
+#: ../../source/response.rst:162
+msgid "ここでは全部文字列をただ返していましたが、実際のユースケースではHTMLやJSONを返すことが多いでしょう。 その内容は次の節で扱っていきます。"
+msgstr ""
+

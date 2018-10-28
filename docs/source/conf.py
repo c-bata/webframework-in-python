@@ -37,6 +37,9 @@ release = u'0.0.1'
 
 language = 'ja'
 
+locale_dirs = ['locale/']
+gettext_compact = False
+
 # There are two options for replacing |today|: either, you set today to some
 # non-false value, then it is used:
 #

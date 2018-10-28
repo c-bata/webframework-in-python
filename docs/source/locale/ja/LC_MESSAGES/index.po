@@ -1,0 +1,109 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) 2016, Masashi Shibata
+# This file is distributed under the same license as the devwebframework
+# package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2018.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: devwebframework 0.0.1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2018-10-28 20:25+0900\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.6.0\n"
+
+#: ../../source/index.rst:3
+msgid "Webアプリケーションフレームワークの作り方 in Python"
+msgstr ""
+
+#: ../../source/index.rst:5
+msgid "こんにちは、芝田 将 ( `@c_bata_ <https://twitter.com/c_bata_>`_ ) です。"
+msgstr ""
+
+#: ../../source/index.rst:7
+msgid ""
+"この資料はPyCon JP 2016で行った `「基礎から学ぶWebアプリケーションフレームワークの作り方」 "
+"<https://pycon.jp/2016/ja/schedule/presentation/14/>`_ の書き起こし資料です。 "
+"誤字等があれば、Issue or PRをお待ちしております。"
+msgstr ""
+
+#: ../../source/index.rst:16
+msgid "はじめに"
+msgstr ""
+
+#: ../../source/index.rst:18
+msgid ""
+"筆者は自分の一番の強みをサーバサイドにしようと決めた時、まずはDjangoやFlaskなど主要なWebフレームワークの実装を知っておきたいと思いました。"
+" 何らかのバグにぶつかった時に、自分でも修正できるようにしておきたいからです。 "
+"そこで学生時代に、BottleやFlaskの実装を読み進めていました。 "
+"最初はどこから手をつけて読んでいけばいいかも分かりませんでしたが、頭を抱えながらも読み進めることで各種WSGIフレームワークの全体像が見えるようになってきました。"
+" "
+"各種フレームワークの設計方針の違いに気づき、フレームワークを利用しているだけでは気づくことのできなかった多くのHTTPに関する知識を得ることができました。"
+" 最近ではGo言語などPython以外の言語を書くことも多くなってきましたが、ここで得た多くの知識が役に立ったと感じています。"
+msgstr ""
+
+#: ../../source/index.rst:25
+msgid ""
+"とはいえ筆者のように知識が浅いまま、最初から数千行〜数十万行のコードベースを読み進めるのは非常に大変です。 "
+"この資料では200行に満たないシンプルなWebフレームワークの作り方をボトムアップで解説します。 "
+"小さなフレームワークを1から作ってみることは、全体像を把握するのに有効なやり方です。 "
+"ここで解説する内容を抑えておけば、Bottleの実装を読むことにはそれほど苦労しないでしょう。 "
+"またFlaskやDjangoを読むときにも全体像を把握しながら読み進められれば、どこから手をつければいいかも想像がつきます。"
+msgstr ""
+
+#: ../../source/index.rst:33
+msgid "対象読者"
+msgstr ""
+
+#: ../../source/index.rst:35
+msgid ""
+"この資料では、実際にPythonでWebアプリケーションのフレームワークを作っていきます。 "
+"そのため既にWeb開発の経験があり、基本的なHTTPの知識があると理解がしやすいかと思います。 "
+"もし読み進めていく中で難しいと感じた場合は、これらの知識をもう少し復習してみるといいかもしれません。 "
+"どうしてもわからない場合はGithubの方にIssueをたてていただけると、そのあたりの補足説明を増やせるかもしれません。 お気軽に連絡ください。"
+msgstr ""
+
+#: ../../source/index.rst:43
+msgid "目次"
+msgstr ""
+
+#: ../../source/index.rst:57
+msgid "関連URL"
+msgstr ""
+
+#: ../../source/index.rst:59
+msgid ""
+"`Github <https://github.com/c-bata/webframework-in-python>`_ ( "
+"`WSGIフレームワーク <https://github.com/c-bata/webframework-in-"
+"python/blob/master/src/app.py>`_  / `WSGIサーバー <https://github.com/c-bata"
+"/webframework-in-python/blob/master/src/wsgi_server.py>`_ / `サンプルアプリケーション"
+" <https://github.com/c-bata/webframework-in-"
+"python/blob/master/src/main.py>`_ )"
+msgstr ""
+
+#: ../../source/index.rst:60
+msgid "`スライド <https://c-bata.link/webframework-in-python/slide.html#1>`_"
+msgstr ""
+
+#: ../../source/index.rst:61
+msgid "`動画(Youtube) <https://www.youtube.com/watch?v=S-InxJA5NOg>`_"
+msgstr ""
+
+#: ../../source/index.rst:64
+msgid "Indices and tables"
+msgstr ""
+
+#: ../../source/index.rst:66
+msgid ":ref:`genindex`"
+msgstr ""
+
+#: ../../source/index.rst:67
+msgid ":ref:`search`"
+msgstr ""
+
