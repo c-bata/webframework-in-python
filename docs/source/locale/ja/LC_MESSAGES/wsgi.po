@@ -6,7 +6,7 @@
 #
 #, fuzzy
 msgid ""
-msgstr " "
+msgstr ""
 
 #: ../../source/wsgi.rst:2
 msgid "WSGI について"
@@ -14,7 +14,7 @@ msgstr "About WSGI"
 
 #: ../../source/wsgi.rst:5
 msgid "アプリケーション・サーバ間のやりとり"
-msgstr "&quot;Application-server interaction"
+msgstr "Interaction between application servers"
 
 #: ../../source/wsgi.rst:7
 msgid ""
@@ -39,7 +39,7 @@ msgstr "When developing a Web application, I will run applications created on th
 
 #: ../../source/wsgi.rst:27
 msgid "サーバとアプリケーションの間では何かしらのやり取りが行われています。"
-msgstr "&quot;There is some communication between the server and the application."
+msgstr "There is some communication between the server and the application."
 
 #: ../../source/wsgi.rst:29
 msgid ""
@@ -62,7 +62,7 @@ msgstr "`PEP 3333 <https://www.python.org/dev/peps/pep-3333/> The WSGI version d
 
 #: ../../source/wsgi.rst:44
 msgid "WSGI (Web Server Gateway Interface)"
-msgstr " "WSGI (Web Server Gateway Interface)"
+msgstr "WSGI (Web Server Gateway Interface)"
 
 #: ../../source/wsgi.rst:46
 msgid ""
@@ -72,19 +72,19 @@ msgstr "Let&#39;s learn about the specification of WSGI. It is hard to read all 
 
 #: ../../source/wsgi.rst:55
 msgid "このたった3行のPythonのコードはWSGIの仕様を満たしています。 それではどのような仕様だったのでしょうか？行ごとに説明していきます。"
-msgstr "&quot;This 3 lines of Python code fulfills the WSGI specification.What kind of specification was then? I will explain each line."
+msgstr "This 3 lines of Python code meets WSGI specifications. Then, what kind of specification was it? I will explain each line."
 
 #: ../../source/wsgi.rst:58
 msgid "WSGIのアプリケーションは、2つの引数を持った呼び出し可能なオブジェクトである"
-msgstr "&quot;WSGI&#39;s application is a callable object with two arguments"
+msgstr "The WSGI application is a callable object with two arguments"
 
 #: ../../source/wsgi.rst:59
 msgid "第2引数として渡されたオブジェクトを呼び出し、HTTPステータスコードとヘッダ情報を渡す"
-msgstr "&quot;Call the object passed as the second argument and pass the HTTP status code and header information"
+msgstr "It calls the object passed as the second argument and passes HTTP status code and header information"
 
 #: ../../source/wsgi.rst:60
 msgid "レスポンスボディとしてバイト文字列をyieldするiterableなオブジェクトを返す。"
-msgstr "&quot;Return an iterable object that yields a byte string as a response body."
+msgstr "Returns an iterable object that yields a byte string as a response body."
 
 #: ../../source/wsgi.rst:62
 msgid ""
@@ -96,7 +96,7 @@ msgstr "What do you think. It is a very simple interface. It is only three lines
 
 #: ../../source/wsgi.rst:78
 msgid "3行のコードをgunicornで動かしてみる"
-msgstr "&quot;Let&#39;s move 3 lines of code with gunicorn"
+msgstr "Try running 3 lines of code with gunicorn"
 
 #: ../../source/wsgi.rst:80
 msgid ""
@@ -106,7 +106,7 @@ msgstr "Have you moved? If it works normally, when accessing with a web browser 
 
 #: ../../source/wsgi.rst:84
 msgid "フレームワークに求められる機能とは？"
-msgstr "&quot;What is required of the framework?"
+msgstr "What are the functions required of the framework?"
 
 #: ../../source/wsgi.rst:86
 msgid ""
@@ -117,7 +117,7 @@ msgstr "If it was a simple application that only displayed Hello World, it could
 
 #: ../../source/wsgi.rst:92
 msgid "ルーティング"
-msgstr "&quot;routing"
+msgstr "routing"
 
 #: ../../source/wsgi.rst:94
 msgid ""
@@ -127,7 +127,7 @@ msgstr "Hello World comes back no matter where you access the application of Hel
 
 #: ../../source/wsgi.rst:99
 msgid "リクエストオブジェクト・レスポンスオブジェクト"
-msgstr "&quot;Request object · Response object"
+msgstr "Request object · Response object"
 
 #: ../../source/wsgi.rst:101
 msgid ""
@@ -139,7 +139,7 @@ msgstr "Request information is provided as the first argument of the WSGI applic
 
 #: ../../source/wsgi.rst:108
 msgid "HTMLテンプレート"
-msgstr "&quot;HTML template"
+msgstr "HTML template"
 
 #: ../../source/wsgi.rst:110
 msgid ""
@@ -151,7 +151,7 @@ msgstr "It is useful to evaluate and embed Python variables when displaying HTML
 
 #: ../../source/wsgi.rst:117
 msgid "静的ファイルの配信"
-msgstr "&quot;Static file delivery"
+msgstr "Static file delivery"
 
 #: ../../source/wsgi.rst:119
 msgid ""
@@ -161,7 +161,7 @@ msgstr "Static files such as CSS, JS, and image files are often returned by Ngin
 
 #: ../../source/wsgi.rst:125
 msgid "今回作成するWebフレームワーク"
-msgstr "&quot;Web framework to create this time"
+msgstr "The web framework created this time"
 
 #: ../../source/wsgi.rst:128
 msgid "使い方"
@@ -175,15 +175,15 @@ msgstr "Using the framework created in this document, you can write the code as 
 
 #: ../../source/wsgi.rst:157
 msgid "全体像"
-msgstr "&quot;All images"
+msgstr "Overall image"
 
 #: ../../source/wsgi.rst:159
 msgid "今の時点で理解できている必要はありませんが、フレームワークの全体像も載せておきます。"
-msgstr "&quot;It is not necessary to understand at this point, but I will also put a big picture of the framework."
+msgstr "I do not need to understand at this point, but I will also put a big picture of the framework."
 
 #: ../../source/wsgi.rst:166
 msgid "フレームワークの全体像"
-msgstr "&quot;The whole picture of the framework"
+msgstr "Overall picture of the framework"
 
 #: ../../source/wsgi.rst:168
 msgid ""
@@ -194,7 +194,7 @@ msgstr "Implementing Router, Request, Response class one by one gradually approa
 
 #: ../../source/wsgi.rst:172
 msgid "まとめ"
-msgstr "&quot;Summary"
+msgstr "Summary"
 
 #: ../../source/wsgi.rst:174
 msgid ""

@@ -6,15 +6,15 @@
 #
 #, fuzzy
 msgid ""
-msgstr " "
+msgstr ""
 
 #: ../../source/middleware.rst:2
 msgid "WSGIミドルウェア"
-msgstr "&quot;WSGI Middleware"
+msgstr "WSGI Middleware"
 
 #: ../../source/middleware.rst:5
 msgid "ミドルウェアとは"
-msgstr "&quot;What is Middleware"
+msgstr "What is Middleware"
 
 #: ../../source/middleware.rst:7
 msgid ""
@@ -25,15 +25,15 @@ msgstr "Next let&#39;s add a function to return static files such as JavaScript,
 
 #: ../../source/middleware.rst:11
 msgid "静的ファイルを返す機能をどのように追加するか、いくつか方法はありますが今回はWSGIのミドルウェアとして実装してみます。"
-msgstr "&quot;There are several ways to add the function to return static files, but this time I will implement it as WSGI middleware."
+msgstr "There are several ways to add the function of returning static files, but this time I will implement it as WSGI middleware."
 
 #: ../../source/middleware.rst:13
 msgid "ミドルウェアは、Webサーバ側からはWSGIアプリケーションのように見えWSGIアプリケーション側からはWebサーバのように見えます。"
-msgstr "&quot;Middleware looks like a WSGI application from the Web server side and it looks like a Web server from the WSGI application side."
+msgstr "Middleware looks like a WSGI application from the Web server side and it looks like a Web server from the WSGI application side."
 
 #: ../../source/middleware.rst:26
 msgid "静的ファイルの配信"
-msgstr "&quot;Static file delivery"
+msgstr "Static file delivery"
 
 #: ../../source/middleware.rst:28
 msgid ""
@@ -51,11 +51,11 @@ msgstr "Let&#39;s activate middleware that distributes static files only in the 
 msgid ""
 "`wsgi-static-middleware <https://pypi.python.org/pypi/wsgi-static-"
 "middleware>`_"
-msgstr " `wsgi-static-middleware <https://pypi.python.org/pypi/wsgi-static-middleware>`_"
+msgstr "`wsgi-static-middleware <https://pypi.python.org/pypi/wsgi-static-middleware>`_"
 
 #: ../../source/middleware.rst:37
 msgid "この wsgi-static-middleware を使って静的ファイルを有効にしてみましょう。"
-msgstr "&quot;Let&#39;s validate the static file using this wsgi-static-middleware."
+msgstr "Let&#39;s try to activate the static file using this wsgi-static-middleware."
 
 #: ../../source/middleware.rst:61
 msgid ""

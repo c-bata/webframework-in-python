@@ -6,15 +6,15 @@
 #
 #, fuzzy
 msgid ""
-msgstr " "
+msgstr ""
 
 #: ../../source/index.rst:3
 msgid "Webアプリケーションフレームワークの作り方 in Python"
-msgstr "&quot;How to make a Web application framework in Python"
+msgstr "How to make a web application framework in Python"
 
 #: ../../source/index.rst:5
 msgid "こんにちは、芝田 将 ( `@c_bata_ <https://twitter.com/c_bata_>`_ ) です。"
-msgstr "&quot;Hello, Masashi Shibata (` @ c_bata _ <https://twitter.com/c_bata_> `_)."
+msgstr "Hello, Masashi Shibata (`@ c_bata _ <https://twitter.com/c_bata_> `_)."
 
 #: ../../source/index.rst:7
 msgid ""
@@ -25,7 +25,7 @@ msgstr "This document is based on PyCon JP 2016 `` How to make a Web application
 
 #: ../../source/index.rst:16
 msgid "はじめに"
-msgstr "&quot;Introduction"
+msgstr "Introduction"
 
 #: ../../source/index.rst:18
 msgid ""
@@ -49,7 +49,7 @@ msgstr "However, it is very difficult to read the code base of thousands of line
 
 #: ../../source/index.rst:33
 msgid "対象読者"
-msgstr "&quot;Audience"
+msgstr "Audience"
 
 #: ../../source/index.rst:35
 msgid ""
@@ -61,11 +61,11 @@ msgstr "In this article, we will actually create a framework for Web application
 
 #: ../../source/index.rst:43
 msgid "目次"
-msgstr "&quot;table of contents"
+msgstr "table of contents"
 
 #: ../../source/index.rst:57
 msgid "関連URL"
-msgstr "&quot;Related URL"
+msgstr "Related URL"
 
 #: ../../source/index.rst:59
 msgid ""
@@ -79,21 +79,21 @@ msgstr "`Github <https://github.com/c-bata/webframework-in-python> `_ (` WSGI fr
 
 #: ../../source/index.rst:60
 msgid "`スライド <https://c-bata.link/webframework-in-python/slide.html#1>`_"
-msgstr "&quot;` Slide <https://c-bata.link/webframework-in-python/slide.html#1> `_"
+msgstr "`Slide <https://c-bata.link/webframework-in-python/slide.html#1> `_"
 
 #: ../../source/index.rst:61
 msgid "`動画(Youtube) <https://www.youtube.com/watch?v=S-InxJA5NOg>`_"
-msgstr "&quot;` Video (Youtube) <https://www.youtube.com/watch?v=S-InxJA5NOg> `_"
+msgstr "`Video (Youtube) <https://www.youtube.com/watch?v=S-InxJA5NOg> `_"
 
 #: ../../source/index.rst:64
 msgid "Indices and tables"
-msgstr " "Indices and tables"
+msgstr "Indices and tables"
 
 #: ../../source/index.rst:66
 msgid ":ref:`genindex`"
-msgstr "&quot;: Ref:` genindex`"
+msgstr ": Ref: `genindex`"
 
 #: ../../source/index.rst:67
 msgid ":ref:`search`"
-msgstr " ":ref:`search`"
+msgstr ":ref:`search`"
 

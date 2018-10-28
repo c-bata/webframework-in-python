@@ -110,7 +110,7 @@ def parse_po(filepath, target_lang):
 
             if cleaned.startswith("msgid"):
                 processing_msgid = True
-                text = cleaned[len("msgid"):].strip('"')
+                text = cleaned[len("msgid"):].lstrip(' ').strip('"')
                 msgid += text
 
 

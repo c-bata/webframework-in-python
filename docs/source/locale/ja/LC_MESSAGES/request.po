@@ -6,15 +6,15 @@
 #
 #, fuzzy
 msgid ""
-msgstr " "
+msgstr ""
 
 #: ../../source/request.rst:2
 msgid "リクエストオブジェクト"
-msgstr "&quot;Request object"
+msgstr "Request object"
 
 #: ../../source/request.rst:5
 msgid "リクエストに関する情報の扱いについて"
-msgstr "&quot;About handling information on requests"
+msgstr "About handling information on requests"
 
 #: ../../source/request.rst:7
 msgid ""
@@ -25,7 +25,7 @@ msgstr "Let&#39;s think about how to handle request information. We already expl
 
 #: ../../source/request.rst:16
 msgid "また他にも様々な情報が格納されていて、例えばHTTPリクエストボディを取り出したい際には、次のように記述します。"
-msgstr "&quot;In addition, if various information is stored and you want to retrieve an HTTP request body, for example, it is written as follows."
+msgstr "In addition, various other information is stored, for example, when you want to retrieve the HTTP request body, write it as follows."
 
 #: ../../source/request.rst:23
 msgid ""
@@ -44,7 +44,7 @@ msgstr "It is useful if you have a class that will make these easy to wrap and m
 
 #: ../../source/request.rst:34
 msgid "WSGI Environオブジェクトをラップする"
-msgstr "&quot;Wrap the WSGI Environ object"
+msgstr "Wrap the WSGI Environ object"
 
 #: ../../source/request.rst:36
 msgid ""
@@ -64,15 +64,15 @@ msgstr "Various information is stored in WSGI Environ, but first we have defined
 
 #: ../../source/request.rst:69
 msgid "アプリケーションに組み込む"
-msgstr "&quot;Built in application"
+msgstr "Incorporate into application"
 
 #: ../../source/request.rst:71
 msgid "各関数には、WSGI Environの代わりに ``Request(env)`` を渡すように書き換えてみましょう。"
-msgstr "&quot;Let&#39;s rewrite each function to pass` `Request (env)` `instead of WSGI Environ."
+msgstr "For each function, let&#39;s rewrite to pass `` Request (env) `` instead of WSGI Environ."
 
 #: ../../source/request.rst:84
 msgid "これで ``Request`` クラスのオブジェクトが各関数に渡せるようになりました。 アプリケーション側のインターフェイスは次のようになります。"
-msgstr "&quot;Now you can pass objects of the` `Request`` class to each function, the application side interface looks like this:"
+msgstr "Objects of the `` Request`` class can now be passed to each function. The interface on the application side is as follows."
 
 #: ../../source/request.rst:94
 msgid ""
@@ -83,7 +83,7 @@ msgstr "There is room for improvement in that all character codes of the request
 
 #: ../../source/request.rst:104
 msgid "リクエストオブジェクトを拡張していく"
-msgstr "&quot;Extend the request object"
+msgstr "Extend the request object"
 
 #: ../../source/request.rst:106
 msgid ""
@@ -93,11 +93,11 @@ msgstr "Let&#39;s make it much more accessible to other information. Wrapping al
 
 #: ../../source/request.rst:109
 msgid "`query` プロパティ: URLのクエリパラメーターを手軽に取り出したい"
-msgstr "&quot;` query` property: I want to retrieve query parameters of URL easily"
+msgstr "`query` property: I want to retrieve query parameters of URL easily"
 
 #: ../../source/request.rst:110
 msgid "``env['QUERY_STRING']`` より取り出して ``urllib.parse.parse_qs`` を用いてパースできます"
-msgstr "&quot;You can retrieve it from` `env [&#39;QUERY_STRING&#39;]` `and parse it using` `urllib.parse.parse_qs``"
+msgstr "You can parse it from `` env [&#39;QUERY_STRING&#39;] `` and use `` urllib.parse.parse_qs``"
 
 #: ../../source/request.rst:111
 msgid ""
@@ -107,23 +107,23 @@ msgstr "`forms` property: I want to receive parameters sent from an HTML form st
 
 #: ../../source/request.rst:112
 msgid "リクエストボディから取り出して、 ``cgi.FieldStorage`` を用いてパースできます。"
-msgstr "&quot;You can retrieve it from the request body and parse it using` `cgi.FieldStorage``."
+msgstr "You can retrieve it from the request body and parse it using `` cgi.FieldStorage``."
 
 #: ../../source/request.rst:113
 msgid "`text` プロパティ: リクエストボディをバイト列ではなくテキストで受け取りたい。"
-msgstr "&quot;` text` property: I want to receive the request body in text, not as a byte string."
+msgstr "`text` property: I want to receive the request body as text instead of a byte string."
 
 #: ../../source/request.rst:114
 msgid "`json` プロパティ: リクエストボディの内容をjson decodeして、辞書型オブジェクトとして受け取りたい。"
-msgstr "&quot;` json` property: I want to json decode the contents of the request body and receive it as a dictionary type object."
+msgstr "`json` property: I want to json decode the contents of the request body and receive it as a dictionary type object."
 
 #: ../../source/request.rst:116
 msgid "コードはそれほど難しくないので細かい説明は省きますが、プロパティメソッドは次のようになります。"
-msgstr "&quot;The code is not that difficult, so I will omit a detailed explanation, but the property method is as follows."
+msgstr "The code is not so difficult, so I will not go over the details, but the property method looks like this."
 
 #: ../../source/request.rst:169
 msgid "まとめ"
-msgstr "&quot;Summary"
+msgstr "Summary"
 
 #: ../../source/request.rst:171
 msgid ""

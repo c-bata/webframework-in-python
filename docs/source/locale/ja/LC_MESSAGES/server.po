@@ -6,11 +6,11 @@
 #
 #, fuzzy
 msgid ""
-msgstr " "
+msgstr ""
 
 #: ../../source/server.rst:2
 msgid "WIP: WSGIサーバーのつくりかた"
-msgstr "&quot;WIP: How to create a WSGI server"
+msgstr "WIP: How to create a WSGI server"
 
 #: ../../source/server.rst:4
 msgid ""
@@ -28,25 +28,25 @@ msgstr "Next, I will talk about how to make a WSGI server as a commentary on HTT
 
 #: ../../source/server.rst:14
 msgid "ソケットモジュールを使ったTCP通信"
-msgstr "&quot;TCP communication using a socket module"
+msgstr "TCP communication using socket module"
 
 #: ../../source/server.rst:16
 msgid "日頃の業務の中で、TCPのsocket通信プログラムを書くことはあまりないかもしれません。 もし難しければ定型文として、覚えてもらっても大丈夫です。"
-msgstr "&quot;In my daily work, I may not write TCP socket communication program so much, so if it is difficult, I can remember it as a fixed form sentence."
+msgstr "In my daily work, writing TCP socket communication program may not be much. It is okay if you remember it as a fixed form if it is difficult."
 
 #: ../../source/server.rst:41
 msgid "なにかリクエストを受け取ったら ``Hello`` とだけ返し、接続を終了するシンプルなプログラムです。"
-msgstr "&quot;It is a simple program that simply returns` `Hello`` if it receives any request and ends the connection."
+msgstr "It is a simple program that only returns `` Hello`` when it receives any request and terminates the connection."
 
 #: ../../source/server.rst:45
 msgid "HTTP レスポンスを返す"
-msgstr "&quot;Return HTTP response"
+msgstr "Return HTTP response"
 
 #: ../../source/server.rst:80
 msgid "ブラウザーで開いてみてください。"
-msgstr "&quot;Please try opening it in the browser."
+msgstr "Please try opening it in the browser."
 
 #: ../../source/server.rst:84
 msgid "クラスに載せる"
-msgstr "&quot;Post your class"
+msgstr "Post it on class"
 

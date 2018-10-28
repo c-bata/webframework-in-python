@@ -6,19 +6,19 @@
 #
 #, fuzzy
 msgid ""
-msgstr " "
+msgstr ""
 
 #: ../../source/template.rst:2
 msgid "JSONやHTMLを返す"
-msgstr "&quot;Return JSON or HTML"
+msgstr "Return JSON or HTML"
 
 #: ../../source/template.rst:4
 msgid "*この章はまだ書き途中です。気が向いたときに書き直していきますがこの資料の感想をいただけると頑張るかもしれません*"
-msgstr "&quot;* This chapter is still in the process of being written.I will rewrite it when I feel it, but if I receive the impression of this material it may work hard *"
+msgstr "* This chapter is still being written. I will rewrite it when I feel it, but I may try my best if I get the impression of this article *"
 
 #: ../../source/template.rst:7
 msgid "JSONResponseクラスを用意する"
-msgstr "&quot;Prepare the JSONResponse class"
+msgstr "Prepare the JSONResponse class"
 
 #: ../../source/template.rst:9
 msgid ""
@@ -30,7 +30,7 @@ msgstr "The Response object was very suitable for returning strings. In fact whe
 
 #: ../../source/template.rst:31
 msgid "Jinja2を使ってHTMLを返す"
-msgstr "&quot;Return HTML using Jinja 2"
+msgstr "Return HTML using Jinja 2"
 
 #: ../../source/template.rst:33
 msgid ""
@@ -40,7 +40,7 @@ msgstr "In the framework like Bottle and Django, we prepare our own template eng
 
 #: ../../source/template.rst:37
 msgid "Jinja2 おさらい"
-msgstr "&quot;Jinja 2 Review"
+msgstr "Jinja 2 Review"
 
 #: ../../source/template.rst:39
 msgid "Jinja2の使い方をおさらいしてみましょう."
@@ -48,25 +48,25 @@ msgstr "Let&#39;s review how to use Jinja 2."
 
 #: ../../source/template.rst:53
 msgid "TemplateResponse クラス"
-msgstr "&quot;TemplateResponse class"
+msgstr "TemplateResponse class"
 
 #: ../../source/template.rst:55
 msgid "それではこれを簡単に扱えるようなResponseクラスを用意します。"
-msgstr "&quot;We will prepare a Response class that can handle this easily."
+msgstr "I will prepare a Response class that can handle this easily."
 
 #: ../../source/template.rst:72
 msgid "render_bodyを呼び出す際に、environmentを渡す必要があるため、つぎのようにAppクラスを書き換えましょう."
-msgstr "&quot;When calling render_body, we need to pass environment, so let&#39;s rewrite the App class as follows."
+msgstr "Since we need to pass environment to call render_body, let&#39;s rewrite the App class as"
 
 #: ../../source/template.rst:100
 msgid "これで実装はOKです。使ってみましょう。"
-msgstr "&quot;Implementation is OK with this, let&#39;s use it."
+msgstr "Implementation is OK with this. Let&#39;s use it."
 
 #: ../../source/template.rst:102
 msgid "`main.py`"
-msgstr " "`main.py`"
+msgstr "`main.py`"
 
 #: ../../source/template.rst:112
 msgid "`templates/users.html`"
-msgstr " "`templates/users.html`"
+msgstr "`templates/users.html`"
 

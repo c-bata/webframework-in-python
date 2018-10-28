@@ -6,15 +6,15 @@
 #
 #, fuzzy
 msgid ""
-msgstr " "
+msgstr ""
 
 #: ../../source/routing.rst:2
 msgid "ルーティング"
-msgstr "&quot;routing"
+msgstr "routing"
 
 #: ../../source/routing.rst:5
 msgid "シンプルなルーティング"
-msgstr "&quot;Simple routing"
+msgstr "Simple routing"
 
 #: ../../source/routing.rst:7
 msgid ""
@@ -38,15 +38,15 @@ msgstr "As a first argument of WSGI&#39;s application, a dictionary type object 
 
 #: ../../source/routing.rst:35
 msgid "URL変数と正規表現によるルーティング"
-msgstr "&quot;URL variable and regular expression routing"
+msgstr "URL variable and regular expression routing"
 
 #: ../../source/routing.rst:38
 msgid "URL変数"
-msgstr "&quot;URL variable"
+msgstr "URL variable"
 
 #: ../../source/routing.rst:40
 msgid "もう少し複雑なケースを考えてみましょう。 こちらのBottleのアプリケーションの一部を見てください。"
-msgstr "&quot;Consider a more complicated case, please look at some of the applications of Bottle here."
+msgstr "Let&#39;s consider a more complicated case. Please look at some of Bottle&#39;s applications here."
 
 #: ../../source/routing.rst:54
 msgid ""
@@ -56,11 +56,11 @@ msgstr "`/ hello / foo` and` / hello / bar` are different endpoints, but in the 
 
 #: ../../source/routing.rst:57
 msgid "先程のようにif文で分岐させていくのは大変なので、別の方法を考えてみましょう。 解決策の一つとして正規表現の利用があります。"
-msgstr "&quot;Since it is difficult to branch with an if statement as before, let&#39;s consider another method.There is use of regular expression as a solution."
+msgstr "Since it is hard to branch with an if statement as before, let&#39;s think about another way. One solution is to use regular expressions."
 
 #: ../../source/routing.rst:62
 msgid "正規表現モジュール"
-msgstr "&quot;Regular Expression Module"
+msgstr "Regular Expression Module"
 
 #: ../../source/routing.rst:64
 msgid ""
@@ -70,43 +70,43 @@ msgstr "`Regular Expression <http://docs.python.jp/3/library/re.html> I think th
 
 #: ../../source/routing.rst:78
 msgid "このように名前付きグループでパターンを定義し、マッチするか確認してからgroupdictを呼ぶことでuser_idの部分の数字が文字列で取得出来ます。"
-msgstr "&quot;By defining a pattern in a named group and checking if it matches like this, you can get the number in user_id as a string by calling groupdict."
+msgstr "By defining a pattern in a named group like this, after confirming that it matches, by calling groupdict, the number of user_id part can be obtained as a character string."
 
 #: ../../source/routing.rst:82
 msgid "構成図"
-msgstr "&quot;Diagram"
+msgstr "Diagram"
 
 #: ../../source/routing.rst:84
 msgid "それでは、ルーティング機能を提供するため、フレームワークの実装を始めましょう。 ここで提供するルーティングは次のようなイメージです。"
-msgstr "&quot;Let&#39;s start implementing the framework to provide the routing function.The routing provided here is as follows."
+msgstr "Let&#39;s start implementing the framework in order to provide the routing function. The routing provided here is as follows."
 
 #: ../../source/routing.rst:92
 msgid "ルーティングのイメージ。 パス情報にあわせて別のアプリケーションを呼び出す。"
-msgstr "&quot;Routing image. Call another application according to path information."
+msgstr "Image of routing. Call another application according to the path information."
 
 #: ../../source/routing.rst:95
 msgid "それでは図のRouterを実装していきましょう。"
-msgstr "&quot;Let&#39;s implement the routers in the figure."
+msgstr "Let&#39;s implement the routers in the figure."
 
 #: ../../source/routing.rst:99
 msgid "Routerクラス"
-msgstr "&quot;Router class"
+msgstr "Router class"
 
 #: ../../source/routing.rst:101
 msgid "それではルーティングの機能を提供する ``Router`` クラスを用意していきます。 このクラスには2つのメソッドを用意します。"
-msgstr "&quot;Now we will prepare a` `Router`` class that provides routing capabilities, and we have two methods for this class."
+msgstr "We will prepare the `` Router`` class which provides routing functions. We prepare two methods for this class."
 
 #: ../../source/routing.rst:104
 msgid "``add()``: 各コールバック関数(WSGIアプリケーションオブジェクト)が、どのURLパス・HTTPメソッドに紐づくかを登録する。"
-msgstr "&quot;` `add ()` `: Register which URL path · HTTP method is associated with each callback function (WSGI application object)."
+msgstr "`` add () ``: Register which URL path · HTTP method is associated with each callback function (WSGI application object)."
 
 #: ../../source/routing.rst:105
 msgid "``match()``: 実際に受け取ったリクエストのパスとHTTPメソッドの情報を元に登録していたコールバック関数とURL変数を返す。"
-msgstr "&quot;` `match ()` `: Returns the callback function and URL variable registered based on the path of the actual request and information on the HTTP method."
+msgstr "`` match () ``: Returns the callback function and URL variables registered based on the path of the actual request and HTTP method information."
 
 #: ../../source/routing.rst:107
 msgid "まずは ``add()`` メソッドから定義してみましょう。"
-msgstr "&quot;Let&#39;s start by defining it from the` `add ()` `method."
+msgstr "First let&#39;s define it from the `` add () `` method."
 
 #: ../../source/routing.rst:122
 msgid ""
@@ -124,19 +124,19 @@ msgstr "In this method, it checks whether the path information and method inform
 
 #: ../../source/routing.rst:188
 msgid "うまく動作していることが確認できます。 ここではついでに2つ改善を加えておきましょう。"
-msgstr "&quot;It can be confirmed that it works well. Let&#39;s add two improvements in addition here."
+msgstr "It can be confirmed that it works well. Let&#39;s add two improvements at the same time."
 
 #: ../../source/routing.rst:191
 msgid "パスは定義されているもののメソッドだけが一致しない場合には ``405 Method Not Allowed`` を返す。"
-msgstr "&quot;If the path is defined but only the methods do not match, it returns` `405 Method Not Allowed``."
+msgstr "If the path is defined but only the methods do not match, it returns `` 405 Method Not Allowed``."
 
 #: ../../source/routing.rst:192
 msgid "``re.compile()`` は ``Router.add()`` メソッドの呼び出し時に行っておく。"
-msgstr "&quot;` `re.compile ()` `is done when calling the` `Router.add ()` `method."
+msgstr "`` re.compile () `` is done when calling the `` Router.add () `` method."
 
 #: ../../source/routing.rst:194
 msgid "修正を加えると全体像は次のようになります。"
-msgstr "&quot;If you make corrections, the overall picture looks like the following."
+msgstr "If you make corrections, the overall picture is as follows."
 
 #: ../../source/routing.rst:237
 msgid ""
@@ -146,7 +146,7 @@ msgstr "There are other things to think about, but I will keep it for now. So we
 
 #: ../../source/routing.rst:242
 msgid "Routerを組み込んだWSGIのアプリケーション用クラスを作る"
-msgstr "&quot;Make a WSGI application class that incorporates Router"
+msgstr "Create a class for WSGI application incorporating Router"
 
 #: ../../source/routing.rst:244
 msgid ""
@@ -176,11 +176,11 @@ msgstr "Let&#39;s actually run the application and check its operation. By acces
 
 #: ../../source/routing.rst:297
 msgid "一方で定義されていないパスや、メソッドが定義されていないエンドポイントでは、404 や 405が返ってきます。"
-msgstr "&quot;On the other hand, 404 or 405 will be returned for paths that are not defined, or endpoints for which methods are not defined."
+msgstr "404 or 405 will be returned on paths that are not defined on the other hand, or on endpoints where methods are not defined."
 
 #: ../../source/routing.rst:308
 msgid "まとめ"
-msgstr "&quot;Summary"
+msgstr "Summary"
 
 #: ../../source/routing.rst:310
 msgid ""

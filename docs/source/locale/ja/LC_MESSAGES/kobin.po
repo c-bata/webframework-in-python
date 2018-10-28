@@ -6,9 +6,9 @@
 #
 #, fuzzy
 msgid ""
-msgstr " "
+msgstr ""
 
 #: ../../source/kobin.rst:2
 msgid "Kobinについて"
-msgstr "&quot;About Kobin"
+msgstr "About Kobin"
 
