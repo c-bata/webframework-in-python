@@ -6,6 +6,7 @@ wsgi-static-middleware
 sphinx
 solar-theme
 sphinx-intl
+google-cloud-translate
 
 # develop
 gunicorn
