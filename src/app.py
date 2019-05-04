@@ -1,11 +1,9 @@
 from http.client import responses as http_responses
-import os
 import re
 import cgi
 import json
 from urllib.parse import parse_qs, urljoin
 from wsgiref.headers import Headers
-from jinja2 import Environment, FileSystemLoader
 
 
 def http404(request):
@@ -138,19 +136,6 @@ class Response:
         return self.headers.items()
 
 
-class TemplateResponse(Response):
-    default_content_type = 'text/html; charset=UTF-8'
-
-    def __init__(self, filename, status=200, headers=None, charset=None, **tpl_args):
-        self.filename = filename
-        self.tpl_args = tpl_args
-        super().__init__(body='', status=status, headers=headers, charset=charset)
-
-    def render_body(self, jinja2_environment):
-        template = jinja2_environment.get_template(self.filename)
-        return [template.render(**self.tpl_args).encode(self.charset)]
-
-
 class JSONResponse(Response):
     default_content_type = 'text/json; charset=UTF-8'
 
@@ -172,10 +157,8 @@ def make_redirect_response(request, path):
 
 
 class App:
-    def __init__(self, templates=None):
+    def __init__(self):
         self.router = Router()
-        loader = FileSystemLoader(templates or [os.path.join(os.path.abspath('.'), 'templates')])
-        self.jinja_environment = Environment(loader=loader)
 
     def route(self, path=None, method='GET', callback=None):
         def decorator(callback_func):
@@ -189,6 +172,4 @@ class App:
 
         response = callback(request, **kwargs)
         start_response(response.status_code, response.header_list)
-        if isinstance(response, TemplateResponse):
-            return response.render_body(self.jinja_environment)
         return response.body
