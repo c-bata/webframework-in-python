@@ -3,8 +3,8 @@
 /* -- page layout ----------------------------------------------------------- */
 
 body {
-    font-family: 'Open Sans', sans-serif;
     font-size: 14px;
+    font-family: "Helvetica neue",Arial,Roboto,"Droid Sans","ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
     line-height: 1.6em;
     color: #002b36;
     padding: 0;
@@ -15,112 +15,102 @@ body {
     min-height: 100vh;
 }
 
-div.container {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 980px;
-    width: 100%;
+.related {
+    background-image: linear-gradient(-45deg, #8360c3, #2ebf91);
 }
 
-div.document {
-    display: flex;
-    flex-direction: row;
-    flex-grow: 1;
-
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 980px;
-    width: 100%;
-}
-
-div.bodywrapper {
-    margin: 0;
-    min-height: 100%;
-    border-right: 1px solid #e4e4e4;
-}
-
-div.body {
-    background-color: white;
-    margin: 0;
-    padding: 0.5em 20px 20px 20px;
-}
-
-div.relatedwrapper {
-    font-size: 1em;
-    color: #839496;
-    background-image: linear-gradient(45deg, #24C6DC, #514A9D);
-}
-
-div.related {
+.related > .container {
     display: flex;
     display: -webkit-flex;
     flex-direction: row;
     justify-content: space-between;
-
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 980px;
-    width: 100%;
-    line-height: 2em;
 }
 
-.nav-title {
-    justify-content: flex-start;
-    font-size: 20px;
-
-    text-decoration: none;
-    color: #ffffff;
-    padding: 15px;
-}
-
-div.related ul li {
-    list-style: none;
-}
-
-div.related ul li a {
-    font-family: "Raleway", "Helvetica", "ヒラギノ角ゴ ProN W3", "Hiragino Kaku Gothic ProN", sans-serif;
-    text-decoration: none;
-    font-size: 16px;
-    background-color: transparent;
-    color: #ffffff;
-    border-style: none;
-    padding: 15px;
-    display: block;
-    border-bottom: 5px solid transparent;
-}
-
-div .related ul {
+.nav {
     display: flex;
     display: -webkit-flex;
     justify-content: flex-end;
     align-items: center;
+    list-style: none;
+    text-decoration: none;
+    background-color: transparent;
 }
 
-div.related ul li a:hover {
+.nav a, .nav button {
+    font-size: 16px;
+    color: #ffffff;
+    border-style: none;
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0);
+    padding: 15px;
+    display: block;
+    border-bottom: 5px solid rgba(0, 0, 0, 0);
+}
+
+.nav a:hover, .nav button:hover {
     border-bottom: 5px solid #ffffff;
 }
 
-div.documentwrapper {
+.nav-title {
+    color: #ffffff;
+    justify-content: flex-start;
+    font-size: 20px;
+    text-decoration: none;
+    padding: 15px;
+}
+
+.document {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 980px;
+    width: 100%;
     flex-grow: 1;
 }
 
-div.sphinxsidebar {
+.container {
+    padding: 0 20px;
+    margin: 0 auto;
+    max-width: 980px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.document > .container {
+    display: flex;
+    flex-direction: row;
+}
+
+.contents {
+    background-color: white;
     margin: 0;
-    padding: 0.5em 15px 15px 0;
+    min-height: 100%;
+    width: 100%;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border-right: 1px solid #e4e4e4;
+}
+
+.customsidebar {
+    margin: 0;
+    width: 100%;
+    padding: 20px 0 20px 20px;
     font-size: 0.9em;
     flex-basis: 200px;
 }
 
-div.sphinxsidebar h3, div.sphinxsidebar h4 {
+.customsidebar h3, .customsidebar h4 {
     margin-top: 15px;
     font-size: 1em;
 }
 
-div.sphinxsidebar h3 a {
+.customsidebar h3 a {
     color: #2E3436;
 }
 
-div.sphinxsidebar ul {
+.customsidebar ul {
     padding-left: 1.5em;
     margin-top: 7px;
     padding: 0;
@@ -128,12 +118,22 @@ div.sphinxsidebar ul {
     color: #586e75;
 }
 
-div.sphinxsidebar ul ul {
+.customsidebar ul {
     margin-left: 20px;
 }
 
-div.sphinxsidebar input {
-    border: 1px solid #eee8d5;
+@media screen and (max-width: 600px) {
+    .document > .container {
+        flex-direction: column;
+    }
+
+    .contents {
+        border-right: none;
+    }
+
+    .customsidebar {
+        padding: 20px 0;
+    }
 }
 
 div.footer {
@@ -151,16 +151,16 @@ div.footer a {
 
 /* -- body styles ----------------------------------------------------------- */
 
-p {    
+p {
     margin: 0.8em 0 0.5em 0;
 }
 
-div.body a, div.sphinxsidebarwrapper a {
+.contents a, .customsidebar a {
     color: #268bd2;
     text-decoration: none;
 }
 
-div.body a:hover, div.sphinxsidebarwrapper a:hover {
+.contents a:hover, .customsidebar a:hover {
     border-bottom: 1px solid #268bd2;
 }
 
@@ -314,7 +314,7 @@ div.admonition p.admonition-title
     color: white;
     border-bottom: 1px solid #eee8d5;
     font-weight: bold;
-    background-image: linear-gradient(45deg, #24C6DC, #514A9D);
+    background-color: #268bd2;
 }
 
 div.warning p.admonition-title,

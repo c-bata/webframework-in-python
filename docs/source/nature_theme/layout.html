@@ -5,72 +5,100 @@
 {%- endblock -%}
 
 {%- block extrahead -%}
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
 <link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
 {%- endblock -%}
 
 {%- macro customrelbar() %}
-    <a href="https://github.com/c-bata/webframework-in-python"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://camo.githubusercontent.com/652c5b9acfaddf3a9c326fa6bde407b87f7be0f4/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f6f72616e67655f6666373630302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_orange_ff7600.png"></a>
     <div class="related" role="navigation" aria-label="related navigation">
-        {%- block rootrellink %}
-        <a href="{{ pathto(master_doc) }}" class="nav-title">{{ shorttitle|e }}</a>
-        {%- endblock %}
-        <ul>
-            {%- for rellink in rellinks %}
-            <li><a href="{{ pathto(rellink[0]) }}" title="{{ rellink[1]|striptags|e }}" {{ accesskey(rellink[2]) }}>{{ rellink[3] }}</a></li>
-            {%- endfor %}
-            {%- for parent in parents %}
-            <li><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a></li>
-            {%- endfor %}
-            {%- block relbaritems %}{% endblock %}
-        </ul>
+        <div class="container" >
+            <a href="{{ pathto(master_doc) }}" class="nav-title">{{ shorttitle|e }}</a>
+            <ul class="nav">
+                {%- for rellink in rellinks %}
+                <li><a href="{{ pathto(rellink[0]) }}" title="{{ rellink[1]|striptags|e }}" {{ accesskey(rellink[2]) }}>{{ rellink[3] }}</a></li>
+                {%- endfor %}
+                {%- for parent in parents %}
+                <li><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a></li>
+                {%- endfor %}
+                {%- block relbaritems %}{% endblock %}
+            </ul>
+        </div>
     </div>
 {%- endmacro %}
 
-{# hide relbar1 #}
 {%- block relbar1 %}
-<div class="relatedwrapper">
-    {{ customrelbar() }}
-</div>
+{{ customrelbar() }}
 {% endblock %}
 {%- block relbar2 %}{% endblock %}
+
+
+{%- macro customsidebar() %}
+{%- if render_sidebar %}
+<div class="customsidebar" role="navigation" aria-label="main navigation">
+    {%- block sidebarlogo %}
+    {%- if logo %}
+    <p class="logo"><a href="{{ pathto(master_doc) }}">
+        <img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/>
+    </a></p>
+    {%- endif %}
+    {%- endblock %}
+    {%- if sidebars != None %}
+    {#- new style sidebar: explicitly include/exclude templates #}
+    {%- for sidebartemplate in sidebars %}
+    {%- include sidebartemplate %}
+    {%- endfor %}
+    {%- else %}
+    {#- old style sidebars: using blocks -- should be deprecated #}
+    {%- block sidebartoc %}
+    {%- include "localtoc.html" %}
+    {%- endblock %}
+    {%- block sidebarrel %}
+    {%- include "relations.html" %}
+    {%- endblock %}
+    {%- block sidebarsourcelink %}
+    {%- include "sourcelink.html" %}
+    {%- endblock %}
+    {%- if customsidebar %}
+    {%- include customsidebar %}
+    {%- endif %}
+    {%- block sidebarsearch %}
+    {%- include "searchbox.html" %}
+    {%- endblock %}
+    {%- endif %}
+</div>
+{%- endif %}
+{%- endmacro %}
 
 {# put the sidebar inside the body #}
 {% block sidebar1 %}{% endblock %}
 
 {%- block content %}
     <div class="document">
-        {%- block document %}
-        <div class="documentwrapper">
-        {%- if render_sidebar %}
-          <div class="bodywrapper">
-        {%- endif %}
-            <div class="body" role="main">
-              {% block body %} {% endblock %}
+        <div class="container">
+            <div class="contents" role="main">
+                {% block body %}{% endblock %}
             </div>
-        {%- if render_sidebar %}
-          </div>
-        {%- endif %}
+            {%- block sidebar2 %}{{ customsidebar() }}{% endblock %}
         </div>
-        {%- endblock %}
-
-        {%- block sidebar2 %}{{ sidebar() }}{% endblock %}
     </div>
 {%- endblock %}
 
 {%- block footer %}
     <div class="footer">
-    {%- if show_copyright %}
-      {%- if hasdoc('copyright') %}
-        {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
-      {%- else %}
-        {% trans copyright=copyright|e %}&copy; Copyright {{ copyright }}.{% endtrans %}
-      {%- endif %}
-    {%- endif %}
-    {%- if last_updated %}
-      {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
-    {%- endif %}
-    {%- if show_sphinx %}
-    {% trans sphinx_version=sphinx_version|e %}Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
-    {%- endif %}
+        <div class="container">
+            {%- if show_copyright %}
+            {%- if hasdoc('copyright') %}
+            {% trans path=pathto('copyright'), copyright=copyright|e %}&copy; <a href="{{ path }}">Copyright</a> {{ copyright }}.{% endtrans %}
+            {%- else %}
+            {% trans copyright=copyright|e %}&copy; Copyright {{ copyright }}.{% endtrans %}
+            {%- endif %}
+            {%- endif %}
+            {%- if last_updated %}
+            {% trans last_updated=last_updated|e %}Last updated on {{ last_updated }}.{% endtrans %}
+            {%- endif %}
+            {%- if show_sphinx %}
+            {% trans sphinx_version=sphinx_version|e %}Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> {{ sphinx_version }}.{% endtrans %}
+            {%- endif %}
+        </div>
     </div>
 {%- endblock %}
