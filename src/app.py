@@ -7,6 +7,10 @@ from urllib.parse import parse_qs, urljoin
 from wsgiref.headers import Headers
 from jinja2 import Environment, FileSystemLoader
 
+_PATH_PARAMETER_COMPONENT_RE = re.compile(
+    r'<(?:(?P<converter>[^>:]+):)?(?P<parameter>\w+)>'
+)
+
 
 def http404(request):
     return Response('404 Not Found', status=404)
@@ -28,6 +32,14 @@ class Router:
             'path_compiled': re.compile(path),
             'callback': callback
         })
+
+    def path(self, method, path, callback):
+        match = _PATH_PARAMETER_COMPONENT_RE.search(path)
+        if not match:
+            self.add(method, re.escape(path), callback)
+            return
+        re_path = path
+        self.add(method, re_path, callback)
 
     def match(self, method, path):
         if self.append_slash and not path.endswith('/'):
@@ -182,6 +194,10 @@ class App:
             self.router.add(method, path, callback_func)
             return callback_func
         return decorator(callback) if callback else decorator
+
+    def path(self, path=None, method='GET', callback=None):
+        re_path = path
+        return self.route(re_path, method, callback)
 
     def __call__(self, env, start_response):
         request = Request(env)
