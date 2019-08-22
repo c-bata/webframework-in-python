@@ -25,9 +25,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'devwebframework'
-copyright = u'2016, Masashi Shibata'
-author = u'Masashi Shibata'
+project = 'devwebframework'
+copyright = '2016, Masashi Shibata'
+author = 'Masashi Shibata'
 
 # The short X.Y version.
 version = u'0.0.1'
@@ -70,7 +70,7 @@ exclude_patterns = []
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'monokai'
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -100,7 +100,7 @@ html_theme_path = [os.path.dirname(__file__)]
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
 #
-html_title = u'c-bata.link'
+html_title = 'Webアプリケーションフレームワークの作り方 in Python'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #

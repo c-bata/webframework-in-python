@@ -83,7 +83,7 @@ render_bodyを呼び出す際に、environmentを渡す必要があるため、�
                templates = [os.path.join(os.path.abspath('.'), 'templates')]
            self.jinja2_environment = Environment(loader=FileSystemLoader(templates))
 
-       (中略)
+       ...
 
        def __call__(self, env, start_response):
            method = env['REQUEST_METHOD'].upper()
