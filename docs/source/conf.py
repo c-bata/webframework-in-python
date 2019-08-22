@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-import solar_theme
 
-# import os
+import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -88,8 +87,8 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'solar_theme'
-html_theme_path = [solar_theme.theme_path]
+html_theme = 'nature_theme'
+html_theme_path = [os.path.dirname(__file__)]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
