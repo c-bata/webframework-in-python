@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
-import solar_theme
 
-# import os
+import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
@@ -26,9 +25,9 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'devwebframework'
-copyright = u'2016, Masashi Shibata'
-author = u'Masashi Shibata'
+project = 'devwebframework'
+copyright = '2016, Masashi Shibata'
+author = 'Masashi Shibata'
 
 # The short X.Y version.
 version = u'0.0.1'
@@ -71,7 +70,7 @@ exclude_patterns = []
 # show_authors = False
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'monokai'
 
 # A list of ignored prefixes for module index sorting.
 # modindex_common_prefix = []
@@ -88,8 +87,8 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'solar_theme'
-html_theme_path = [solar_theme.theme_path]
+html_theme = 'nature_theme'
+html_theme_path = [os.path.dirname(__file__)]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
@@ -101,7 +100,7 @@ html_theme_path = [solar_theme.theme_path]
 # The name for this set of Sphinx documents.
 # "<project> v<release> documentation" by default.
 #
-html_title = u'c-bata.link'
+html_title = 'Webアプリケーションフレームワークの作り方 in Python'
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 #
