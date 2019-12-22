@@ -48,7 +48,7 @@ PEP3333 を全て読むのは大変なので、実際のPythonのコードをベ
 
 .. code-block:: python
 
-   def application(env, start_response)
+   def application(env, start_response):
        start_response('200 OK', [('Content-type', 'text/plain; charset=utf-8')])
        return [b'Hello World']
 
