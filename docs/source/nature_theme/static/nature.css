@@ -91,6 +91,7 @@ body {
     -moz-box-sizing: border-box;
     -webkit-box-sizing: border-box;
     border-right: 1px solid #e4e4e4;
+    padding-right: 10px;
 }
 
 .customsidebar {
@@ -129,6 +130,7 @@ body {
 
     .contents {
         border-right: none;
+        padding-right: 0;
     }
 
     .customsidebar {
