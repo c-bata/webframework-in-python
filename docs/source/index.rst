@@ -33,16 +33,9 @@ FlaskやDjango等を使ったWeb開発の経験があり、基本的なHTTPの�
    template
    middleware
 
-
-関連URL
-=======
-
-* `Github <https://github.com/c-bata/webframework-in-python>`_ ( `WSGIフレームワーク <https://github.com/c-bata/webframework-in-python/blob/master/src/app.py>`_  / `WSGIサーバー <https://github.com/c-bata/webframework-in-python/blob/master/src/wsgi_server.py>`_ / `サンプルアプリケーション <https://github.com/c-bata/webframework-in-python/blob/master/src/main.py>`_ )
-* `スライド <https://c-bata.link/webframework-in-python/slide.html#1>`_
-* `動画(Youtube) <https://www.youtube.com/watch?v=S-InxJA5NOg>`_
-
 Indices and tables
 ==================
 
 * :ref:`genindex`
 * :ref:`search`
+
