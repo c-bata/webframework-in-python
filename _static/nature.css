@@ -1,0 +1,369 @@
+@import url("basic.css");
+
+/* -- page layout ----------------------------------------------------------- */
+
+body {
+    font-size: 14px;
+    font-family: "Helvetica neue",Arial,Roboto,"Droid Sans","ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,sans-serif;
+    line-height: 1.6em;
+    color: #002b36;
+    padding: 0;
+    margin: 0;
+
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.related {
+    background-image: linear-gradient(-45deg, #8360c3, #2ebf91);
+}
+
+.related > .container {
+    display: flex;
+    display: -webkit-flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.nav {
+    display: flex;
+    display: -webkit-flex;
+    justify-content: flex-end;
+    align-items: center;
+    list-style: none;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+.nav a, .nav button {
+    font-size: 16px;
+    color: #ffffff;
+    border-style: none;
+    text-decoration: none;
+    background-color: rgba(0, 0, 0, 0);
+    padding: 15px;
+    display: block;
+    border-bottom: 5px solid rgba(0, 0, 0, 0);
+}
+
+.nav a:hover, .nav button:hover {
+    border-bottom: 5px solid #ffffff;
+}
+
+.nav-title {
+    color: #ffffff;
+    justify-content: flex-start;
+    font-size: 20px;
+    text-decoration: none;
+    padding: 15px;
+}
+
+.document {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 980px;
+    width: 100%;
+    flex-grow: 1;
+}
+
+.container {
+    padding: 0 20px;
+    margin: 0 auto;
+    max-width: 980px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+}
+
+.document > .container {
+    display: flex;
+    flex-direction: row;
+}
+
+.contents {
+    background-color: white;
+    margin: 0;
+    min-height: 100%;
+    width: 100%;
+
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    border-right: 1px solid #e4e4e4;
+    padding-right: 10px;
+}
+
+.customsidebar {
+    margin: 0;
+    width: 100%;
+    padding: 20px 0 20px 20px;
+    font-size: 0.9em;
+    flex-basis: 200px;
+}
+
+.customsidebar h3, .customsidebar h4 {
+    margin-top: 15px;
+    font-size: 1em;
+}
+
+.customsidebar h3 a {
+    color: #2E3436;
+}
+
+.customsidebar ul {
+    padding-left: 1.5em;
+    margin-top: 7px;
+    padding: 0;
+    line-height: 150%;
+    color: #586e75;
+}
+
+.customsidebar ul {
+    margin-left: 20px;
+}
+
+@media screen and (max-width: 600px) {
+    .document > .container {
+        flex-direction: column;
+    }
+
+    .contents {
+        border-right: none;
+        padding-right: 0;
+    }
+
+    .customsidebar {
+        padding: 20px 0;
+    }
+}
+
+div.footer {
+    color: rgba(0,0,0,0.38);
+    font-size: 12px;
+    text-align: center;
+    font-weight: bold;
+    padding: 20px 0;
+}
+
+div.footer a {
+    color: rgba(0,0,0,0.60);
+    text-decoration: underline;
+}
+
+/* -- body styles ----------------------------------------------------------- */
+
+p {
+    margin: 0.8em 0 0.5em 0;
+}
+
+.contents a, .customsidebar a {
+    color: #268bd2;
+    text-decoration: none;
+}
+
+.contents a:hover, .customsidebar a:hover {
+    border-bottom: 1px solid #268bd2;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: "Open Sans", sans-serif;
+    font-weight: 300;
+}
+
+h1 {
+    margin: 0;
+    padding: 0.7em 0 0.3em 0;
+    line-height: 1.2em;
+    color: #002b36;
+    text-shadow: #eee 0.1em 0.1em 0.1em;
+}
+
+h2 {
+    margin: 1.3em 0 0.2em 0;
+    padding: 0 0 10px 0;
+    color: #073642;
+    border-bottom: 1px solid #eee;
+}
+
+h3 {
+    margin: 1em 0 -0.3em 0;
+    padding-bottom: 5px;
+}
+
+h3, h4, h5, h6 {
+    color: #073642;
+}
+
+div.body h1 a, div.body h2 a, div.body h3 a, div.body h4 a, div.body h5 a, div.body h6 a {
+    color: #657B83!important;
+}
+
+h1 a.anchor, h2 a.anchor, h3 a.anchor, h4 a.anchor, h5 a.anchor, h6 a.anchor {
+    display: none;
+    margin: 0 0 0 0.3em;
+    padding: 0 0.2em 0 0.2em;
+    color: #aaa!important;
+}
+
+h1:hover a.anchor, h2:hover a.anchor, h3:hover a.anchor, h4:hover a.anchor,
+h5:hover a.anchor, h6:hover a.anchor {
+    display: inline;
+}
+
+h1 a.anchor:hover, h2 a.anchor:hover, h3 a.anchor:hover, h4 a.anchor:hover,
+h5 a.anchor:hover, h6 a.anchor:hover {
+    color: #777;
+    background-color: #eee;
+}
+
+a.headerlink {
+    color: #c60f0f!important;
+    font-size: 1em;
+    margin-left: 6px;
+    padding: 0 4px 0 4px;
+    text-decoration: none!important;
+}
+
+a.headerlink:hover {
+    background-color: #ccc;
+    color: white!important;
+}
+
+
+cite, code, tt {
+    font-family: 'Source Code Pro', monospace;
+    font-size: 0.9em;
+    letter-spacing: 0.01em;
+    background-color: #eeeff2;
+    font-style: normal;
+}
+
+hr {
+    border: 1px solid #eee;
+    margin: 2em;
+}
+
+.highlight {
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+
+pre {
+    font-family: 'Source Code Pro', monospace;
+    font-style: normal;
+    font-size: 0.9em;
+    letter-spacing: 0.015em;
+    line-height: 120%;
+    padding: 0.7em;
+    white-space: pre-wrap;       /* css-3 */
+    white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+    white-space: -pre-wrap;      /* Opera 4-6 */
+    white-space: -o-pre-wrap;    /* Opera 7 */
+    word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+pre a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+td.linenos pre {
+    padding: 0.5em 0;
+}
+
+div.quotebar {
+    background-color: #f8f8f8;
+    max-width: 250px;
+    float: right;
+    padding: 2px 7px;
+    border: 1px solid #ccc;
+}
+
+div.topic {
+    background-color: #f8f8f8;
+}
+
+table {
+    border-collapse: collapse;
+    margin: 0 -0.5em 0 -0.5em;
+}
+
+table td, table th {
+    padding: 0.2em 0.5em 0.2em 0.5em;
+}
+
+div.admonition {
+    font-size: 0.9em;
+    margin: 1em 0 1em 0;
+    border: 1px solid #eee;
+    background-color: #f7f7f7;
+    padding: 0;
+    -moz-box-shadow: 0px 8px 6px -8px #93a1a1;
+    -webkit-box-shadow: 0px 8px 6px -8px #93a1a1;
+    box-shadow: 0px 8px 6px -8px #93a1a1;
+}
+
+div.admonition p, div.admonition div.highlight {
+    margin: 0.5em 1em 0.5em 1em;
+}
+
+div.admonition p.admonition-title
+{
+    margin: 0;
+    padding: 0.2em 0 0.2em 0.6em;
+    color: white;
+    border-bottom: 1px solid #eee8d5;
+    font-weight: bold;
+    background-color: #268bd2;
+}
+
+div.warning p.admonition-title,
+div.important p.admonition-title {
+    background-color: #cb4b16;
+}
+
+div.hint p.admonition-title,
+div.tip p.admonition-title {
+    background-color: #859900;
+}
+
+div.caution p.admonition-title,
+div.attention p.admonition-title,
+div.danger p.admonition-title,
+div.error p.admonition-title {
+    background-color: #dc322f;
+}
+
+div.admonition ul, div.admonition ol {
+    margin: 0.1em 0.5em 0.5em 3em;
+    padding: 0;
+}
+
+div.versioninfo {
+    margin: 1em 0 0 0;
+    border: 1px solid #eee;
+    background-color: #DDEAF0;
+    padding: 8px;
+    line-height: 1.3em;
+    font-size: 0.9em;
+}
+
+div.viewcode-block:target {
+    background-color: #f4debf;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+}
+
+/* style pre scrollbar */
+pre::-webkit-scrollbar, .highlight::-webkit-scrollbar {
+    height: 0.5em;
+    background: #073642;
+}
+
+pre::-webkit-scrollbar-thumb {
+    border-radius: 1em;
+    background: #93a1a1;
+}
+

@@ -1,0 +1,243 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>WSGI について &#8212; Webアプリケーションフレームワークの作り方 in Python</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="ルーティング" href="routing.html" />
+    <link rel="prev" title="はじめに" href="index.html" /><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+        <div class="container" >
+            <a href="index.html" class="nav-title">Webアプリケーションフレームワークの作り方 in Python</a>
+            <ul class="nav">
+                <li><a href="genindex.html" title="総合索引" accesskey="I">索引</a></li>
+                <li><a href="routing.html" title="ルーティング" accesskey="N">次へ</a></li>
+                <li><a href="index.html" title="はじめに" accesskey="P">前へ</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="document">
+        <div class="container">
+            <div class="contents" role="main">
+                
+  <div class="section" id="wsgi">
+<h1>WSGI について<a class="headerlink" href="#wsgi" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="section" id="id1">
+<h2>アプリケーション・サーバ間のやりとり<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>FlaskやDjangoで書かれたアプリケーションを動かすときは、当然ですがサーバーが必要になります。
+本番環境で動かすときには gunicorn や uWSGI が広く利用されます。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p>実はPythonの標準ライブラリの中にも <code class="docutils literal notranslate"><span class="pre">wsgiref</span></code> というサーバー実装が存在します。
+性能面の問題はありますが、標準ライブラリに含まれていて別途インストールする必要はないため、
+開発環境ではこちらが使われることも多くあります。
+例えばFlaskクラスが提供する <code class="docutils literal notranslate"><span class="pre">run()</span></code> メソッドや、Djangoの <code class="docutils literal notranslate"><span class="pre">manage.py</span> <span class="pre">runserver</span></code> はデフォルトで wsgiref を利用します。</p>
+</div>
+<p>Webアプリを開発する際には、これらのサーバ上で作成したアプリケーションを動かしますが、
+具体的にWebサーバと私達の開発しているアプリケーションがどのようなやりとりを行っているのか、日頃の開発の中で意識することはあまりないかと思います。
+しかし、Webフレームワークを開発するとなるとどのようにやり取りが行われているのかを知っておく必要があります。</p>
+<div class="figure align-center" id="id10">
+<a class="reference internal image-reference" href="_images/something-server-interface.png"><img alt="サーバ・アプリケーション間のやりとり" src="_images/something-server-interface.png" style="width: 300px;" /></a>
+<p class="caption"><span class="caption-text">サーバとアプリケーションの間では何かしらのやり取りが行われています。</span><a class="headerlink" href="#id10" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>PythonではアプリケーションとWebサーバのインタフェースとして <a class="reference external" href="https://www.python.org/dev/peps/pep-3333/">PEP3333</a> で定義された
+WSGI(Web Server Gateway Interface)という仕様が広く利用されています。
+DjangoやFlask、Bottle、Pyramid などの有名なPythonのWebフレームワークはどれもWSGIの仕様に準拠しています。
+ここでは私達も WSGI の仕様に準拠したアプリケーションフレームワークを開発していきます。
+こうすることで gunicorn や uWSGI などの優れた既存のWSGIサーバーを利用できます。</p>
+<div class="admonition note">
+<p class="admonition-title">注釈</p>
+<p><a class="reference external" href="https://www.python.org/dev/peps/pep-3333/">PEP3333</a> で定義されているはWSGIのversionは v1.0.1 ですが、
+PEPではその前のバージョンとして <a class="reference external" href="http://www.python.org/dev/peps/pep-0333/">PEP333 (WSGI v1.0)</a> も存在します。
+PEP333 はPython 2を前提としていましたが、Python3から文字列の扱いが大きく変化したためそれに合わせてアップデートされ、
+その他の細かい仕様変更が PEP3333 には加わっています。</p>
+</div>
+</div>
+<div class="section" id="wsgi-web-server-gateway-interface">
+<h2>WSGI (Web Server Gateway Interface)<a class="headerlink" href="#wsgi-web-server-gateway-interface" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>それではWSGIの仕様について勉強していきましょう。
+PEP3333 を全て読むのは大変なので、実際のPythonのコードをベースに概要だけ理解していきましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">application</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;200 OK&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain; charset=utf-8&#39;</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;Hello World&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>このたった3行のPythonのコードはWSGIの仕様を満たしています。
+それではどのような仕様だったのでしょうか？行ごとに説明していきます。</p>
+<ol class="arabic simple">
+<li><p>WSGIのアプリケーションは、2つの引数を持った呼び出し可能なオブジェクトである。</p></li>
+<li><p>第2引数として渡されたオブジェクトを呼び出し、HTTPステータスコードとヘッダ情報を渡す。</p></li>
+<li><p>レスポンスボディとしてバイト文字列をyieldするiterableなオブジェクトを返す。</p></li>
+</ol>
+<p>いかがでしょうか。とてもシンプルなインタフェースです。
+たった3行のコードですが、本当にWSGIの仕様を満たしているのであれば、gunicornやuWSGIといった
+おなじみのWSGIサーバで動かすことができるはずですね。
+実際に動かしてみましょう。
+上のコードを <cite>hello.py</cite> という名前で保存し、下記のコマンドを実行してください。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> pip install gunicorn
+<span class="gp">$</span> gunicorn -w <span class="m">1</span> hello:application
+</pre></div>
+</div>
+<div class="figure align-center" id="id11">
+<a class="reference internal image-reference" href="_images/gunicorn-wsgi.gif"><img alt="3行のコードをgunicornで動かしてみる" src="_images/gunicorn-wsgi.gif" style="width: 600px;" /></a>
+<p class="caption"><span class="caption-text">3行のコードをgunicornで動かしてみる</span><a class="headerlink" href="#id11" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>動きましたか？正常に動作した場合はWebブラウザなどでアクセスすると、上のGIFアニメーションのように <cite>Hello World</cite> と表示されるはずです。
+それでは次の章でこれから作るWebフレームワークに必要な機能を考えていきましょう。</p>
+</div>
+<div class="section" id="id3">
+<h2>フレームワークに求められる機能とは？<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Hello Worldを表示するだけの簡単なアプリケーションであれば、フレームワークを使わずに実装することが出来ました。
+それではこれからWebアプリケーションを開発する上で、Webフレームワークがどのような機能を提供すると楽になるでしょうか。
+Webアプリケーションの開発経験がある方なら、このあたりは容易に想像がつくでしょう。
+例として次のような機能があると開発が楽になりそうです。</p>
+<div class="section" id="id4">
+<h3>ルーティング<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>先ほどのHello WorldのアプリケーションはどこにアクセスしてもHello Worldが返ってきます。
+実際のWebサイトにはたくさんのページが存在し、URLやHTTPメソッドに応じてサーバー側の処理が異なります。</p>
+</div>
+<div class="section" id="id5">
+<h3>リクエストオブジェクト・レスポンスオブジェクト<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>リクエスト情報は、WSGIアプリケーションの第一引数として提供されますが、こちらは辞書型のオブジェクトです。
+ここから直接、GETのクエリパラメータやその他のリクエスト情報を取り出すのは大変なため、
+それらの情報をうまくラップしてくれるクラスがあるといいでしょう。
+またレスポンスのヘッダ情報やステータス情報もうまく管理してくれるクラスがあるとよさそうです。</p>
+</div>
+<div class="section" id="html">
+<h3>HTMLテンプレート<a class="headerlink" href="#html" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>HTMLを表示する際に、Pythonの変数を評価して埋め込めると便利です。
+BottleやDjangoのように、自前でテンプレートエンジンを用意してもいいかもしれませんが、Jinja2などすでに
+広く利用されているテンプレートエンジンのローダがあると便利かもしれません。
+今回は一から実装はせずに、Jinja2のテンプレートエンジンのローダを用意します。</p>
+</div>
+<div class="section" id="id6">
+<h3>静的ファイルの配信<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>CSSやJS、画像ファイルなどの静的ファイルは、本番環境の場合、 Nginx 等で返す場合が多いかもしれません。
+しかし開発中や手元のパソコンでも Nginx の設定をして静的ファイルを返すように設定するのは面倒なので、
+フレームワークにも静的ファイルを返す機能があると開発が捗りそうです。</p>
+</div>
+</div>
+<div class="section" id="web">
+<h2>今回作成するWebフレームワーク<a class="headerlink" href="#web" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id7">
+<h3>使い方<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>この資料で作成するフレームワークを使うと次のようにコードを記述出来ます。
+FlaskやBottleでの開発に慣れた方であれば、簡単に扱えることができるのではないでしょうか。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">Response</span><span class="p">,</span> <span class="n">JSONResponse</span>
+<span class="kn">from</span> <span class="nn">wsgiref.simple_server</span> <span class="kn">import</span> <span class="n">make_server</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
+
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;^/$&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="s1">&#39;Hello World&#39;</span><span class="p">)</span>
+
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;^/users/(?P&lt;user_id&gt;\d+)/$&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">user_detail</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user_id</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">JSONResponse</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">httpd</span> <span class="o">=</span> <span class="n">make_server</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+    <span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id8">
+<h3>全体像<a class="headerlink" href="#id8" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>今の時点で理解できている必要はありませんが、フレームワークの全体像も載せておきます。</p>
+<div class="figure align-center" id="id12">
+<a class="reference internal image-reference" href="_images/middleware.png"><img alt="フレームワークの全体像" src="_images/middleware.png" style="width: 400px;" /></a>
+<p class="caption"><span class="caption-text">フレームワークの全体像</span><a class="headerlink" href="#id12" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>Router や Request 、 Response クラスを1つずつ実装していけば、徐々に上の図に書かれているフレームワークに近づいていきます。
+この資料を読み終えるころにはBottleやFlaskのようなフレームワークがどのように構成されているのかコンセプトも含めてイメージできるようになるでしょう。</p>
+</div>
+</div>
+<div class="section" id="id9">
+<h2>まとめ<a class="headerlink" href="#id9" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>この章ではWSGIの概要について解説しました。
+またWSGIの提供するインターフェイスでは足りない機能を解説し、これからつくるWebフレームワークの完成形について紹介しました。
+ここからは一緒にWSGIのアプリケーションフレームワークを作っていきましょう。</p>
+</div>
+</div>
+
+
+            </div>
+<div class="customsidebar" role="navigation" aria-label="main navigation">
+    <p class="logo"><a href="index.html">
+        <img class="logo" src="_static/kobin.png" alt="Logo"/>
+    </a></p>
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">WSGI について</a><ul>
+<li><a class="reference internal" href="#id1">アプリケーション・サーバ間のやりとり</a></li>
+<li><a class="reference internal" href="#wsgi-web-server-gateway-interface">WSGI (Web Server Gateway Interface)</a></li>
+<li><a class="reference internal" href="#id3">フレームワークに求められる機能とは？</a><ul>
+<li><a class="reference internal" href="#id4">ルーティング</a></li>
+<li><a class="reference internal" href="#id5">リクエストオブジェクト・レスポンスオブジェクト</a></li>
+<li><a class="reference internal" href="#html">HTMLテンプレート</a></li>
+<li><a class="reference internal" href="#id6">静的ファイルの配信</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#web">今回作成するWebフレームワーク</a><ul>
+<li><a class="reference internal" href="#id7">使い方</a></li>
+<li><a class="reference internal" href="#id8">全体像</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#id9">まとめ</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="index.html"
+                        title="前の章へ">はじめに</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="routing.html"
+                        title="次の章へ">ルーティング</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/wsgi.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="container">
+            &copy; Copyright 2016, Masashi Shibata.
+            Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.1.
+        </div>
+    </div>
+  </body>
+</html>

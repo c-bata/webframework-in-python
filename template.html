@@ -1,0 +1,199 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>JSONやHTMLを返す &#8212; Webアプリケーションフレームワークの作り方 in Python</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="WSGIミドルウェア" href="middleware.html" />
+    <link rel="prev" title="レスポンスオブジェクト" href="response.html" /><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+        <div class="container" >
+            <a href="index.html" class="nav-title">Webアプリケーションフレームワークの作り方 in Python</a>
+            <ul class="nav">
+                <li><a href="genindex.html" title="総合索引" accesskey="I">索引</a></li>
+                <li><a href="middleware.html" title="WSGIミドルウェア" accesskey="N">次へ</a></li>
+                <li><a href="response.html" title="レスポンスオブジェクト" accesskey="P">前へ</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="document">
+        <div class="container">
+            <div class="contents" role="main">
+                
+  <div class="section" id="jsonhtml">
+<h1>JSONやHTMLを返す<a class="headerlink" href="#jsonhtml" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<p><em>この章はまだ書き途中です。気が向いたときに書き直していきますがこの資料の感想をいただけると頑張るかもしれません</em></p>
+<div class="section" id="jsonresponse">
+<h2>JSONResponseクラスを用意する<a class="headerlink" href="#jsonresponse" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>Responseオブジェクトは文字列を返すのには非常に向いていました。
+実際Webアプリケーションを開発する中ではこのように文字列を返すことはあまりなく、
+Webブラウザで表示するためのHTMLを返したり、クライアントアプリケーションのためにJSON形式のAPIを用意することのほうが多くあります。
+まずはJSON APIの開発に便利な JSONResponse クラスを用意してみましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">JSONResponse</span><span class="p">(</span><span class="n">Response</span><span class="p">):</span>
+    <span class="n">default_content_type</span> <span class="o">=</span> <span class="s1">&#39;text/json; charset=UTF-8&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dic</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="mi">200</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="o">**</span><span class="n">dump_args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dic</span> <span class="o">=</span> <span class="n">dic</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">json_dump_args</span> <span class="o">=</span> <span class="n">dump_args</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="n">charset</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dic</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">json_dump_args</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charset</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="jinja2html">
+<h2>Jinja2を使ってHTMLを返す<a class="headerlink" href="#jinja2html" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>BottleやDjangoのようなフレームワークでは自前でテンプレートエンジンを用意していますが、
+今回は、デファクトスタンダードとなっているJinja2を使ってHTMLを返していきましょう。</p>
+<div class="section" id="jinja2">
+<h3>Jinja2 おさらい<a class="headerlink" href="#jinja2" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>Jinja2の使い方をおさらいしてみましょう.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">FileSystemLoader</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">templates</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">),</span> <span class="s1">&#39;templates&#39;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span><span class="n">loader</span><span class="o">=</span><span class="n">FileSystemLoader</span><span class="p">(</span><span class="n">templates</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">template</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">get_tempplate</span><span class="p">(</span><span class="s1">&#39;users.html&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;Hello World&#39;</span><span class="p">,</span> <span class="n">users</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;user1&#39;</span><span class="p">,</span> <span class="s1">&#39;users2&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="templateresponse">
+<h3>TemplateResponse クラス<a class="headerlink" href="#templateresponse" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>それではこれを簡単に扱えるようなResponseクラスを用意します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">TemplateResponse</span><span class="p">(</span><span class="n">Response</span><span class="p">):</span>
+    <span class="n">default_content_type</span> <span class="o">=</span> <span class="s1">&#39;text/html; charset=UTF-8&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s1">&#39;200 OK&#39;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">,</span> <span class="o">**</span><span class="n">tpl_args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">filename</span> <span class="o">=</span> <span class="n">filename</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tpl_args</span> <span class="o">=</span> <span class="n">tpl_args</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">body</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">status</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="n">charset</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">render_body</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">jinja2_environment</span><span class="p">):</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="n">jinja2_environment</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">tpl_args</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charset</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>render_bodyを呼び出す際に、environmentを渡す必要があるため、つぎのようにAppクラスを書き換えましょう.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">jinja2</span> <span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">FileSystemLoader</span>
+
+<span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">templates</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">templates</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">templates</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">),</span> <span class="s1">&#39;templates&#39;</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">jinja2_environment</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span><span class="n">loader</span><span class="o">=</span><span class="n">FileSystemLoader</span><span class="p">(</span><span class="n">templates</span><span class="p">))</span>
+
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s1">&#39;REQUEST_METHOD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s1">&#39;PATH_INFO&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;/&#39;</span>
+        <span class="n">callback</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">router</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="n">callback</span><span class="p">(</span><span class="n">Request</span><span class="p">(</span><span class="n">env</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">start_response</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> <span class="n">response</span><span class="o">.</span><span class="n">header_list</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">TemplateResponse</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">render_body</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jinja2_environment</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">response</span><span class="o">.</span><span class="n">body</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>これで実装はOKです。使ってみましょう。</p>
+<p><cite>main.py</cite></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;^/user/$&#39;</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">users</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">users</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">TemplateResponse</span><span class="p">(</span><span class="s1">&#39;users.html&#39;</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;User List&#39;</span><span class="p">,</span> <span class="n">users</span><span class="o">=</span><span class="n">users</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><cite>templates/users.html</cite></p>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;ja&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">meta</span> <span class="na">charset</span><span class="o">=</span><span class="s">&quot;UTF-8&quot;</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>{{ title }}<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+        {% for user in users %}
+        <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;</span>{{ user }}<span class="p">&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+        {% endfor %}
+    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+            </div>
+<div class="customsidebar" role="navigation" aria-label="main navigation">
+    <p class="logo"><a href="index.html">
+        <img class="logo" src="_static/kobin.png" alt="Logo"/>
+    </a></p>
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">JSONやHTMLを返す</a><ul>
+<li><a class="reference internal" href="#jsonresponse">JSONResponseクラスを用意する</a></li>
+<li><a class="reference internal" href="#jinja2html">Jinja2を使ってHTMLを返す</a><ul>
+<li><a class="reference internal" href="#jinja2">Jinja2 おさらい</a></li>
+<li><a class="reference internal" href="#templateresponse">TemplateResponse クラス</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="response.html"
+                        title="前の章へ">レスポンスオブジェクト</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="middleware.html"
+                        title="次の章へ">WSGIミドルウェア</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/template.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="container">
+            &copy; Copyright 2016, Masashi Shibata.
+            Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.1.
+        </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,133 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>WSGIミドルウェア &#8212; Webアプリケーションフレームワークの作り方 in Python</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="prev" title="JSONやHTMLを返す" href="template.html" /><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+        <div class="container" >
+            <a href="index.html" class="nav-title">Webアプリケーションフレームワークの作り方 in Python</a>
+            <ul class="nav">
+                <li><a href="genindex.html" title="総合索引" accesskey="I">索引</a></li>
+                <li><a href="template.html" title="JSONやHTMLを返す" accesskey="P">前へ</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="document">
+        <div class="container">
+            <div class="contents" role="main">
+                
+  <div class="section" id="wsgi">
+<h1>WSGIミドルウェア<a class="headerlink" href="#wsgi" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="section" id="id1">
+<h2>ミドルウェアとは<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>次はJavaScriptやCSS、画像などの静的ファイルを返す機能をつけてみましょう。
+本番環境では、パフォーマンスの観点からNginx等で直接返すことが多いかもしれませんが、
+開発環境でもNginxなどの設定をしておくのは、かなり面倒です。</p>
+<p>静的ファイルを返す機能をどのように追加するか、いくつか方法はありますが今回はWSGIのミドルウェアとして実装してみます。</p>
+<p>ミドルウェアは、Webサーバ側からはWSGIアプリケーションのように見えWSGIアプリケーション側からはWebサーバのように見えます。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">SomeMiddleware</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app</span> <span class="o">=</span> <span class="n">app</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">app</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id2">
+<h2>静的ファイルの配信<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>CSSやJS、画像などの静的ファイルの配信は、本番環境ではNginx等で返すことが多いかと思います。
+しかし開発中にNginx等で返すように設定するのは面倒です。</p>
+<p>開発環境でのみ、静的ファイルを配信するミドルウェアを有効化してみましょう。
+静的ファイルの配信方法の実装については、ここでは割愛します。
+既に公開されている静的ファイルを返すミドルウェアは古いものが多かったので筆者の方で用意しました。</p>
+<p><a class="reference external" href="https://pypi.python.org/pypi/wsgi-static-middleware">wsgi-static-middleware</a></p>
+<p>この wsgi-static-middleware を使って静的ファイルを有効にしてみましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">App</span><span class="p">,</span> <span class="n">Response</span>
+<span class="kn">from</span> <span class="nn">wsgi_static_middleware</span> <span class="kn">import</span> <span class="n">StaticMiddleware</span>
+
+<span class="n">BASE_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="n">STATIC_DIRS</span> <span class="o">=</span> <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">BASE_DIR</span><span class="p">,</span> <span class="s1">&#39;static&#39;</span><span class="p">)]</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
+
+
+<span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;^/$&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">index</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">Response</span><span class="p">(</span><span class="s1">&#39;Hello&#39;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">app</span> <span class="o">=</span> <span class="n">StaticMiddleware</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">static_root</span><span class="o">=</span><span class="s1">&#39;static&#39;</span><span class="p">,</span> <span class="n">static_dirs</span><span class="o">=</span><span class="n">STATIC_DIRS</span><span class="p">)</span>
+    <span class="kn">from</span> <span class="nn">wsgiref.simple_server</span> <span class="kn">import</span> <span class="n">make_server</span>
+    <span class="n">httpd</span> <span class="o">=</span> <span class="n">make_server</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+    <span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>WSGIのミドルウェアとして実装すると、フレームワークの実装に依存しません。
+Bottleなどのフレームワークは静的ファイルの配信が少し貧弱ですが、ここで実装したミドルウェアで補うことが出来ます。</p>
+</div>
+</div>
+
+
+            </div>
+<div class="customsidebar" role="navigation" aria-label="main navigation">
+    <p class="logo"><a href="index.html">
+        <img class="logo" src="_static/kobin.png" alt="Logo"/>
+    </a></p>
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">WSGIミドルウェア</a><ul>
+<li><a class="reference internal" href="#id1">ミドルウェアとは</a></li>
+<li><a class="reference internal" href="#id2">静的ファイルの配信</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="template.html"
+                        title="前の章へ">JSONやHTMLを返す</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/middleware.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="container">
+            &copy; Copyright 2016, Masashi Shibata.
+            Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.1.
+        </div>
+    </div>
+  </body>
+</html>

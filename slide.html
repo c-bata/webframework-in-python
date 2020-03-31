@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>基礎から学ぶWebアプリケーション・フレームワークの作り方 at PyConJP 2016</title>
+  <meta charset="utf-8">
+  <meta content="基礎から学ぶWebアプリケーションフレームワークの作り方 at PyCon JP 2016 in Tokyo" name="title" />
+  <meta content="PyCon JP 2016で行った「基礎から学ぶWebアプリケーションフレームワークの作り方」のスライド資料です" name="description" />
+  <meta property="og:title" content="基礎から学ぶWebアプリケーション・フレームワークの作り方 at PyConJP 2016" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://c-bata.link/WebFramework-in-Python" />
+  <meta property="og:image" content="https://c-bata.link/webframework-in-python/img/ogp.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:description" content="PyCon JP 2016で行った「基礎から学ぶWebアプリケーションフレームワークの作り方」のスライド資料です" />
+  <meta property="og:type" content="website"/>
+
+  <meta name="twitter:card"  content="summary_large_image" />
+  <meta name="twitter:image" content="https://c-bata.link/webframework-in-python/img/twitter_share.png" />
+  <meta name="twitter:title" content="基礎から学ぶWebアプリケーションフレームワークの作り方 at PyCon JP 2016 in Tokyo" />
+  <meta name="twitter:description" content="PyCon JP 2016で行った「基礎から学ぶWebアプリケーションフレームワークの作り方」のスライド資料です" />
+  <meta name="twitter:site" content="@c_bata_" />
+  <link rel="icon" href="img/favicon.ico">
+  <style>
+    @import url(https://fonts.googleapis.com/css?family=Droid+Serif);
+    @import url(https://fonts.googleapis.com/css?family=Droid+Sans);
+    @import url(https://fonts.googleapis.com/css?family=Yanone+Kaffeesatz);
+    @import url(https://fonts.googleapis.com/css?family=Ubuntu+Mono:400,700,400italic);
+
+    body {
+      font-family: 'Droid Serif';
+    }
+    h1, h2, h3 {
+      font-family: "Helvetica neue","ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ","Droid Sans",Meiryo,sans-serif;
+      font-weight: 400;
+      margin-bottom: 0;
+    }
+    .left-column h1, h2, h3 {
+      font-family: 'Yanone Kaffeesatz',sans-serif;
+    }
+    .remark-slide-content h1 { font-size: 2.4em; }
+    .remark-slide-content h2 { font-size: 1.8em; }
+    .remark-slide-content h3 { font-size: 1.3em; }
+    .footnote {
+      position: absolute;
+      bottom: 3em;
+    }
+    li { line-height: 2em; }
+    li p { line-height: 1.25em; }
+    .red { color: #fa0000; }
+    .large { font-size: 2em; }
+    a, a > code {
+      color: rgb(249, 38, 114);
+      text-decoration: none;
+    }
+    code {
+      background: #e7e8e2;
+      border-radius: 3px;
+      padding: 2px 5px;
+    }
+    .remark-code, .remark-inline-code { font-family: 'Ubuntu Mono'; }
+    .remark-code-line-highlighted     { background-color: #373832; }
+    .pull-container {
+      overflow: hidden;
+    }
+    .pull-left {
+      float: left;
+      width: 47%;
+    }
+    .pull-right {
+      float: right;
+      width: 47%;
+    }
+    .pull-right ~ p {
+      clear: both;
+    }
+    .image-center img {
+      margin: 100px 150px;
+    }
+    #slideshow .slide .content code {
+      font-size: 0.8em;
+    }
+    #slideshow .slide .content pre code {
+      font-size: 0.9em;
+      padding: 15px;
+    }
+    .inverse {
+      background: #0093F5;
+      color: #eeeeee;
+    }
+    .inverse a {
+      color: #f5dc00;
+    }
+    .inverse h1, .inverse h2 {
+      color: #f3f3f3;
+      line-height: 1.2em;
+      font-size: 2.2em;
+    }
+
+    /* Slide-specific styling */
+    #slide-inverse .footnote {
+      bottom: 12px;
+      left: 20px;
+    }
+    #slide-how .slides {
+      font-size: 0.9em;
+      position: absolute;
+      top:  151px;
+      right: 140px;
+    }
+    #slide-how .slides h3 {
+      margin-top: 0.2em;
+    }
+    #slide-how .slides .first, #slide-how .slides .second {
+      padding: 1px 20px;
+      height: 90px;
+      width: 120px;
+      -moz-box-shadow: 0 0 10px #777;
+      -webkit-box-shadow: 0 0 10px #777;
+      box-shadow: 0 0 10px #777;
+    }
+    #slide-how .slides .first {
+      background: #fff;
+      position: absolute;
+      top: 20%;
+      left: 20%;
+      z-index: 1;
+    }
+    #slide-how .slides .second {
+      position: relative;
+      background: #fff;
+      z-index: 0;
+    }
+
+    /* Two-column layout */
+    .left-column {
+      color: #777;
+      width: 20%;
+      height: 92%;
+      float: left;
+    }
+    .left-column h2:last-of-type, .left-column h3:last-child {
+      color: #000;
+    }
+    .right-column {
+      width: 75%;
+      float: right;
+      padding-top: 1em;
+    }
+    .profileicon {
+      width: 150px;
+      height: 150px;
+      border: 4px solid #ddd;
+      border-radius: 50%;
+      background-image: url(./img/profile.png);
+      background-repeat: no-repeat;
+      background-size: cover;
+      background-position: center;
+      display: block;
+    }
+  </style>
+  </head>
+  <body>
+	<script type="text/javascript" src="https://b.st-hatena.com/js/bookmark_button.js" charset="utf-8" async="async"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/remark/0.14.0/remark.min.js"></script>
+  <script>
+    var slideshow = remark.create({
+      sourceUrl: './slide.md',
+      navigation: {
+        scroll: false
+      }
+    });
+  </script>
+  </body>
+</html>

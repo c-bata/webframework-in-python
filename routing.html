@@ -1,0 +1,400 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>ルーティング &#8212; Webアプリケーションフレームワークの作り方 in Python</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="リクエストオブジェクト" href="request.html" />
+    <link rel="prev" title="WSGI について" href="wsgi.html" /><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+        <div class="container" >
+            <a href="index.html" class="nav-title">Webアプリケーションフレームワークの作り方 in Python</a>
+            <ul class="nav">
+                <li><a href="genindex.html" title="総合索引" accesskey="I">索引</a></li>
+                <li><a href="request.html" title="リクエストオブジェクト" accesskey="N">次へ</a></li>
+                <li><a href="wsgi.html" title="WSGI について" accesskey="P">前へ</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="document">
+        <div class="container">
+            <div class="contents" role="main">
+                
+  <div class="section" id="id1">
+<h1>ルーティング<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="section" id="id2">
+<h2>シンプルなルーティング<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>前章では、WSGIの仕様について確認し、それを満たす小さなアプリケーションをつくりました。
+ここからは実際にWebフレームワークを作っていきましょう。</p>
+<p>先程のアプリケーションでは、URLのパス情報によらず全て「Hello World」と返しています。
+実際のアプリケーションでは、沢山のページが存在するためパス情報に応じてそれぞれ違ったレスポンスを返す必要があります。
+最も簡単なルーティング方法を次に示します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">application</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s1">&#39;PATH_INFO&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="o">==</span> <span class="s1">&#39;/&#39;</span><span class="p">:</span>
+        <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;200 OK&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;Hello World&#39;</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">path</span> <span class="o">==</span> <span class="s1">&#39;/foo&#39;</span><span class="p">:</span>
+        <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;200 OK&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;foo&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;404 Not Found&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;404 Not Found&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>WSGIのアプリケーションの第一引数には、辞書型オブジェクトが渡されています。
+これは WSGI Environment と呼ばれ、クライアントから受け取ったリクエストの情報が格納されています。
+リクエストのパス情報もその一つで、 <cite>PATH_INFO</cite> により取り出すことができます。
+またHTTPのメソッドも同様に <code class="docutils literal notranslate"><span class="pre">REQUEST_METHOD</span></code> により取り出すことができます。</p>
+</div>
+<div class="section" id="url">
+<h2>URL変数と正規表現によるルーティング<a class="headerlink" href="#url" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<div class="section" id="id3">
+<h3>URL変数<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>もう少し複雑なケースを考えてみましょう。
+こちらのBottleのアプリケーションの一部を見てください。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@route</span><span class="p">(</span><span class="s1">&#39;/hello/&lt;name&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">greet</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Stranger&#39;</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">template</span><span class="p">(</span><span class="s1">&#39;Hello {{name}}, how are you?&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+
+<span class="nd">@route</span><span class="p">(</span><span class="s1">&#39;/users/&lt;user_id:int&gt;&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">user_detail</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+    <span class="n">users</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;user{id}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="n">template</span><span class="p">(</span><span class="s1">&#39;Hello {{user}}&#39;</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="n">users</span><span class="p">[</span><span class="n">user_id</span><span class="p">])</span>
+</pre></div>
+</div>
+<p><cite>/hello/foo</cite> と <cite>/hello/bar</cite> はそれぞれ別のエンドポイントですが、上のコードではどちらも <cite>greet</cite> 関数が呼ばれます。
+またURLのパス情報から <cite>foo</cite> や <cite>bar</cite> などの変数(以下、URL変数)を取り出しています。</p>
+<p>先程のようにif文で分岐させていくのは大変なので、別の方法を考えてみましょう。
+解決策の一つとして正規表現の利用があります。</p>
+</div>
+<div class="section" id="id4">
+<h3>正規表現モジュール<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p><a class="reference external" href="http://docs.python.jp/3/library/re.html">正規表現</a> は普段使わない方も多いかと思います。
+ここで簡単におさらいしましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">re</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">url_scheme</span> <span class="o">=</span> <span class="s1">&#39;/users/(?P&lt;user_id&gt;\d+)/&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;/users/(?P&lt;user_id&gt;\d+)/&#39;</span><span class="p">,</span> <span class="s1">&#39;/users/1/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+<span class="go">{&#39;user_id&#39;: &#39;1&#39;}</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">url_scheme</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">pattern</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;/users/1/&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+<span class="go">{&#39;user_id&#39;: &#39;1&#39;}</span>
+</pre></div>
+</div>
+<p>このように名前付きグループでパターンを定義し、マッチするか確認してからgroupdictを呼ぶことでuser_idの部分の数字が文字列で取得出来ます。</p>
+</div>
+<div class="section" id="id6">
+<h3>構成図<a class="headerlink" href="#id6" title="このヘッドラインへのパーマリンク">¶</a></h3>
+<p>それでは、ルーティング機能を提供するため、フレームワークの実装を始めましょう。
+ここで提供するルーティングは次のようなイメージです。</p>
+<div class="figure align-center" id="id8">
+<a class="reference internal image-reference" href="_images/router.png"><img alt="ルーティングのイメージ" src="_images/router.png" style="width: 300px;" /></a>
+<p class="caption"><span class="caption-text">ルーティングのイメージ。
+パス情報にあわせて別のアプリケーションを呼び出す。</span><a class="headerlink" href="#id8" title="この画像へのパーマリンク">¶</a></p>
+</div>
+<p>それでは図のRouterを実装していきましょう。</p>
+</div>
+</div>
+<div class="section" id="router">
+<h2>Routerクラス<a class="headerlink" href="#router" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>それではルーティングの機能を提供する <code class="docutils literal notranslate"><span class="pre">Router</span></code> クラスを用意していきます。
+このクラスには2つのメソッドを用意します。</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">add()</span></code>: 各コールバック関数(WSGIアプリケーションオブジェクト)が、どのURLパス・HTTPメソッドに紐づくかを登録する。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">match()</span></code>: 実際に受け取ったリクエストのパスとHTTPメソッドの情報を元に登録していたコールバック関数とURL変数を返す。</p></li>
+</ol>
+<p>まずは <code class="docutils literal notranslate"><span class="pre">add()</span></code> メソッドから定義してみましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Router</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">routes</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="n">method</span><span class="p">,</span>
+            <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span>
+            <span class="s1">&#39;callback&#39;</span><span class="p">:</span> <span class="n">callback</span>
+        <span class="p">})</span>
+</pre></div>
+</div>
+<p>HTTPメソッドとパス、それに紐づくコールバック関数を辞書型のオブジェクトにつめて、リストに追加しました。
+非常に簡単です。呼び出し側はどのようになるでしょうか？ <code class="docutils literal notranslate"><span class="pre">match()</span></code> メソッドを定義します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+
+
+<span class="k">def</span> <span class="nf">http404</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;404 Not Found&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain; charset=utf-8&#39;</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;404 Not Found&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">Router</span><span class="p">:</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">routes</span><span class="p">:</span>
+            <span class="n">matched</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">matched</span> <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">method</span><span class="p">:</span>
+                <span class="n">url_vars</span> <span class="o">=</span> <span class="n">matched</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+                <span class="k">return</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;callback&#39;</span><span class="p">],</span> <span class="n">url_vars</span>
+        <span class="k">return</span> <span class="n">http404</span><span class="p">,</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>このメソッドでは、 <code class="docutils literal notranslate"><span class="pre">add()</span></code> メソッドで登録したエンドポイントのパス情報とメソッド情報が一致するかをチェックします。
+もし一致した場合には、URL変数を取り出し、ひも付けられていたコールバック関数を返します。
+一致しない場合には、 <code class="docutils literal notranslate"><span class="pre">404</span> <span class="pre">Not</span> <span class="pre">Found</span></code> を返すようになりました。
+こちらも非常にシンプルなコードですが、基本的にルーティングに必要な機能を備えています。
+念の為動作も確認しましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">app</span> <span class="kn">import</span> <span class="n">Router</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+
+<span class="go"># コールバック関数の定義</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">create_user</span><span class="p">():</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="s1">&#39;user is created&#39;</span>
+<span class="gp">...</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">def</span> <span class="nf">user_detail</span><span class="p">(</span><span class="nb">id</span><span class="p">):</span>
+<span class="gp">... </span>    <span class="k">return</span> <span class="s1">&#39;user{id} detail&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span>
+<span class="gp">...</span>
+
+<span class="go"># エンドポイントの登録</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">router</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="s1">&#39;^/users/$&#39;</span><span class="p">,</span> <span class="n">create_user</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">router</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;^/users/(?P&lt;user_id&gt;\d+)/$&#39;</span><span class="p">,</span> <span class="n">user_detail</span><span class="p">)</span>
+
+<span class="go"># 呼び出し確認</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">callback</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">router</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="s1">&#39;/users/&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">callback</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="go">&#39;user is created&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">callback</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">router</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;/users/1/&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">callback</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="go">&#39;user1 detail&#39;</span>
+
+<span class="go"># 定義されていないエンドポイントでは次のように http404 関数が callback として返ってきます。</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">callback</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="s1">&#39;POST&#39;</span><span class="p">,</span> <span class="s1">&#39;/foobar&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">callback</span>
+<span class="go">&lt;function http404 at 0x103696840&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dummy_start_response</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="k">print</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">callback</span><span class="p">({},</span> <span class="n">dummy_start_response</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="go">404 Not Found [(&#39;Content-type&#39;, &#39;text/plain; charset=utf-8&#39;)]</span>
+<span class="go">[b&#39;404 Not Found&#39;]</span>
+</pre></div>
+</div>
+<p>うまく動作していることが確認できます。
+ここではついでに2つ改善を加えておきましょう。</p>
+<ol class="arabic simple">
+<li><p>パスは定義されているもののメソッドだけが一致しない場合には <code class="docutils literal notranslate"><span class="pre">405</span> <span class="pre">Method</span> <span class="pre">Not</span> <span class="pre">Allowed</span></code> を返す。</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">re.compile()</span></code> は <code class="docutils literal notranslate"><span class="pre">Router.add()</span></code> メソッドの呼び出し時に行っておく。</p></li>
+</ol>
+<p>修正を加えると全体像は次のようになります。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+
+
+<span class="k">def</span> <span class="nf">http404</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;404 Not Found&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain; charset=utf-8&#39;</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;404 Not Found&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">http405</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;405 Method Not Allowed&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain; charset=utf-8&#39;</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;405 Method Not Allowed&#39;</span><span class="p">]</span>
+
+
+<span class="k">class</span> <span class="nc">Router</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">routes</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">routes</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;method&#39;</span><span class="p">:</span> <span class="n">method</span><span class="p">,</span>
+            <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span>
+            <span class="s1">&#39;path_compiled&#39;</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+            <span class="s1">&#39;callback&#39;</span><span class="p">:</span> <span class="n">callback</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="n">error_callback</span> <span class="o">=</span> <span class="n">http404</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">routes</span><span class="p">:</span>
+            <span class="n">matched</span> <span class="o">=</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;path_compiled&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">matched</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">error_callback</span> <span class="o">=</span> <span class="n">http405</span>
+            <span class="n">url_vars</span> <span class="o">=</span> <span class="n">matched</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;method&#39;</span><span class="p">]:</span>
+                <span class="k">return</span> <span class="n">r</span><span class="p">[</span><span class="s1">&#39;callback&#39;</span><span class="p">],</span> <span class="n">url_vars</span>
+        <span class="k">return</span> <span class="n">error_callback</span><span class="p">,</span> <span class="p">{}</span>
+</pre></div>
+</div>
+<p>他にもいろいろと考えることはありますが、今はこれくらいにしておきます。
+それでは <code class="docutils literal notranslate"><span class="pre">Router</span></code> クラスを実際にアプリケーションに組み込んでいきます。</p>
+</div>
+<div class="section" id="routerwsgi">
+<h2>Routerを組み込んだWSGIのアプリケーション用クラスを作る<a class="headerlink" href="#routerwsgi" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">Router</span></code> クラスを組み込んで行きたいのですが、関数のままだと少し扱いづらいです。
+ここではWSGIアプリケーションをクラスで定義してみましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+        <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;200 OK&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain&#39;</span><span class="p">)])</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;Hello World&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>ここで注目してほしいのは <code class="docutils literal notranslate"><span class="pre">__call__()</span></code> メソッドが定義されている点です。
+<code class="docutils literal notranslate"><span class="pre">__call__</span></code> メソッドを定義すると、このクラスのオブジェクト自身が呼び出し可能(callable)になります。
+つまり <code class="docutils literal notranslate"><span class="pre">app</span> <span class="pre">=</span> <span class="pre">App()</span></code> は、関数 <code class="docutils literal notranslate"><span class="pre">def</span> <span class="pre">app(env,</span> <span class="pre">start_response):</span> <span class="pre">pass</span></code> 同じように振る舞ってくれます。
+これでだいぶ拡張がしやすくなりました。 <code class="docutils literal notranslate"><span class="pre">Router</span></code> クラスを組み込んでみましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">router</span> <span class="o">=</span> <span class="n">Router</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">route</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">def</span> <span class="nf">decorator</span><span class="p">(</span><span class="n">callback_func</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">router</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">callback_func</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">callback_func</span>
+        <span class="k">return</span> <span class="n">decorator</span><span class="p">(</span><span class="n">callback</span><span class="p">)</span> <span class="k">if</span> <span class="n">callback</span> <span class="k">else</span> <span class="n">decorator</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+        <span class="n">method</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s1">&#39;REQUEST_METHOD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s1">&#39;PATH_INFO&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;/&#39;</span>
+        <span class="n">callback</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">router</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span><span class="p">(</span><span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">route</span></code> デコレーターを使ってコールバック関数にHTTPメソッドと正規表現で書かれたパスを割り当てできるようにしました。
+このフレームワークの利用者からは、次のような形で利用出来ます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">app</span> <span class="k">import</span> <span class="n">App</span>
+<span class="kn">from</span> <span class="nn">wsgiref.simple_server</span> <span class="k">import</span> <span class="n">make_server</span>
+
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;^/$&#39;</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;200 OK&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain; charset=utf-8&#39;</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;Hello World&#39;</span><span class="p">]</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;^/user/$&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">create_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;201 Created&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain; charset=utf-8&#39;</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;User Created&#39;</span><span class="p">]</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;^/user/(?P&lt;name&gt;\w+)/$&#39;</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">user_detail</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;200 OK&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain; charset=utf-8&#39;</span><span class="p">)])</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="s1">&#39;Hello </span><span class="si">{name}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">body</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)]</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;^/user/(?P&lt;name&gt;\w+)/follow/$&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">create_user</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;201 Created&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain; charset=utf-8&#39;</span><span class="p">)])</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="s1">&#39;Followed </span><span class="si">{name}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">body</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)]</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">httpd</span> <span class="o">=</span> <span class="n">make_server</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+    <span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>実際にアプリケーションを実行して動作確認してみましょう。
+定義されたエンドポイントにアクセスすると、次のように正しくレスポンスを受け取ることができます。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl http://127.0.0.1:8000/
+<span class="go">Hello World</span>
+<span class="gp">$</span> curl -X POST http://127.0.0.1:8000/user/
+<span class="go">User Created</span>
+<span class="gp">$</span> curl http://127.0.0.1:8000/user/shibata/
+<span class="go">Hello shibata</span>
+<span class="gp">$</span> curl -X POST http://127.0.0.1:8000/user/shibata/follow/
+<span class="go">Followed shibata</span>
+</pre></div>
+</div>
+<p>一方で定義されていないパスや、メソッドが定義されていないエンドポイントでは、404 や 405が返ってきます。</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$</span> curl http://127.0.0.1:8000/foobar
+<span class="go">404 Not Found</span>
+<span class="gp">$</span> curl http://127.0.0.1:8000/user/shibata/follow/
+<span class="go">405 Method Not Allowed</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id7">
+<h2>まとめ<a class="headerlink" href="#id7" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ここまでルーティングの役割について考え、実装しました。
+用意した <code class="docutils literal notranslate"><span class="pre">Router</span></code> クラスは、正規表現で記述されたパスにマッチするかどうかを判定し、
+マッチした場合には登録しておいたコールバック関数とURL変数を返してくれます。
+デコレーターでルーティングの情報を指定することで、ユーザーは複数のエンドポイントを見通しよく定義できるようになりました。</p>
+</div>
+</div>
+
+
+            </div>
+<div class="customsidebar" role="navigation" aria-label="main navigation">
+    <p class="logo"><a href="index.html">
+        <img class="logo" src="_static/kobin.png" alt="Logo"/>
+    </a></p>
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">ルーティング</a><ul>
+<li><a class="reference internal" href="#id2">シンプルなルーティング</a></li>
+<li><a class="reference internal" href="#url">URL変数と正規表現によるルーティング</a><ul>
+<li><a class="reference internal" href="#id3">URL変数</a></li>
+<li><a class="reference internal" href="#id4">正規表現モジュール</a></li>
+<li><a class="reference internal" href="#id6">構成図</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#router">Routerクラス</a></li>
+<li><a class="reference internal" href="#routerwsgi">Routerを組み込んだWSGIのアプリケーション用クラスを作る</a></li>
+<li><a class="reference internal" href="#id7">まとめ</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="wsgi.html"
+                        title="前の章へ">WSGI について</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="request.html"
+                        title="次の章へ">リクエストオブジェクト</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/routing.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="container">
+            &copy; Copyright 2016, Masashi Shibata.
+            Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.1.
+        </div>
+    </div>
+  </body>
+</html>

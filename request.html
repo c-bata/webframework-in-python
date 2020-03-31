@@ -1,0 +1,276 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>リクエストオブジェクト &#8212; Webアプリケーションフレームワークの作り方 in Python</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="_static/translations.js"></script>
+    <link rel="index" title="索引" href="genindex.html" />
+    <link rel="search" title="検索" href="search.html" />
+    <link rel="next" title="レスポンスオブジェクト" href="response.html" />
+    <link rel="prev" title="ルーティング" href="routing.html" /><meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+<link href='http://fonts.googleapis.com/css?family=Source+Code+Pro|Open+Sans:300italic,400italic,700italic,400,300,700' rel='stylesheet' type='text/css'>
+  </head><body>
+
+    <div class="related" role="navigation" aria-label="related navigation">
+        <div class="container" >
+            <a href="index.html" class="nav-title">Webアプリケーションフレームワークの作り方 in Python</a>
+            <ul class="nav">
+                <li><a href="genindex.html" title="総合索引" accesskey="I">索引</a></li>
+                <li><a href="response.html" title="レスポンスオブジェクト" accesskey="N">次へ</a></li>
+                <li><a href="routing.html" title="ルーティング" accesskey="P">前へ</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="document">
+        <div class="container">
+            <div class="contents" role="main">
+                
+  <div class="section" id="id1">
+<h1>リクエストオブジェクト<a class="headerlink" href="#id1" title="このヘッドラインへのパーマリンク">¶</a></h1>
+<div class="section" id="id2">
+<h2>リクエストに関する情報の扱いについて<a class="headerlink" href="#id2" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>次はリクエスト情報の扱い方について考えてみましょう。
+クライアントのリクエストに関する情報はWSGIアプリケーションの第一引数に辞書型のオブジェクトとして渡されることはすでに解説しました。
+ルーティングに必要なリクエストのHTTPメソッドやURLパスは、次のようにこのオブジェクトから取り出す必要があります。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">method</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s1">&#39;REQUEST_METHOD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+<span class="n">path</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s1">&#39;PATH_INFO&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>また他にも様々な情報が格納されていて、例えばHTTPリクエストボディを取り出したい際には、次のように記述します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">content_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">env</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CONTENT_LENGTH&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="n">body</span> <span class="o">=</span> <span class="n">env</span><span class="p">[</span><span class="s1">&#39;wsgi.input&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">content_length</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>辞書型オブジェクトから <code class="docutils literal notranslate"><span class="pre">CONTENT_LENGTH</span></code> と <code class="docutils literal notranslate"><span class="pre">wsgi.input</span></code> を取り出します。
+<code class="docutils literal notranslate"><span class="pre">env[&quot;CONTENT_LENGTH&quot;]</span></code> には、クライアントがHTTPヘッダー <code class="docutils literal notranslate"><span class="pre">Content-Length</span></code> で指定したレスポンスボディの長さが格納されています。
+レスポンスボディはファイルオブジェクトになっているので、 <code class="docutils literal notranslate"><span class="pre">Content-Length</span></code> の長さ分 <code class="docutils literal notranslate"><span class="pre">read()</span></code> して上げる必要があります。
+リクエストボディを取り出すだけでも少し大変なように思います。</p>
+<p>これらをうまくラップして使いやすくしてくれるクラスがあれば便利です。
+ほとんどのWSGIフレームワークがこれをラップした「リクエストオブジェクト」を提供します。
+このフレームワークにも同様に <code class="docutils literal notranslate"><span class="pre">Request</span></code> クラスを定義してみましょう。</p>
+</div>
+<div class="section" id="wsgi-environ">
+<h2>WSGI Environオブジェクトをラップする<a class="headerlink" href="#wsgi-environ" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>リクエストオブジェクトがどういうものかというと、WSGIのEnvironをラップしたクラスのオブジェクトです。
+WSGI Environに格納されている様々なリクエスト情報をシンプルなAPIで取り出せるよう、
+プロパティメソッドが定義された <code class="docutils literal notranslate"><span class="pre">Response</span></code> クラスを用意します。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Request</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environ</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environ</span> <span class="o">=</span> <span class="n">environ</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH_INFO&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;/&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;REQUEST_METHOD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">content_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CONTENT_LENGTH&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;wsgi.input&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">content_length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span>
+</pre></div>
+</div>
+<p>WSGI Environには様々な情報が格納されていますが、まずは3つだけプロパティメソッドを定義してみました。
+この <code class="docutils literal notranslate"><span class="pre">Request</span></code> クラスのオブジェクトを渡してあげれば、フレームワークの利用者は <code class="docutils literal notranslate"><span class="pre">body</span></code> プロパティにアクセスするだけで、リクエストボディの情報を取得できます。
+実際にはここであげた他にもたくさんの情報が詰まっているので、必要に応じて拡張していく必要がありますが基本的な考え方はこれだけです。
+次はアプリケーションに組み込んでみましょう。</p>
+</div>
+<div class="section" id="id3">
+<h2>アプリケーションに組み込む<a class="headerlink" href="#id3" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>各関数には、WSGI Environの代わりに <code class="docutils literal notranslate"><span class="pre">Request(env)</span></code> を渡すように書き換えてみましょう。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">App</span><span class="p">:</span>
+    <span class="o">...</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">env</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+        <span class="n">request</span> <span class="o">=</span> <span class="n">Request</span><span class="p">(</span><span class="n">env</span><span class="p">)</span>
+        <span class="n">callback</span><span class="p">,</span> <span class="n">kwargs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">router</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">request</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">callback</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>これで <code class="docutils literal notranslate"><span class="pre">Request</span></code> クラスのオブジェクトが各関数に渡せるようになりました。
+アプリケーション側のインターフェイスは次のようになります。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@app.route</span><span class="p">(</span><span class="s1">&#39;^/users/$&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;User is created&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>リクエストボディの文字コードをすべて <code class="docutils literal notranslate"><span class="pre">utf-8</span></code> として扱っている点には改善の余地があります。
+実際には <code class="docutils literal notranslate"><span class="pre">Content-Type</span></code> ヘッダーなどで指定されている <code class="docutils literal notranslate"><span class="pre">charset</span></code> を確認してあげるといいでしょう。
+とはいえひとまず、フレームワークの利用者は簡単にリクエストボディにアクセスできるようになりました。
+既存のアプリケーションを書き換えてみます。</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">app</span> <span class="k">import</span> <span class="n">App</span>
+<span class="kn">from</span> <span class="nn">wsgiref.simple_server</span> <span class="k">import</span> <span class="n">make_server</span>
+
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">App</span><span class="p">()</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;^/$&#39;</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">start_response</span><span class="p">):</span>
+    <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;200 OK&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain; charset=utf-8&#39;</span><span class="p">)])</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">b</span><span class="s1">&#39;Hello World&#39;</span><span class="p">]</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">route</span><span class="p">(</span><span class="s1">&#39;^/user/(?P&lt;name&gt;\w+)$&#39;</span><span class="p">,</span> <span class="s1">&#39;GET&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">user_detail</span><span class="p">(</span><span class="n">request</span><span class="p">,</span> <span class="n">start_response</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+    <span class="n">start_response</span><span class="p">(</span><span class="s1">&#39;200 OK&#39;</span><span class="p">,</span> <span class="p">[(</span><span class="s1">&#39;Content-type&#39;</span><span class="p">,</span> <span class="s1">&#39;text/plain; charset=utf-8&#39;</span><span class="p">)])</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="s1">&#39;Hello </span><span class="si">{name}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">body</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)]</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">httpd</span> <span class="o">=</span> <span class="n">make_server</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">8000</span><span class="p">,</span> <span class="n">app</span><span class="p">)</span>
+    <span class="n">httpd</span><span class="o">.</span><span class="n">serve_forever</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h2>リクエストオブジェクトを拡張していく<a class="headerlink" href="#id4" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>せっかくなのでもう少し他の情報にアクセスできるようにしておきましょう。
+WSGI Environに入っているすべての情報をラップすることはここではしませんが、次に挙げる項目は利用頻度が高いため、プロパティメソッドが定義されていると便利かと思います。</p>
+<ul class="simple">
+<li><dl class="simple">
+<dt><cite>query</cite> プロパティ: URLのクエリパラメーターを手軽に取り出したい</dt><dd><ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">env['QUERY_STRING']</span></code> より取り出して <code class="docutils literal notranslate"><span class="pre">urllib.parse.parse_qs</span></code> を用いてパースできます</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><cite>forms</cite> プロパティ: <code class="docutils literal notranslate"><span class="pre">form-urlencoded</span></code> 形式や <code class="docutils literal notranslate"><span class="pre">multipart</span></code> 形式で格納されているHTMLフォーム等から送られたパラメーターを受け取りたい。</dt><dd><ul>
+<li><p>リクエストボディから取り出して、 <code class="docutils literal notranslate"><span class="pre">cgi.FieldStorage</span></code> を用いてパースできます。</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><p><cite>text</cite> プロパティ: リクエストボディをバイト列ではなくテキストで受け取りたい。</p></li>
+<li><p><cite>json</cite> プロパティ: リクエストボディの内容をjson decodeして、辞書型オブジェクトとして受け取りたい。</p></li>
+</ul>
+<p>コードはそれほど難しくないので細かい説明は省きますが、プロパティメソッドは次のようになります。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">cgi</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">parse_qs</span><span class="p">,</span> <span class="n">urljoin</span>
+
+<span class="k">class</span> <span class="nc">Request</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">environ</span><span class="p">,</span> <span class="n">charset</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">environ</span> <span class="o">=</span> <span class="n">environ</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">charset</span> <span class="o">=</span> <span class="n">charset</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">path</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;PATH_INFO&#39;</span><span class="p">]</span> <span class="ow">or</span> <span class="s1">&#39;/&#39;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;REQUEST_METHOD&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">forms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">form</span> <span class="o">=</span> <span class="n">cgi</span><span class="o">.</span><span class="n">FieldStorage</span><span class="p">(</span>
+            <span class="n">fp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;wsgi.input&#39;</span><span class="p">],</span>
+            <span class="n">environ</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">,</span>
+            <span class="n">keep_blank_values</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">form</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">form</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">params</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">parse_qs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;QUERY_STRING&#39;</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">body</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">content_length</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CONTENT_LENGTH&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_body</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;wsgi.input&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">content_length</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_body</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">charset</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id5">
+<h2>まとめ<a class="headerlink" href="#id5" title="このヘッドラインへのパーマリンク">¶</a></h2>
+<p>ここではリクエストオブジェクトの扱いについて見直していきました。
+WSGI Environではそのままではリクエスト情報の取り出しが少し面倒でしたが、
+それをラップするリクエストクラスを用意することで、プロパティメソッドを通して
+様々な情報を手軽に取り出せる様になりました。
+リクエストの次はレスポンス情報を扱いやすいAPIになおしていきましょう。</p>
+</div>
+</div>
+
+
+            </div>
+<div class="customsidebar" role="navigation" aria-label="main navigation">
+    <p class="logo"><a href="index.html">
+        <img class="logo" src="_static/kobin.png" alt="Logo"/>
+    </a></p>
+  <h3><a href="index.html">目次</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">リクエストオブジェクト</a><ul>
+<li><a class="reference internal" href="#id2">リクエストに関する情報の扱いについて</a></li>
+<li><a class="reference internal" href="#wsgi-environ">WSGI Environオブジェクトをラップする</a></li>
+<li><a class="reference internal" href="#id3">アプリケーションに組み込む</a></li>
+<li><a class="reference internal" href="#id4">リクエストオブジェクトを拡張していく</a></li>
+<li><a class="reference internal" href="#id5">まとめ</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>前のトピックへ</h4>
+  <p class="topless"><a href="routing.html"
+                        title="前の章へ">ルーティング</a></p>
+  <h4>次のトピックへ</h4>
+  <p class="topless"><a href="response.html"
+                        title="次の章へ">レスポンスオブジェクト</a></p>
+  <div role="note" aria-label="source link">
+    <h3>このページ</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/request.rst.txt"
+            rel="nofollow">ソースコードを表示</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">クイック検索</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="検索" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+</div>
+        </div>
+    </div>
+    <div class="footer">
+        <div class="container">
+            &copy; Copyright 2016, Masashi Shibata.
+            Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 2.4.1.
+        </div>
+    </div>
+  </body>
+</html>
