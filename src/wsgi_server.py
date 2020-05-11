@@ -1,6 +1,12 @@
+import logging
 import socket
 import urllib.parse
 from threading import Thread
+
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
+logger.addHandler(logging.StreamHandler())
 
 
 def worker(conn, wsgi_app, env):
@@ -19,7 +25,7 @@ def worker(conn, wsgi_app, env):
             conn.sendall(b'HTTP/1.1 500\r\n\r\nInternal Server Error\n')
             return
 
-        print(f"{env['REMOTE_ADDR']} - {status_code}")
+        logger.info(f"{env['REMOTE_ADDR']} - {status_code}")
         status_line = f"HTTP/1.1 {status_code}".encode("utf-8")
         headers = [f"{k}: {v}" for k, v in headers]
 
@@ -85,6 +91,7 @@ def make_wsgi_environ(rfile, client_address, port):
 
 def serve_forever(app, host="127.0.0.1", port=8000,
                   max_accept=128, timeout=30.0, rbufsize=-1):
+    logger.info(f"Serving HTTP on http://{host}:{port}/")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
         sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, True)
         sock.bind((host, port))
