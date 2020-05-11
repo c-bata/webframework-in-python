@@ -3,32 +3,25 @@ import urllib.parse
 from threading import Thread
 
 
-class ResponseWriter:
-    def __init__(self):
-        self.headers = None
-        self.status_code = None
-
-    def start_response(self, status_code, headers):
-        self.status_code = status_code
-        self.headers = headers
-
-    @property
-    def called(self):
-        return self.headers is not None and self.status_code is not None
-
-
 def worker(conn, wsgi_app, env):
     with conn:
-        response = ResponseWriter()
-        wsgi_response = wsgi_app(env, response.start_response)
-        print(f"{env['REMOTE_ADDR']} - {response.status_code}")
+        headers = None
+        status_code = None
 
-        if not response.called:
+        def start_response(s, h):
+            nonlocal headers, status_code
+            status_code = s
+            headers = h
+
+        wsgi_response = wsgi_app(env, start_response)
+
+        if headers is None or status_code is None:
             conn.sendall(b'HTTP/1.1 500\r\n\r\nInternal Server Error\n')
             return
 
-        status_line = f"HTTP/1.1 {response.status_code}".encode("utf-8")
-        headers = [f"{k}: {v}" for k, v in response.headers]
+        print(f"{env['REMOTE_ADDR']} - {status_code}")
+        status_line = f"HTTP/1.1 {status_code}".encode("utf-8")
+        headers = [f"{k}: {v}" for k, v in headers]
 
         response_body = b""
         content_length = 0
@@ -37,7 +30,7 @@ def worker(conn, wsgi_app, env):
             content_length += len(b)
         headers.append(f"Content-Length: {content_length}")
         header_bytes = "\r\n".join(headers).encode("utf-8")
-        env["wsgi.input"].close()  # this doesn't raise error if close twice.
+        env["wsgi.input"].close()  # close() does not raise an exception if called twice.
         conn.sendall(status_line + b"\r\n" + header_bytes + b"\r\n\r\n" + response_body)
 
 
